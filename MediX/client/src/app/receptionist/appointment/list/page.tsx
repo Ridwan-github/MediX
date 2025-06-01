@@ -49,12 +49,24 @@ export default function AppointmentPage() {
     const lowerNavBgColor = '#1F4604';
     const lowerNavTextColor = '#ffffff';
 
-    const [appointments, setAppointments] = useState<Appointment[]>(mockAppointments);
+    const [appointments] = useState<Appointment[]>(mockAppointments);
     const [search, setSearch] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
     const filteredAppointments = appointments.filter(appointment =>
         appointment.patientName.toLowerCase().includes(search.toLowerCase())
     );
+
+    const handleShowMore = (appointment: Appointment) => {
+        setSelectedAppointment(appointment);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedAppointment(null);
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -101,29 +113,52 @@ export default function AppointmentPage() {
                                 <th className="p-4 border">Doctor Name</th>
                                 <th className="p-4 border">Serial Number</th>
                                 <th className="p-4 border">Time</th>
-                                <th className="p-4 border">Age</th>
-                                <th className="p-4 border">Height</th>
-                                <th className="p-4 border">Weight</th>
-                                <th className="p-4 border">Pressure</th>
+                                <th className="p-4 border">Show More</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredAppointments.map((appointment, index) => (
-                                <tr key={index} className="hover:bg-gray-100">
+                                <tr key={index} className="">
                                     <td className="p-4 border">{appointment.patientId}</td>
                                     <td className="p-4 border">{appointment.patientName}</td>
                                     <td className="p-4 border">{appointment.patientPhone}</td>
                                     <td className="p-4 border">{appointment.doctorName}</td>
                                     <td className="p-4 border">{appointment.serialNumber}</td>
                                     <td className="p-4 border">{appointment.time}</td>
-                                    <td className="p-4 border">{appointment.age}</td>
-                                    <td className="p-4 border">{appointment.height}</td>
-                                    <td className="p-4 border">{appointment.weight}</td>
-                                    <td className="p-4 border">{appointment.pressure}</td>
+                                    <td className="p-4 border">
+                                        <button
+                                            className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded transition"
+                                            onClick={() => handleShowMore(appointment)}
+                                        >
+                                            Show More
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Modal */}
+                    {showModal && selectedAppointment && (
+                        <div className="fixed inset-0 flex items-center justify-center ">
+                            <div className="bg-black rounded-3xl shadow-lg p-8 w-full max-w-md relative">
+                                <button
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl"
+                                    onClick={handleCloseModal}
+                                    aria-label="Close"
+                                >
+                                    &times;
+                                </button>
+                                <h2 className="text-2xl font-bold mb-4 text-green-800">Patient Details</h2>
+                                <div className="space-y-2 text-lg">
+                                    <div><span className="font-semibold">Age:</span> {selectedAppointment.age}</div>
+                                    <div><span className="font-semibold">Height:</span> {selectedAppointment.height}</div>
+                                    <div><span className="font-semibold">Weight:</span> {selectedAppointment.weight}</div>
+                                    <div><span className="font-semibold">Pressure:</span> {selectedAppointment.pressure}</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </main>
