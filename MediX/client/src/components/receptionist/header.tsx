@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import React from 'react';
 import { usePathname } from 'next/navigation';
@@ -24,8 +25,9 @@ export default function Header() {
                     </Link>   
              </div>
                 <div className="user-profile-icon-container">
-                {/* This div represents the circular user icon */}
-                    Profile Pic
+                <Link href="/receptionist/profile" className='flex items-center'>
+                    <span className="icon" role="img" aria-label="User Profile">👤</span>
+                </Link>
                 </div>
             </div>
         </header>
