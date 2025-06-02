@@ -1,22 +1,25 @@
-import Header from "@/components/receptionist/header";
+import Header from "@/components/doctor/header";
 import Footer from "@/components/footer";
+import React from "react";
 
-type ReceptionistProfile = {
+type DoctorProfile = {
   name: string;
   gender: string;
   age: number;
   id: string;
   role: string;
-  workingHours: string;
+  specialist: string;
+  degree: string;
 };
 
-const receptionistProfile: ReceptionistProfile = {
+const doctorProfile: DoctorProfile = {
   name: "John Doe",
   gender: "Male",
   age: 30,
-  id: "REC123",
-  role: "Receptionist",
-  workingHours: "9 AM - 5 PM",
+  id: "DOC123",
+  role: "Doctor",
+  specialist: "Cardiology",
+  degree: "MBBS, MD",
 };
 
 export default function ProfilePage() {
@@ -28,7 +31,7 @@ export default function ProfilePage() {
           {/* Header Section */}
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold text-green-800 mb-2">
-              Receptionist Profile
+              Doctors Profile
             </h1>
             <p className="text-gray-600">Manage your profile information</p>
           </div>
@@ -40,10 +43,8 @@ export default function ProfilePage() {
               <div className="w-32 h-32 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
                 <span className="text-6xl text-green-600">👤</span>
               </div>
-              <h2 className="text-3xl font-bold">{receptionistProfile.name}</h2>
-              <p className="text-green-100 text-lg">
-                {receptionistProfile.role}
-              </p>
+              <h2 className="text-3xl font-bold">{doctorProfile.name}</h2>
+              <p className="text-green-100 text-lg">{doctorProfile.role}</p>
             </div>
 
             {/* Profile Content */}
@@ -52,14 +53,14 @@ export default function ProfilePage() {
                 {/* Left Column */}
                 <div className="space-y-6">
                   <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
-                    <h3 className="text-sm font-medium text-green-600 uppercase tracking-wide mb-2">
+                    <h3 className="text-xl font-medium text-green-600 uppercase tracking-wide mb-2 text-center font-bold">
                       Personal Information
                     </h3>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium">Name:</span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.name}
+                          {doctorProfile.name}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -67,13 +68,13 @@ export default function ProfilePage() {
                           Gender:
                         </span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.gender}
+                          {doctorProfile.gender}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium">Age:</span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.age} years
+                          {doctorProfile.age} years
                         </span>
                       </div>
                     </div>
@@ -83,7 +84,7 @@ export default function ProfilePage() {
                 {/* Right Column */}
                 <div className="space-y-6">
                   <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
-                    <h3 className="text-sm font-medium text-blue-600 uppercase tracking-wide mb-2">
+                    <h3 className="text-xl font-medium text-blue-600 uppercase tracking-wide mb-2 text-center">
                       Work Information
                     </h3>
                     <div className="space-y-4">
@@ -92,21 +93,29 @@ export default function ProfilePage() {
                           Employee ID:
                         </span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.id}
+                          {doctorProfile.id}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium">Role:</span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.role}
+                          {doctorProfile.role}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 font-medium">
-                          Working Hours:
+                          Specialist:
                         </span>
                         <span className="text-gray-900 font-semibold">
-                          {receptionistProfile.workingHours}
+                          {doctorProfile.specialist}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 font-medium">
+                          Degree:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {doctorProfile.degree}
                         </span>
                       </div>
                     </div>

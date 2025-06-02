@@ -17,10 +17,8 @@ export default function Header() {
       <div className="flex flex-row items-center justify-between text-3xl">
         <div>
           <Link
-            href="/receptionist"
-            className={
-              pathname === "/receptionist" ? "text-white" : "text-black"
-            }
+            href="/doctor"
+            className={pathname === "/doctor" ? "text-white" : "text-black"}
           >
             <span className="icon" role="img" aria-label="Home">
               🏠
@@ -29,9 +27,9 @@ export default function Header() {
           </Link>
           <span> | </span>
           <Link
-            href="/receptionist/appointment"
+            href="/doctor/prescribe"
             className={
-              pathname.startsWith("/receptionist/appointment")
+              pathname.startsWith("/doctor/prescribe")
                 ? "text-white"
                 : "text-black"
             }
@@ -39,14 +37,28 @@ export default function Header() {
             <span className="icon" role="img" aria-label="Appointments">
               📅
             </span>{" "}
-            Appointments
+            Quick Prescribe
+          </Link>
+          <span> | </span>
+          <Link
+            href="/doctor/history"
+            className={
+              pathname.startsWith("/doctor/history")
+                ? "text-white"
+                : "text-black"
+            }
+          >
+            <span className="icon" role="img" aria-label="Appointments">
+              📅
+            </span>{" "}
+            History
           </Link>
         </div>
         <div className="flex items-center gap-4">
           <div className="user-profile-icon-container">
-            <Link href="/receptionist/profile" className="flex items-center">
+            <Link href="/doctor/profile" className="flex items-center">
               <span className="icon" role="img" aria-label="User Profile">
-                {usePathname() === "/receptionist/profile" ? (
+                {usePathname() === "/doctor/profile" ? (
                   <div className="w-10 h-10 bg-white rounded-full p-2 flex items-center justify-center shadow-lg">
                     <span className="text-2xl text-green-600">👤</span>
                   </div>

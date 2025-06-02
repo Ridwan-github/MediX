@@ -14,6 +14,9 @@ export default function AppointmentPage() {
     age: "",
     doctor: "",
     appointmentDate: "",
+    height: "",
+    weight: "",
+    pressure: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +39,9 @@ export default function AppointmentPage() {
       age: "",
       doctor: "",
       appointmentDate: "",
+      height: "",
+      weight: "",
+      pressure: "",
     });
   };
 
@@ -85,7 +91,8 @@ export default function AppointmentPage() {
           <h1 className="text-3xl font-bold">Patient Info</h1>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col items-center mt-4 justify-between space-y-4"
+            className="flex flex-col items-center mt-4 justify-between space-y-4 bg-gray-800 rounded-3xl shadow-lg p-8"
+            style={{ width: "400px", margin: "0 auto" }}
           >
             <input
               type="text"
@@ -103,6 +110,36 @@ export default function AppointmentPage() {
               placeholder="Age"
               required
               value={patient.age}
+              onChange={handleChange}
+              className="border border-gray-300 p-2 rounded"
+              style={{ width: "300px" }}
+            />
+            <input
+              type="number"
+              name="height"
+              placeholder="Height (cm)"
+              required
+              value={patient.height}
+              onChange={handleChange}
+              className="border border-gray-300 p-2 rounded"
+              style={{ width: "300px" }}
+            />
+            <input
+              type="number"
+              name="weight"
+              placeholder="Weight (kg)"
+              required
+              value={patient.weight}
+              onChange={handleChange}
+              className="border border-gray-300 p-2 rounded"
+              style={{ width: "300px" }}
+            />
+            <input
+              type="text"
+              name="pressure"
+              placeholder="Blood Pressure"
+              required
+              value={patient.pressure}
               onChange={handleChange}
               className="border border-gray-300 p-2 rounded"
               style={{ width: "300px" }}
