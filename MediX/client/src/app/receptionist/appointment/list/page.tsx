@@ -55,8 +55,14 @@ export default function AppointmentPage() {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
-  const filteredAppointments = appointments.filter((appointment) =>
-    appointment.patientName.toLowerCase().includes(search.toLowerCase())
+  const filteredAppointments = appointments.filter(
+    (appointment) =>
+      appointment.patientName.toLowerCase().includes(search.toLowerCase()) ||
+      appointment.patientId.toLowerCase().includes(search.toLowerCase()) ||
+      appointment.doctorName.toLowerCase().includes(search.toLowerCase()) ||
+      appointment.time.toLowerCase().includes(search.toLowerCase()) ||
+      appointment.patientPhone.includes(search) ||
+      appointment.serialNumber.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleShowMore = (appointment: Appointment) => {
@@ -100,6 +106,17 @@ export default function AppointmentPage() {
           </Link>
           <span> | </span>
           <Link
+            href="/receptionist/appointment/vitals"
+            className={
+              usePathname() === "/receptionist/appointment/vitals"
+                ? "text-white w-0 flex-1"
+                : "text-black w-0 flex-1"
+            }
+          >
+            Vitals Entry
+          </Link>
+          <span> | </span>
+          <Link
             href="/receptionist/appointment/list"
             className={
               usePathname() === "/receptionist/appointment/list"
@@ -120,23 +137,6 @@ export default function AppointmentPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 className="border border-white-600 rounded px-4 py-2 w-96 block"
               />
-            </div>
-            <div>
-              <label className="text-white-800 font-semibold">Filter</label>
-              <select className="border border-white-600 rounded px-4 py-2 w-96 block">
-                <option value="patientId" className="text-black">
-                  Patient ID
-                </option>
-                <option value="patientName" className="text-black">
-                  Patient Name
-                </option>
-                <option value="doctorName" className="text-black">
-                  Doctor Name
-                </option>
-                <option value="time" className="text-black">
-                  Time
-                </option>
-              </select>
             </div>
             <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
               SEARCH

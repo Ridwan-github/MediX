@@ -9,14 +9,13 @@ export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
 
+  const todayDate = new Date().toISOString().split("T")[0];
+
   const [patient, setPatient] = useState({
     name: "",
-    age: "",
-    doctor: "",
+    contact: "",
     appointmentDate: "",
-    height: "",
-    weight: "",
-    pressure: "",
+    doctor: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,12 +35,9 @@ export default function AppointmentPage() {
   const clearForm = () => {
     setPatient({
       name: "",
-      age: "",
+      contact: "",
+      appointmentDate: todayDate,
       doctor: "",
-      appointmentDate: "",
-      height: "",
-      weight: "",
-      pressure: "",
     });
   };
 
@@ -76,6 +72,17 @@ export default function AppointmentPage() {
           </Link>
           <span> | </span>
           <Link
+            href="/receptionist/appointment/vitals"
+            className={
+              usePathname() === "/receptionist/appointment/vitals"
+                ? "text-white w-0 flex-1"
+                : "text-black w-0 flex-1"
+            }
+          >
+            Vitals Entry
+          </Link>
+          <span> | </span>
+          <Link
             href="/receptionist/appointment/list"
             className={
               usePathname() === "/receptionist/appointment/list"
@@ -105,41 +112,11 @@ export default function AppointmentPage() {
               style={{ width: "300px" }}
             />
             <input
-              type="number"
-              name="age"
-              placeholder="Age"
+              type="tel"
+              name="contact"
+              placeholder="Contact Number"
               required
-              value={patient.age}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <input
-              type="number"
-              name="height"
-              placeholder="Height (cm)"
-              required
-              value={patient.height}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <input
-              type="number"
-              name="weight"
-              placeholder="Weight (kg)"
-              required
-              value={patient.weight}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <input
-              type="text"
-              name="pressure"
-              placeholder="Blood Pressure"
-              required
-              value={patient.pressure}
+              value={patient.contact}
               onChange={handleChange}
               className="border border-gray-300 p-2 rounded"
               style={{ width: "300px" }}
@@ -158,7 +135,7 @@ export default function AppointmentPage() {
               type="date"
               name="appointmentDate"
               required
-              value={patient.appointmentDate}
+              value={patient.appointmentDate || todayDate}
               onChange={handleChange}
               className="border border-gray-300 p-2 rounded"
               style={{ width: "300px" }}

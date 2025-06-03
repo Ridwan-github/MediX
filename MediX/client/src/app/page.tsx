@@ -6,8 +6,8 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-100 via-white to-green-200">
-      <div className="bg-white/90 rounded-3xl shadow-2xl p-10 flex flex-col items-center max-w-md w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-8 rounded-3xl shadow-2xl p-10 flex flex-col items-center max-w-md w-full">
         <Image
           src="/logo.jpg"
           alt="MediX Logo"
@@ -16,13 +16,13 @@ export default function Home() {
           className="rounded-xl mb-6"
           priority
         />
-        <h1 className="text-4xl font-extrabold text-green-700 mb-2 text-center drop-shadow">
+        <h1 className="text-4xl font-extrabold text-green-900 mb-2 text-center drop-shadow">
           Welcome to{" "}
           <span className="text-green-900">
-            Medi<span className="text-black">X</span>
+            Medi<span className="text-white">X</span>
           </span>
         </h1>
-        <h2 className="text-lg text-gray-700 mb-8 text-center">
+        <h2 className="text-lg text-white mb-8 text-center">
           Your smart hospital management solution.
           <br />
           <span className="text-green-600 font-semibold">
@@ -33,14 +33,14 @@ export default function Home() {
           <input
             type="text"
             placeholder="Enter your email"
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black"
+            className="border border-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-white"
             autoComplete="email"
           />
           <div className="relative w-full">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-black w-full pr-10"
+              className="border border-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-white w-full pr-10"
               autoComplete="current-password"
             />
             <button
@@ -106,7 +106,7 @@ export default function Home() {
           </div>
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg shadow transition duration-200"
+            className="bg-green-900 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg shadow transition duration-200"
           >
             Sign In
           </button>

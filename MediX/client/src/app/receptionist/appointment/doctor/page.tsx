@@ -52,8 +52,13 @@ export default function AppointmentPage() {
   const [search, setSearch] = useState("");
   const [doctors, setDoctors] = useState<Doctor[]>(mockDoctors);
 
-  const filteredDoctors = doctors.filter((doctor) =>
-    doctor.name.toLowerCase().includes(search.toLowerCase())
+  const filteredDoctors = doctors.filter(
+    (doctor) =>
+      doctor.name.toLowerCase().includes(search.toLowerCase()) ||
+      doctor.specialization.toLowerCase().includes(search.toLowerCase()) ||
+      doctor.degree.toLowerCase().includes(search.toLowerCase()) ||
+      doctor.contact.includes(search) ||
+      (doctor.available ? "yes" : "no").includes(search.toLowerCase())
   );
 
   return (
@@ -87,6 +92,17 @@ export default function AppointmentPage() {
           </Link>
           <span> | </span>
           <Link
+            href="/receptionist/appointment/vitals"
+            className={
+              usePathname() === "/receptionist/appointment/vitals"
+                ? "text-white w-0 flex-1"
+                : "text-black w-0 flex-1"
+            }
+          >
+            Vitals Entry
+          </Link>
+          <span> | </span>
+          <Link
             href="/receptionist/appointment/list"
             className={
               usePathname() === "/receptionist/appointment/list"
@@ -109,23 +125,7 @@ export default function AppointmentPage() {
                 className="border border-white-600 rounded px-4 py-2 w-96 block"
               />
             </div>
-            <div>
-              <label className="text-white-800 font-semibold">Filter</label>
-              <select className="border border-white-600 rounded px-4 py-2 w-96 block">
-                <option value="name" className="text-black">
-                  Name
-                </option>
-                <option value="specialization" className="text-black">
-                  Specialization
-                </option>
-                <option value="degree" className="text-black">
-                  Degree
-                </option>
-                <option value="availability" className="text-black">
-                  Availability
-                </option>
-              </select>
-            </div>
+
             <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
               SEARCH
             </button>
