@@ -333,10 +333,6 @@ export default function Page() {
           >
             <div style={{ cursor: "pointer" }}>Add</div>
             <div style={{ cursor: "pointer" }}>|</div>
-            <div style={{ cursor: "pointer" }}>Edit</div>
-            <div style={{ cursor: "pointer" }}>|</div>
-            <div style={{ cursor: "pointer" }}>Delete</div>
-            <div style={{ cursor: "pointer" }}>|</div>
             <div style={{ cursor: "pointer" }}>Show List</div>
           </div>
 
