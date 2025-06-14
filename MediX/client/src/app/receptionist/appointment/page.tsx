@@ -23,13 +23,23 @@ export default function AppointmentPage() {
     setPatient((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Patient Info Submitted:", patient);
-    // You can call an API here to save patient
-
-    // For now, just clear the form after submission
-    clearForm();
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patient),
+      });
+      if (!response.ok) {
+        console.error("Failed to add patient:", response.statusText);
+      } else {
+        console.log("Patient added successfully");
+        clearForm();
+      }
+    } catch (error) {
+      console.error("Error submitting patient:", error);
+    }
   };
 
   const clearForm = () => {
@@ -137,6 +147,7 @@ export default function AppointmentPage() {
               required
               value={patient.appointmentDate || todayDate}
               onChange={handleChange}
+              min={todayDate}
               className="border border-gray-300 p-2 rounded"
               style={{ width: "300px" }}
             />

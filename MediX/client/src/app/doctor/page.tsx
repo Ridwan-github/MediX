@@ -2,11 +2,33 @@
 import Header from "@/components/doctor/header";
 import SubHeader from "@/components/doctor/subHeader";
 import Footer from "@/components/footer";
-import Prescription from "@/components/doctor/prescription";
-import { useState } from "react";
+import Prescription from "@/components/doctor/prescription1";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+interface DoctorPageProps {
+  searchParams: { email?: string };
+}
 
 export default function DoctorPage() {
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    // If we have email in URL, store it
+    const urlEmail = searchParams?.get("email");
+
+    if (urlEmail) {
+      localStorage.setItem("email", urlEmail);
+      setEmail(urlEmail);
+    } else {
+      // Otherwise, fallback to whatever's in localStorage
+      const stored = localStorage.getItem("email") || "";
+      setEmail(stored);
+    }
+  }, [searchParams]);
+
   const [numberOfPatients, setNumberOfPatients] = useState("12");
   const [nextAppointment, setNextAppointment] = useState("Mr. Smith - 3:00 PM");
   const [patientsRemaining, setPatientsRemaining] = useState("5");
@@ -20,6 +42,7 @@ export default function DoctorPage() {
       <Header />
       <SubHeader />
       <main className="flex-grow p-10">
+        <p>Email: {email}</p>
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center text-gray-200">
             My Dashboard

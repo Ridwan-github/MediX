@@ -2,11 +2,35 @@
 import Header from "@/components/doctor/header";
 import SubHeader from "@/components/doctor/subHeader";
 import Footer from "@/components/footer";
-import Prescription from "@/components/doctor/prescription";
-import { useState } from "react";
+import Prescription1 from "@/components/doctor/prescription1";
+import Prescription2 from "@/components/doctor/prescription2";
+import Prescription3 from "@/components/doctor/prescription3";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+
+export interface DoctorPageProps {
+  searchParams: { email?: string };
+}
 
 export default function Prescribe() {
   const [showHistory, setShowHistory] = useState(false);
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    // If we have email in URL, store it
+    const urlEmail = searchParams?.get("email");
+
+    if (urlEmail) {
+      localStorage.setItem("email", urlEmail);
+      setEmail(urlEmail);
+    } else {
+      // Otherwise, fallback to whatever's in localStorage
+      const stored = localStorage.getItem("email") || "";
+      setEmail(stored);
+    }
+  }, [searchParams]);
 
   const mockHistory = [
     {
@@ -41,7 +65,13 @@ export default function Prescribe() {
           <div className="relative w-full max-w-4xl mx-auto md:mx-0">
             <div className="bg-gradient-to-br from-[#3b2f26] to-[#2a1e14] border-4 border-[#5a4333] rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
               <div className="bg-white text-black rounded-lg p-4 sm:p-6">
-                <Prescription />
+                {email === "akhtaruzzaman@gmail.com" ? (
+                  <Prescription1 />
+                ) : email === "khosruzzaman@gmail.com" ? (
+                  <Prescription2 />
+                ) : (
+                  <Prescription3 />
+                )}
               </div>
             </div>
           </div>

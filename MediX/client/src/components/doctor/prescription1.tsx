@@ -1,12 +1,12 @@
 import React from "react";
 
-export default function Prescription() {
+export default function Prescription1() {
   return (
     <div className="relative w-[794px] h-[1123px] mx-auto bg-white">
       <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-400 rounded-b-xl shadow-md z-10 border-t-4 border-gray-600"></div>
 
       <img
-        src="/Prescription.jpg"
+        src="/Prescription1.jpg"
         alt="Prescription Background"
         className="absolute w-full h-full object-cover z-0"
       />

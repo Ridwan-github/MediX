@@ -130,7 +130,7 @@ export default function VitalsPage() {
           Appointment List
         </Link>
       </div>
-      <div className="container mx-auto px-4 py-8">
+      <div className="p-10">
         <div className="flex justify-center mb-8 space-x-4 items-center">
           <div>
             <label className="text-white-800 font-semibold">Search</label>
