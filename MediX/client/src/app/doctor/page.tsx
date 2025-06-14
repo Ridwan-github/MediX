@@ -42,7 +42,6 @@ export default function DoctorPage() {
       <Header />
       <SubHeader />
       <main className="flex-grow p-10">
-        <p>Email: {email}</p>
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center text-gray-200">
             My Dashboard

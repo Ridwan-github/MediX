@@ -11,27 +11,48 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // fetch all doctors from your backend
-      const res = await fetch("http://localhost:8080/api/doctors");
-      if (!res.ok) throw new Error(res.statusText);
-      const doctors: any[] = await res.json();
 
-      // look up matching email & password
-      const doc = doctors.find(
-        (d) =>
-          d.user.email === email.trim() && d.user.password === password.trim()
+    try {
+      // First, try to match against doctors
+      const resDoctors = await fetch("http://localhost:8080/api/doctors");
+
+      let doctor = null;
+      if (resDoctors.ok) {
+        const doctors = await resDoctors.json();
+
+        doctor = doctors.find(
+          (d) =>
+            d.user.email === email.trim() && d.user.password === password.trim()
+        );
+      }
+      if (doctor) {
+        router.push(`/doctor?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
+      // If not a doctor, then try receptionist
+      const resReception = await fetch(
+        "http://localhost:8080/api/receptionist"
       );
 
-      if (doc) {
-        // on success, pass email to doctor page
-        router.push(`/doctor?email=${encodeURIComponent(email)}`);
-      } else {
-        alert("Invalid credentials");
+      if (resReception.ok) {
+        const receptionists = await resReception.json();
+
+        const receptionist = receptionists.find(
+          (r) => r.email === email.trim() && r.password === password.trim()
+        );
+
+        if (receptionist) {
+          router.push(`/receptionist?email=${encodeURIComponent(email)}`);
+          return;
+        }
       }
+
+      // If neither match
+      alert("Invalid credentials.");
     } catch (err) {
       console.error(err);
-      alert("Login failed");
+      alert("Login failed.");
     }
   };
 
