@@ -2,19 +2,33 @@
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
 
+  const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+
+  useEffect(() => {
+    // First fetch available doctors
+    fetch("http://localhost:8080/api/doctors")
+      .then((res) => res.json())
+      .then((data) => {
+        // extract doctor names
+        const doctorNames = data.map((d) => d.user.name);
+        setAvailableDoctors(doctorNames);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   const todayDate = new Date().toISOString().split("T")[0];
 
   const [patient, setPatient] = useState({
     name: "",
     contact: "",
-    appointmentDate: "",
+    appointmentDate: todayDate,
     doctor: "",
   });
 
@@ -26,10 +40,16 @@ export default function AppointmentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const appointment = {
+        name: patient.name,
+        contact: patient.contact,
+        appointmentDate: patient.appointmentDate,
+        doctor: patient.doctor,
+      };
       const response = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patient),
+        body: JSON.stringify(appointment),
       });
       if (!response.ok) {
         console.error("Failed to add patient:", response.statusText);
@@ -131,16 +151,21 @@ export default function AppointmentPage() {
               className="border border-gray-300 p-2 rounded"
               style={{ width: "300px" }}
             />
-            <input
-              type="search"
+            <select
               name="doctor"
-              placeholder="Doctor"
               required
               value={patient.doctor}
               onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 p-2 rounded bg-gray-800 text-white"
               style={{ width: "300px" }}
-            />
+            >
+              <option value="">Select a Doctor</option>
+              {availableDoctors.map((doctor, idx) => (
+                <option key={idx} value={doctor}>
+                  {doctor}
+                </option>
+              ))}
+            </select>
             <input
               type="date"
               name="appointmentDate"
