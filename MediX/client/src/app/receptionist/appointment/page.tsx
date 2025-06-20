@@ -4,10 +4,23 @@ import Footer from "@/components/footer";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
+
+  const searchParams = useSearchParams();
+  const selectedDoctor = searchParams?.get("doctor");
+
+  useEffect(() => {
+    if (selectedDoctor) {
+      setPatient((prev) => ({
+        ...prev,
+        doctor: selectedDoctor,
+      }));
+    }
+  }, [selectedDoctor]);
 
   const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
 
@@ -46,7 +59,7 @@ export default function AppointmentPage() {
         appointmentDate: patient.appointmentDate,
         doctor: patient.doctor,
       };
-      const response = await fetch("/api/appointments", {
+      const response = await fetch("http://localhost:8080/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(appointment),

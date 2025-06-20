@@ -137,18 +137,27 @@ export default function DoctorListPage() {
               </thead>
               <tbody>
                 {filteredDoctors.map((doctor, index) => (
-                  <tr
+                  <Link
                     key={index}
-                    className="hover:bg-gray-800  transition-colors duration-200 cursor-pointer"
+                    href={`/receptionist/appointment?doctor=${encodeURIComponent(
+                      doctor.name
+                    )}`}
+                    passHref
+                    legacyBehavior
                   >
-                    <td className="p-4 border">{doctor.name}</td>
-                    <td className="p-4 border">{doctor.specialization}</td>
-                    <td className="p-4 border">{doctor.degree}</td>
-                    <td className="p-4 border">{doctor.contact}</td>
-                    <td className="p-4 border">
-                      {doctor.available ? "Yes" : "No"}
-                    </td>
-                  </tr>
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-800  transition-colors duration-200 cursor-pointer"
+                    >
+                      <td className="p-4 border">{doctor.name}</td>
+                      <td className="p-4 border">{doctor.specialization}</td>
+                      <td className="p-4 border">{doctor.degree}</td>
+                      <td className="p-4 border">{doctor.contact}</td>
+                      <td className="p-4 border">
+                        {doctor.available ? "Yes" : "No"}
+                      </td>
+                    </tr>
+                  </Link>
                 ))}
               </tbody>
             </table>
