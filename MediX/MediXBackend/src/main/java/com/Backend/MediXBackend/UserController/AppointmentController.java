@@ -1,0 +1,74 @@
+package com.Backend.MediXBackend.UserController;
+
+import com.Backend.MediXBackend.User.Appointment;
+import com.Backend.MediXBackend.UserService.AppointmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/appointments")
+@CrossOrigin(origins = "http://localhost:3000")
+public class AppointmentController {
+
+    @Autowired
+    private AppointmentService appointmentService;
+
+    @PostMapping
+    public ResponseEntity<?> createAppointment(@RequestBody Map<String, Object> request) {
+        try {
+            Long patientId = Long.parseLong(request.get("patientId").toString());
+            Long doctorId = Long.parseLong(request.get("doctorId").toString());
+            LocalDateTime appointmentDate = LocalDateTime.parse((String) request.get("appointmentDate"));
+
+            Appointment appointment = appointmentService.createAppointment(
+                    patientId,
+                    doctorId,
+                    appointmentDate
+            );
+
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to create appointment", "details", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateAppointmentStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+        try {
+            String status = request.get("status");
+            Appointment appointment = appointmentService.updateAppointmentStatus(id, status);
+            return ResponseEntity.ok(appointment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update appointment status", "details", e.getMessage()));
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Appointment>> getAllAppointments() {
+        List<Appointment> appointments = appointmentService.getAllAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAppointmentById(@PathVariable Long id) {
+        Optional<Appointment> appointment = appointmentService.getAppointmentById(id);
+        return appointment.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body((Appointment) Map.of("error", "Appointment not found", "appointmentId", id)));
+    }
+}
