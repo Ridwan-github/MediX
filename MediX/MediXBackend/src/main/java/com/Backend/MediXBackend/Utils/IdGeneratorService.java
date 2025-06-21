@@ -1,6 +1,8 @@
 package com.Backend.MediXBackend.Utils;
 
+import com.Backend.MediXBackend.UserRepository.AppointmentRepository;
 import com.Backend.MediXBackend.UserRepository.DoctorRepository;
+import com.Backend.MediXBackend.UserRepository.PatientRepository;
 import com.Backend.MediXBackend.UserRepository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,11 @@ public class IdGeneratorService {
 
     @Autowired
     private DoctorRepository doctorRepo;
+    @Autowired
+    private PatientRepository patientRepo;
+
+    @Autowired
+    private AppointmentRepository appointmentRepo;
 
     public synchronized Long generateDoctorUserId(int professionCode) {
         int year = Year.now().getValue() % 100;  // e.g., 2025 → 25
@@ -32,4 +39,19 @@ public class IdGeneratorService {
         // Build ID: yy + professionCode + serial (e.g., 25 + 01 + 001)
         return Long.parseLong(String.format("%02d%02d%03d", year, professionCode, nextSerial));
     }
+
+    public synchronized Long generatePatientId() {
+        // Get the current max patient ID
+        Long maxId = patientRepo.findMaxPatientId().orElse(0L);
+        return maxId + 1;
+    }
+
+    // Add this method to IdGeneratorService.java
+    public synchronized Long generateAppointmentId() {
+        // Get the current max appointment ID
+        Long maxId = appointmentRepo.findMaxAppointmentId().orElse(0L);
+        return maxId + 1;
+    }
+
+
 }
