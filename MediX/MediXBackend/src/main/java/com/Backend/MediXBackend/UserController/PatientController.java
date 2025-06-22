@@ -69,13 +69,16 @@ public class PatientController {
     @GetMapping("/by-phone")
     public ResponseEntity<?> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
         Optional<Patient> patient = patientService.getPatientByPhoneNumber(phoneNumber);
-        return patient.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body((Patient) Map.of(
-                                "success", false,
-                                "message", "Patient not found",
-                                "data", Map.of("phoneNumber", phoneNumber)
-                        )));
+        if (patient.isPresent()) {
+            return ResponseEntity.ok(patient.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Patient not found",
+                            "data", Map.of("phoneNumber", phoneNumber)
+                    ));
+        }
     }
     // PatientController.java
     @PostMapping("/find-by-phone")
