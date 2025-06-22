@@ -12,7 +12,7 @@ public class Appointment {
     private Long patientId;
     private Long doctorId;
 
-    @Column(name = "apointmnet_date") // Matches your requested column name
+    @Column(name = "appointment_date") // Matches your requested column name
     private LocalDateTime appointmentDate;
 
     private String status;
