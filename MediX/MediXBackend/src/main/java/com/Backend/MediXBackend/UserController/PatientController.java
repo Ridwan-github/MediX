@@ -65,11 +65,49 @@ public class PatientController {
                         .body((Patient) Map.of("error", "Patient not found", "patientId", id)));
     }
 
+    // PatientController.java
     @GetMapping("/by-phone")
     public ResponseEntity<?> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
         Optional<Patient> patient = patientService.getPatientByPhoneNumber(phoneNumber);
         return patient.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body((Patient) Map.of("error", "Patient not found", "phoneNumber", phoneNumber)));
+                        .body((Patient) Map.of(
+                                "success", false,
+                                "message", "Patient not found",
+                                "data", Map.of("phoneNumber", phoneNumber)
+                        )));
+    }
+    // PatientController.java
+    @PostMapping("/find-by-phone")
+    public ResponseEntity<?> findPatientByPhone(@RequestBody Map<String, String> request) {
+        try {
+            String phoneNumber = request.get("phoneNumber");
+            if (phoneNumber == null || phoneNumber.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Phone number is required",
+                        "data", null
+                ));
+            }
+
+            Optional<Patient> patient = patientService.getPatientByPhoneNumber(phoneNumber);
+            return patient.map(p -> ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "message", "Patient found",
+                            "data", p
+                    )))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of(
+                                    "success", false,
+                                    "message", "Patient not found",
+                                    "data", Map.of("phoneNumber", phoneNumber)
+                            )));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "success", false,
+                    "message", "Server error",
+                    "data", e.getMessage()
+            ));
+        }
     }
 }
