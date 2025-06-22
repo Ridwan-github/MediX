@@ -1,6 +1,8 @@
 package com.Backend.MediXBackend.User;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,8 +14,8 @@ public class Appointment {
     private Long patientId;
     private Long doctorId;
 
-    @Column(name = "apointmnet_date") // Matches your requested column name
-    private LocalDateTime appointmentDate;
+    @Column(name = "appointment_date")
+    private LocalDate appointmentDate;
 
     private String status;
 
@@ -42,11 +44,11 @@ public class Appointment {
         this.doctorId = doctorId;
     }
 
-    public LocalDateTime getAppointmentDate() {
+    public LocalDate getAppointmentDate() {
         return appointmentDate;
     }
 
-    public void setAppointmentDate(LocalDateTime appointmentDate) {
+    public void setAppointmentDate(LocalDate appointmentDate) {
         this.appointmentDate = appointmentDate;
     }
 

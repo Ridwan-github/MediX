@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,14 @@ public class AppointmentController {
         try {
             Long patientId = Long.parseLong(request.get("patientId").toString());
             Long doctorId = Long.parseLong(request.get("doctorId").toString());
-            LocalDateTime appointmentDate = LocalDateTime.parse((String) request.get("appointmentDate"));
+
+            // Parse as LocalDate (yyyy-MM-dd) instead of LocalDateTime
+            LocalDate appointmentDate = LocalDate.parse((String) request.get("appointmentDate"));
 
             Appointment appointment = appointmentService.createAppointment(
                     patientId,
                     doctorId,
-                    appointmentDate
+                    appointmentDate  // Now accepts LocalDate
             );
 
             return ResponseEntity.ok(appointment);
