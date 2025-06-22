@@ -150,8 +150,8 @@ export default function DoctorListPage() {
                       className="hover:bg-gray-800  transition-colors duration-200 cursor-pointer"
                     >
                       <td className="p-4 border">{doctor.name}</td>
-                      <td className="p-4 border">{doctor.specialization}</td>
-                      <td className="p-4 border">{doctor.degree}</td>
+                      <td className="p-4 border">Surgery</td>
+                      <td className="p-4 border">MBBS, MD</td>
                       <td className="p-4 border">{doctor.contact}</td>
                       <td className="p-4 border">
                         {doctor.available ? "Yes" : "No"}

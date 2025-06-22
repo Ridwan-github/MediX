@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
+  const router = useRouter();
 
   const searchParams = useSearchParams();
   const selectedDoctor = searchParams?.get("doctor");
@@ -22,21 +24,19 @@ export default function AppointmentPage() {
     }
   }, [selectedDoctor]);
 
-  const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+  const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
 
   useEffect(() => {
     // First fetch available doctors
     fetch("http://localhost:8080/api/doctors")
       .then((res) => res.json())
       .then((data) => {
-        // extract doctor names
-        const doctorNames = data.map((d) => d.user.name);
-        setAvailableDoctors(doctorNames);
+        setAvailableDoctors(data);
       })
       .catch((err) => console.error(err));
   }, []);
 
-  const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = new Date().toISOString().slice(0, 10);
 
   const [patient, setPatient] = useState({
     name: "",
@@ -45,7 +45,9 @@ export default function AppointmentPage() {
     doctor: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setPatient((prev) => ({ ...prev, [name]: value }));
   };
@@ -53,26 +55,82 @@ export default function AppointmentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const appointment = {
-        name: patient.name,
-        contact: patient.contact,
-        appointmentDate: patient.appointmentDate,
-        doctor: patient.doctor,
-      };
-      const response = await fetch("http://localhost:8080/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(appointment),
-      });
-      if (!response.ok) {
-        console.error("Failed to add patient:", response.statusText);
+      let patientId;
+
+      // Step 1 & 2: Check if patient exists by phone number
+      const patientResponse = await fetch(
+        `http://localhost:8080/api/patients/by-phone?phoneNumber=${patient.contact}`
+      );
+
+      console.log("Patient response status:", patientResponse.status);
+
+      if (patientResponse.ok) {
+        // Patient exists, get their ID
+        const existingPatient = await patientResponse.json();
+        patientId = existingPatient.id;
+      } else if (patientResponse.status === 404) {
+        console.log("Patient not found, creating a new one");
+        // Step 3: Patient does not exist, create a new one
+        const newPatientResponse = await fetch(
+          "http://localhost:8080/api/patients/basic",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: patient.name,
+              phoneNumber: patient.contact,
+            }),
+          }
+        );
+        console.log("New patient response status:", newPatientResponse.status);
+        const newPatient = await newPatientResponse.json();
+        patientId = newPatient.id;
+        console.log("New patient created with ID:", patientId);
       } else {
-        console.log("Patient added successfully");
-        clearForm();
+        // Handle other errors
+        console.error(
+          "Failed to check for patient:",
+          patientResponse.statusText
+        );
+        return;
+      }
+
+      // Step 4 & 5 is assumed: you have the doctorId
+      if (!patient.doctor) {
+        console.error("Doctor not selected");
+        return;
+      }
+
+      // Step 6: Create the appointment
+      const appointmentData = {
+        patientId: patientId,
+        doctorId: parseInt(patient.doctor, 10), // This should now be a valid ID
+        appointmentDate: patient.appointmentDate,
+      };
+
+      const appointmentResponse = await fetch(
+        "http://localhost:8080/api/appointments",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(appointmentData),
+        }
+      );
+
+      if (!appointmentResponse.ok) {
+        console.error(
+          "Failed to create appointment:",
+          appointmentResponse.statusText
+        );
+      } else {
+        console.log("Appointment created successfully");
+        // clearForm();
       }
     } catch (error) {
-      console.error("Error submitting patient:", error);
+      console.error("Error in appointment creation process:", error);
     }
+
+    router.push("/receptionist/appointment/vitals");
   };
 
   const clearForm = () => {
@@ -173,9 +231,9 @@ export default function AppointmentPage() {
               style={{ width: "300px" }}
             >
               <option value="">Select a Doctor</option>
-              {availableDoctors.map((doctor, idx) => (
-                <option key={idx} value={doctor}>
-                  {doctor}
+              {availableDoctors.map((doctor) => (
+                <option key={doctor.doctorId} value={doctor.doctorId}>
+                  {doctor.user.name}
                 </option>
               ))}
             </select>
@@ -183,7 +241,7 @@ export default function AppointmentPage() {
               type="date"
               name="appointmentDate"
               required
-              value={patient.appointmentDate || todayDate}
+              value={patient.appointmentDate || ""}
               onChange={handleChange}
               min={todayDate}
               className="border border-gray-300 p-2 rounded"

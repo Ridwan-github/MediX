@@ -6,39 +6,55 @@ import Footer from "@/components/footer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const mockPatients = [
-  {
-    id: 1,
-    name: "John Doe",
-    contact: "1234567890",
-    doctor: "Dr. Smith",
-    appointmentDate: "2025-06-03",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    contact: "9876543210",
-    doctor: "Dr. Adams",
-    appointmentDate: "2025-06-04",
-  },
-  {
-    id: 3,
-    name: "Alice Johnson",
-    contact: "1122334455",
-    doctor: "Dr. Brown",
-    appointmentDate: "2025-06-05",
-  },
-];
-
 export default function VitalsPage() {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8080/api/appointments", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setAppointments(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAppointments = async () => {
+    fetchAppointments();
+  }, []);
+
+  const pendingAppointments = appointments.filter(
+    (appt) => appt.status === "NOT_READY"
+  );
+
+  useEffect(() => {
+    const fetchPatient = async () => {
+      let patientPhone = pendingAppointments.map(
+        (appointment) => appointment.contact
+      );
       try {
-        const res = await fetch("http://localhost:8080/api/appointments");
+        const res = await fetch(
+          `http://localhost:8080/api/patients?phone=${patientPhone.join(",")}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setPatients(data);
@@ -48,29 +64,120 @@ export default function VitalsPage() {
         setLoading(false);
       }
     };
-    fetchAppointments();
+    fetchPatient();
   }, []);
+
+  useEffect(() => {
+    if (pendingAppointments.length === 0) return;
+
+    const fetchDoctors = async () => {
+      let doctorId = pendingAppointments.map(
+        (appointment) => appointment.doctorId
+      );
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/doctors?id=${doctorId.join(",")}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setDoctors(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, [pendingAppointments]);
+
+  const rows = pendingAppointments.map((appt) => {
+    const pat = patients.find((p) => p.id === appt.patientId) || {};
+    const doc = doctors.find((d) => d.doctorId === appt.doctorId) || {};
+    return {
+      id: appt.id,
+      name: pat.name,
+      phoneNumber: pat.phoneNumber,
+      doctorName: doc.user?.name || doc.name || "",
+      date: appt.appointmentDate || appt.date || "",
+    };
+  });
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [vitals, setVitals] = useState({
     age: "",
-    height: "",
+    gender: "",
     weight: "",
     pressure: "",
-    temperature: "",
-    allergies: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setVitals((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Vitals submitted for:", selectedPatient.name, vitals);
-    // TODO: Send to backend here
-    alert(`Vitals saved for ${selectedPatient.name}`);
+    if (!selectedPatient) return;
+
+    // Build request payload
+    const payload = {
+      age: parseInt(vitals.age, 10),
+      gender: vitals.gender,
+      weight: parseFloat(vitals.weight),
+      bloodPressure: vitals.pressure,
+    };
+
+    console.log(
+      "Submitting vitals:",
+      payload,
+      "for patient Id:",
+      selectedPatient.id
+    );
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/patients/${selectedPatient.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.log("Vitals saved for:", selectedPatient.name, payload);
+      clearForm();
+      setSelectedPatient(null);
+    } catch (err: any) {
+      console.error("Failed to save vitals:", err);
+    }
+
+    const statusRes = await fetch(
+      `http://localhost:8080/api/appointments/${selectedPatient.id}/status`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "READY" }),
+      }
+    );
+    if (!statusRes.ok) {
+      console.error(
+        "Failed to update appointment status:",
+        statusRes.statusText
+      );
+    } else {
+      console.log("Appointment status set to READY");
+    }
+
+    await fetchAppointments(); // Refresh appointments list
+
     clearForm();
     setSelectedPatient(null);
   };
@@ -78,22 +185,20 @@ export default function VitalsPage() {
   const clearForm = () => {
     setVitals({
       age: "",
-      height: "",
+      gender: "",
       weight: "",
       pressure: "",
-      temperature: "",
-      allergies: "",
     });
   };
 
   const [search, setSearch] = useState("");
 
-  const filteredAppointments = patients.filter(
-    (patient) =>
-      patient.name.toLowerCase().includes(search.toLowerCase()) ||
-      patient.contact.includes(search) ||
-      patient.doctor.toLowerCase().includes(search.toLowerCase()) ||
-      patient.appointmentDate.includes(search)
+  const filteredAppointments = rows.filter(
+    (r) =>
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.phoneNumber.includes(search) ||
+      r.doctorName.toLowerCase().includes(search.toLowerCase()) ||
+      r.date.includes(search)
   );
 
   const lowerNavBgColor = "#1F4604";
@@ -183,16 +288,16 @@ export default function VitalsPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredAppointments.map((patient) => (
+            {filteredAppointments.map((item) => (
               <tr
-                key={patient.id}
+                key={item.id}
                 className="hover:bg-gray-900 cursor-pointer"
-                onClick={() => setSelectedPatient(patient)}
+                onClick={() => setSelectedPatient(item)}
               >
-                <td className="p-2 border">{patient.name}</td>
-                <td className="p-2 border">{patient.contact}</td>
-                <td className="p-2 border">{patient.doctor}</td>
-                <td className="p-2 border">{patient.appointmentDate}</td>
+                <td className="p-2 border">{item.name}</td>
+                <td className="p-2 border">{item.phoneNumber}</td>
+                <td className="p-2 border">{item.doctorName}</td>
+                <td className="p-2 border">{item.date}</td>
               </tr>
             ))}
           </tbody>
@@ -206,29 +311,39 @@ export default function VitalsPage() {
               Enter Vitals for {selectedPatient.name}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-3">
-              {[
-                "age",
-                "height",
-                "weight",
-                "pressure",
-                "temperature",
-                "allergies",
-              ].map((field) => (
-                <input
-                  key={field}
-                  type={
-                    ["age", "height", "weight"].includes(field)
-                      ? "number"
-                      : "text"
-                  }
-                  name={field}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  value={(vitals as any)[field]}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 p-2 rounded"
-                />
-              ))}
+              {["age", "gender", "weight", "pressure"].map((field) => {
+                if (field === "gender") {
+                  return (
+                    <select
+                      key={field}
+                      name="gender"
+                      value={vitals.gender}
+                      onChange={handleChange}
+                      required
+                      className="w-full border border-gray-300 p-2 rounded bg-gray-900 text-white"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  );
+                }
+                const type = ["age", "weight"].includes(field)
+                  ? "number"
+                  : "text";
+                return (
+                  <input
+                    key={field}
+                    type={type}
+                    name={field}
+                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                    value={(vitals as any)[field]}
+                    onChange={handleChange}
+                    required
+                    className="w-full border border-gray-300 p-2 rounded"
+                  />
+                );
+              })}
               <div className="flex justify-between">
                 <button
                   type="submit"

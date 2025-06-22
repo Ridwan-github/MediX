@@ -2,71 +2,159 @@
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { usePathname } from "next/navigation";
 
-type Appointment = {
-  patientId: string;
-  patientName: string;
-  patientPhone: string;
-  doctorName: string;
-  serialNumber: string;
-  time: string;
-  age: string;
-  height: string;
-  weight: string;
-  pressure: string;
-};
-
-const mockAppointments: Appointment[] = [
-  {
-    patientId: "P001",
-    patientName: "John Doe",
-    patientPhone: "0123456789",
-    doctorName: "Dr. Smith",
-    serialNumber: "S001",
-    time: "10:00 AM",
-    age: "30",
-    height: "5'9\"",
-    weight: "70 kg",
-    pressure: "120/80",
-  },
-  {
-    patientId: "P002",
-    patientName: "Jane Doe",
-    patientPhone: "0987654321",
-    doctorName: "Dr. Jones",
-    serialNumber: "S002",
-    time: "11:00 AM",
-    age: "25",
-    height: "5'6\"",
-    weight: "60 kg",
-    pressure: "110/70",
-  },
-];
+// const mockAppointments: Appointment[] = [
+//   {
+//     patientId: "P001",
+//     patientName: "John Doe",
+//     patientPhone: "0123456789",
+//     doctorName: "Dr. Smith",
+//     serialNumber: "S001",
+//     time: "10:00 AM",
+//     age: "30",
+//     height: "5'9\"",
+//     weight: "70 kg",
+//     pressure: "120/80",
+//   },
+//   {
+//     patientId: "P002",
+//     patientName: "Jane Doe",
+//     patientPhone: "0987654321",
+//     doctorName: "Dr. Jones",
+//     serialNumber: "S002",
+//     time: "11:00 AM",
+//     age: "25",
+//     height: "5'6\"",
+//     weight: "60 kg",
+//     pressure: "110/70",
+//   },
+// ];
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
 
-  const [appointments] = useState<Appointment[]>(mockAppointments);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<Appointment | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
+    null
+  );
+  const [loading, setLoading] = useState(false);
 
-  const filteredAppointments = appointments.filter(
-    (appointment) =>
-      appointment.patientName.toLowerCase().includes(search.toLowerCase()) ||
-      appointment.patientId.toLowerCase().includes(search.toLowerCase()) ||
-      appointment.doctorName.toLowerCase().includes(search.toLowerCase()) ||
-      appointment.time.toLowerCase().includes(search.toLowerCase()) ||
-      appointment.patientPhone.includes(search) ||
-      appointment.serialNumber.toLowerCase().includes(search.toLowerCase())
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8080/api/appointments", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setAppointments(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const pendingAppointments = appointments.filter(
+    (appt) => appt.status === "READY"
   );
 
-  const handleShowMore = (appointment: Appointment) => {
-    setSelectedAppointment(appointment);
+  useEffect(() => {
+    if (pendingAppointments.length === 0) return;
+    const fetchPatient = async () => {
+      const ids = pendingAppointments.map((a) => a.patientId).join(",");
+      try {
+        const res = await fetch(`http://localhost:8080/api/patients?id=${ids}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setPatients(await res.json());
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+    fetchPatient();
+  }, [pendingAppointments]);
+
+  useEffect(() => {
+    if (pendingAppointments.length === 0) return;
+
+    const fetchDoctors = async () => {
+      let doctorId = pendingAppointments.map(
+        (appointment) => appointment.doctorId
+      );
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/doctors?id=${doctorId.join(",")}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setDoctors(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, [pendingAppointments]);
+
+  const rows = pendingAppointments.map((appt) => {
+    const pat = patients.find((p) => p.id === appt.patientId) || {};
+    const doc =
+      doctors.find(
+        (d) => d.id === appt.doctorId || d.doctorId === appt.doctorId
+      ) || {};
+
+    return {
+      ...appt,
+      patientName: pat.name,
+      patientPhone: pat.phoneNumber,
+      doctorName: doc.user?.name || doc.name || "",
+      appointmentDate: appt.appointmentDate,
+      age: pat.age,
+      gender: pat.gender,
+      weight: pat.weight,
+      pressure: pat.bloodPressure,
+    };
+  });
+
+  if (loading) {
+    return <div className="text-center text-2xl">Loading...</div>;
+  }
+  if (error) {
+    return <div className="text-center text-red-600 text-2xl">{error}</div>;
+  }
+
+  const filteredRows = rows.filter(
+    (r) =>
+      r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
+      r.patientPhone?.includes(search) ||
+      r.doctorName?.toLowerCase().includes(search.toLowerCase()) ||
+      r.id.toString().includes(search)
+  );
+
+  const handleShowMore = (row: any) => {
+    setSelectedAppointment(row);
     setShowModal(true);
   };
 
@@ -150,24 +238,25 @@ export default function AppointmentPage() {
                 <th className="p-4 border">Patient Name</th>
                 <th className="p-4 border">Phone</th>
                 <th className="p-4 border">Doctor Name</th>
-                <th className="p-4 border">Serial Number</th>
-                <th className="p-4 border">Time</th>
+                <th className="p-4 border">Serial #</th>
+                <th className="p-4 border">Date</th>
                 <th className="p-4 border">Show More</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAppointments.map((appointment, index) => (
-                <tr key={index} className="">
-                  <td className="p-4 border">{appointment.patientId}</td>
-                  <td className="p-4 border">{appointment.patientName}</td>
-                  <td className="p-4 border">{appointment.patientPhone}</td>
-                  <td className="p-4 border">{appointment.doctorName}</td>
-                  <td className="p-4 border">{appointment.serialNumber}</td>
-                  <td className="p-4 border">{appointment.time}</td>
+              {filteredRows.map((row) => (
+                <tr key={row.id} className="hover:bg-gray-900">
+                  <td className="p-4 border">{row.patientId}</td>
+                  <td className="p-4 border">{row.patientName}</td>
+                  <td className="p-4 border">{row.patientPhone}</td>
+                  <td className="p-4 border">{row.doctorName}</td>
+                  <td className="p-4 border">{row.id}</td>
+                  <td className="p-4 border">{row.appointmentDate}</td>
                   <td className="p-4 border">
                     <button
-                      className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded transition"
-                      onClick={() => handleShowMore(appointment)}
+                      type="button"
+                      className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded"
+                      onClick={() => handleShowMore(row)}
                     >
                       Show More
                     </button>
@@ -197,8 +286,8 @@ export default function AppointmentPage() {
                     {selectedAppointment.age}
                   </div>
                   <div>
-                    <span className="font-semibold">Height:</span>{" "}
-                    {selectedAppointment.height}
+                    <span className="font-semibold">Gender:</span>{" "}
+                    {selectedAppointment.gender}
                   </div>
                   <div>
                     <span className="font-semibold">Weight:</span>{" "}
