@@ -17,6 +17,8 @@ export default function SubHeader() {
           <span className="text-white text-3xl font-bold">Sell</span>
         ) : usePathname() === "/pharmacist/History" ? (
           <span className="text-white text-3xl font-bold">History</span>
+        ) : usePathname() === "/pharmacist/Sell/Finalize" ? (
+          <span className="text-white text-3xl font-bold">Review and Print</span>
         ) : (
           <span className="text-white text-3xl font-bold">Home</span>
         )}
