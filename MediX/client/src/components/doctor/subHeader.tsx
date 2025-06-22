@@ -2,22 +2,22 @@ import React from "react";
 import { usePathname } from "next/navigation";
 
 export default function SubHeader() {
-  const lowerNavBgColor = "#1F4604";
-  const lowerNavTextColor = "#ffffff";
+  const pathname = usePathname();
+
+  const getTitle = () => {
+    if (pathname === "/doctor/prescribe") return "Quick Prescribe";
+    if (pathname === "/doctor/history") return "Patient History";
+    return "Doctor Dashboard";
+  };
 
   return (
-    <div className="bg-gradient-to-br from-green-900 via-green-850 to-green-800">
-      <div
-        style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-        className=" p-4 justify-center text-center flex items-center text-2xl pt-8 pb-6 px-6 sm:px-10 lg:px-16 rounded-t-2xl md:rounded-t-3xl mt-auto"
-      >
-        {usePathname() === "/doctor/prescribe" ? (
-          <span className="text-white text-3xl font-bold">Quick Prescribe</span>
-        ) : usePathname() === "/doctor/history" ? (
-          <span className="text-white text-3xl font-bold">History</span>
-        ) : (
-          <span className="text-white text-3xl font-bold">Home</span>
-        )}
+    <div className="bg-gradient-to-r from-indigo-950 via-blue-900 to-teal-800">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6">
+        <div className="bg-[#102A43] rounded-xl shadow-lg py-5 px-6 text-center border border-teal-700">
+          <h1 className="text-white text-3xl sm:text-4xl font-semibold tracking-wide">
+            {getTitle()}
+          </h1>
+        </div>
       </div>
     </div>
   );

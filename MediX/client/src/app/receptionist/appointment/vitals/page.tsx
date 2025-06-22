@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
@@ -31,6 +31,26 @@ const mockPatients = [
 ];
 
 export default function VitalsPage() {
+  const [patients, setPatients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/appointments");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setPatients(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
+
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [vitals, setVitals] = useState({
     age: "",
@@ -68,7 +88,7 @@ export default function VitalsPage() {
 
   const [search, setSearch] = useState("");
 
-  const filteredAppointments = mockPatients.filter(
+  const filteredAppointments = patients.filter(
     (patient) =>
       patient.name.toLowerCase().includes(search.toLowerCase()) ||
       patient.contact.includes(search) ||
@@ -130,7 +150,7 @@ export default function VitalsPage() {
           Appointment List
         </Link>
       </div>
-      <div className="container mx-auto px-4 py-8">
+      <div className="p-10">
         <div className="flex justify-center mb-8 space-x-4 items-center">
           <div>
             <label className="text-white-800 font-semibold">Search</label>
@@ -149,6 +169,9 @@ export default function VitalsPage() {
         <h1 className="text-2xl font-bold mb-6 text-center">
           Select a Patient to Enter Vitals
         </h1>
+
+        {loading && <p className="text-center">Loading appointments...</p>}
+        {error && <p className="text-center text-red-500">Error: {error}</p>}
 
         <table className="w-full  border border-gray-300 rounded-lg shadow-md text-center justify-center">
           <thead className="bg-green-800 text-white">
