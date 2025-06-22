@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +27,12 @@ public class AppointmentService {
     private IdGeneratorService idGenService;
 
     @Transactional
-    public Appointment createAppointment(Long patientId, Long doctorId, LocalDateTime appointmentDate) {
-        // Create appointment with "NOT_READY" status
+    public Appointment createAppointment(Long patientId, Long doctorId, LocalDate appointmentDate) {
         Appointment appointment = new Appointment();
-        appointment.setId(idGenService.generateAppointmentId());
         appointment.setPatientId(patientId);
         appointment.setDoctorId(doctorId);
-        appointment.setAppointmentDate(appointmentDate);
-        appointment.setStatus("NOT_READY"); // Default status
-
+        appointment.setAppointmentDate(appointmentDate); // Now accepts LocalDate
+        appointment.setStatus("NOT_READY");
         return appointmentRepo.save(appointment);
     }
 
