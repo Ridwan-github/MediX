@@ -52,103 +52,89 @@ export default function ProfilePage() {
     );
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
-      <main className="flex-grow p-10">
-        <div className="max-w-5xl mx-auto">
-          {/* Title */}
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-400">
-              Doctor Profile
-            </h1>
-            <p className="text-gray-400">Manage your professional details</p>
+      <main className="flex-grow p-10 max-w-5xl mx-auto">
+        {/* Title */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold mb-2 text-green-800">
+            Doctor Profile
+          </h1>
+          <p className="text-green-700">Manage your professional details</p>
+        </div>
+
+        {/* Profile Card */}
+        <div className="bg-green-50/50 backdrop-blur-md rounded-3xl shadow-lg border border-green-200 overflow-hidden">
+          {/* Profile Header */}
+          <div className="bg-gradient-to-r from-green-700 via-green-600 to-green-700 p-8 text-center rounded-t-3xl">
+            <div className="w-32 h-32 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg border-4 border-green-600">
+              <span className="text-6xl text-green-700">👤</span>
+            </div>
+            <h2 className="text-3xl font-bold text-green-900">
+              {doctor?.user?.name}
+            </h2>
+            <p className="text-green-800 text-lg mt-1">
+              Assistant Professor (Surgery)
+            </p>
           </div>
 
-          {/* Profile Card */}
-          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-            {/* Profile Header */}
-            <div className="bg-gradient-to-r from-indigo-950 via-blue-900 to-teal-800 p-8 text-center">
-              <div className="w-32 h-32 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg border-4 border-teal-600">
-                <span className="text-6xl text-teal-700">👤</span>
-              </div>
-              <h2 className="text-3xl font-bold text-white">
-                {doctor?.user?.name}
-              </h2>
-              <p className="text-teal-300 text-lg mt-1">
-                Assistant Professor (Surgery)
-              </p>
-            </div>
-
-            {/* Profile Body */}
-            <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Personal Info */}
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <h3 className="text-xl font-semibold text-teal-400 mb-4">
-                    Personal Information
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Name:</span>
-                      <span className="text-white">{doctor.user.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Email:</span>
-                      <span className="text-white">{doctor.user.email}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Phone:</span>
-                      <span className="text-white">
-                        {doctor.user.phoneNumber}
-                      </span>
-                    </div>
-                  </div>
+          {/* Profile Body */}
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Personal Info */}
+            <div className="bg-white/70 rounded-xl p-6 border-l-4 border-green-500 shadow-sm">
+              <h3 className="text-xl font-semibold text-green-700 mb-4">
+                Personal Information
+              </h3>
+              <div className="space-y-3 text-gray-800 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-medium">Name:</span>
+                  <span>{doctor.user.name}</span>
                 </div>
-
-                {/* Work Info */}
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <h3 className="text-xl font-semibold text-indigo-400 mb-4">
-                    Work Information
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">
-                        Employee ID:
-                      </span>
-                      <span className="text-white">{doctor.doctorId}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Role:</span>
-                      <span className="text-white">
-                        Assistant Professor (Surgery)
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">
-                        Specialist:
-                      </span>
-                      <span className="text-white">General Surgery</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Degree:</span>
-                      <span className="text-white">
-                        MBBS, BCS(Health), FCPS (Surgery)
-                      </span>
-                    </div>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Email:</span>
+                  <span>{doctor.user.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Phone:</span>
+                  <span>{doctor.user.phoneNumber}</span>
                 </div>
               </div>
+            </div>
 
-              {/* Actions */}
-              <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10 pt-6 border-t border-gray-700">
-                <button className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition duration-200">
-                  Edit Profile
-                </button>
-                <button className="bg-gray-600 hover:bg-gray-500 text-white px-8 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition duration-200">
-                  Change Password
-                </button>
+            {/* Work Info */}
+            <div className="bg-white/70 rounded-xl p-6 border-l-4 border-green-700 shadow-sm">
+              <h3 className="text-xl font-semibold text-green-800 mb-4">
+                Work Information
+              </h3>
+              <div className="space-y-3 text-gray-800 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-medium">Employee ID:</span>
+                  <span>{doctor.doctorId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Role:</span>
+                  <span>Assistant Professor (Surgery)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Specialist:</span>
+                  <span>General Surgery</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Degree:</span>
+                  <span>MBBS, BCS(Health), FCPS (Surgery)</span>
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10 pt-6 border-t border-green-200">
+            <button className="bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition duration-200">
+              Edit Profile
+            </button>
+            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-8 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition duration-200">
+              Change Password
+            </button>
           </div>
         </div>
       </main>

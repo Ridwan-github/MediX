@@ -100,7 +100,8 @@ export default function VitalsPage() {
     const pat = patients.find((p) => p.id === appt.patientId) || {};
     const doc = doctors.find((d) => d.doctorId === appt.doctorId) || {};
     return {
-      id: appt.id,
+      appointmentId: appt.id, // appointment PK
+      patientId: appt.patientId, // add this!
       name: pat.name,
       phoneNumber: pat.phoneNumber,
       doctorName: doc.user?.name || doc.name || "",
@@ -127,6 +128,8 @@ export default function VitalsPage() {
     e.preventDefault();
     if (!selectedPatient) return;
 
+    const pid = selectedPatient.id;
+
     // Build request payload
     const payload = {
       age: parseInt(vitals.age, 10),
@@ -135,22 +138,14 @@ export default function VitalsPage() {
       bloodPressure: vitals.pressure,
     };
 
-    console.log(
-      "Submitting vitals:",
-      payload,
-      "for patient Id:",
-      selectedPatient.id
-    );
+    console.log("PUT vitals for patient", pid, payload);
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/patients/${selectedPatient.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`http://localhost:8080/api/patients/${pid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       console.log("Vitals saved for:", selectedPatient.name, payload);
       clearForm();
@@ -160,7 +155,7 @@ export default function VitalsPage() {
     }
 
     const statusRes = await fetch(
-      `http://localhost:8080/api/appointments/${selectedPatient.id}/status`,
+      `http://localhost:8080/api/appointments/${selectedPatient.appointmentId}/status`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -205,112 +200,124 @@ export default function VitalsPage() {
   const lowerNavTextColor = "#ffffff";
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
-      <div
-        style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-        className="p-4 justify-center text-center flex items-center text-2xl"
-      >
+
+      {/* Subheader Nav */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
         <Link
           href="/receptionist/appointment"
-          className={
+          className={`px-4 py-2 rounded-lg transition ${
             usePathname() === "/receptionist/appointment"
-              ? "text-white w-0 flex-1"
-              : "text-black w-0 flex-1"
-          }
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
         >
           Add Appointment
         </Link>
-        <span> | </span>
         <Link
           href="/receptionist/appointment/doctor"
-          className={
+          className={`px-4 py-2 rounded-lg transition ${
             usePathname() === "/receptionist/appointment/doctor"
-              ? "text-white w-0 flex-1"
-              : "text-black w-0 flex-1"
-          }
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
         >
           Doctor
         </Link>
-        <span> | </span>
         <Link
           href="/receptionist/appointment/vitals"
-          className={
+          className={`px-4 py-2 rounded-lg transition ${
             usePathname() === "/receptionist/appointment/vitals"
-              ? "text-white w-0 flex-1"
-              : "text-black w-0 flex-1"
-          }
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
         >
           Vitals Entry
         </Link>
-        <span> | </span>
         <Link
           href="/receptionist/appointment/list"
-          className={
+          className={`px-4 py-2 rounded-lg transition ${
             usePathname() === "/receptionist/appointment/list"
-              ? "text-white w-0 flex-1"
-              : "text-black w-0 flex-1"
-          }
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
         >
           Appointment List
         </Link>
-      </div>
-      <div className="p-10">
-        <div className="flex justify-center mb-8 space-x-4 items-center">
-          <div>
-            <label className="text-white-800 font-semibold">Search</label>
+      </nav>
+
+      <div className="px-6 sm:px-12 pb-10">
+        {/* Search */}
+        <div className="flex justify-center mb-8 gap-4 items-end">
+          <div className="flex flex-col">
+            <label className="font-semibold mb-2">Search</label>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-white-600 rounded px-4 py-2 w-96 block"
+              placeholder="Name, contact, doctor, date..."
+              className="border border-gray-300 rounded-lg px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
+          <button className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow">
             SEARCH
           </button>
         </div>
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
+        <h1 className="text-2xl font-bold text-center mb-6">
           Select a Patient to Enter Vitals
         </h1>
 
-        {loading && <p className="text-center">Loading appointments...</p>}
-        {error && <p className="text-center text-red-500">Error: {error}</p>}
+        {/* Appointment Table */}
+        {loading && (
+          <p className="text-center text-gray-500">Loading appointments...</p>
+        )}
+        {error && <p className="text-center text-red-600">Error: {error}</p>}
 
-        <table className="w-full  border border-gray-300 rounded-lg shadow-md text-center justify-center">
-          <thead className="bg-green-800 text-white">
-            <tr>
-              <th className="p-2 border">Name</th>
-              <th className="p-2 border">Contact</th>
-              <th className="p-2 border">Doctor</th>
-              <th className="p-2 border">Appointment Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAppointments.map((item) => (
-              <tr
-                key={item.id}
-                className="hover:bg-gray-900 cursor-pointer"
-                onClick={() => setSelectedPatient(item)}
-              >
-                <td className="p-2 border">{item.name}</td>
-                <td className="p-2 border">{item.phoneNumber}</td>
-                <td className="p-2 border">{item.doctorName}</td>
-                <td className="p-2 border">{item.date}</td>
+        <div className="overflow-x-auto shadow-sm rounded-xl border border-gray-200">
+          <table className="w-full text-center text-gray-700">
+            <thead className="bg-green-700 text-white text-md">
+              <tr>
+                <th className="p-3 border border-green-600">Name</th>
+                <th className="p-3 border border-green-600">Contact</th>
+                <th className="p-3 border border-green-600">Doctor</th>
+                <th className="p-3 border border-green-600">
+                  Appointment Date
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredAppointments.map((item) => (
+                <tr
+                  key={item.appointmentId}
+                  className="hover:bg-green-50 cursor-pointer transition"
+                  onClick={() => setSelectedPatient(item)}
+                >
+                  <td className="p-3 border border-gray-200">{item.name}</td>
+                  <td className="p-3 border border-gray-200">
+                    {item.phoneNumber}
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    {item.doctorName}
+                  </td>
+                  <td className="p-3 border border-gray-200">{item.date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Vitals Modal */}
       {selectedPatient && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className=" p-6 rounded-lg w-full max-w-md shadow-lg bg-gray-900 text-white">
-            <h2 className="text-xl font-bold mb-4 text-center">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
+            <h2 className="text-xl font-bold mb-4 text-center text-gray-800">
               Enter Vitals for {selectedPatient.name}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Fields */}
               {["age", "gender", "weight", "pressure"].map((field) => {
                 if (field === "gender") {
                   return (
@@ -320,7 +327,7 @@ export default function VitalsPage() {
                       value={vitals.gender}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 p-2 rounded bg-gray-900 text-white"
+                      className="w-full border border-gray-300 p-2 rounded-md bg-white"
                     >
                       <option value="">Select Gender</option>
                       <option value="Male">Male</option>
@@ -340,14 +347,16 @@ export default function VitalsPage() {
                     value={(vitals as any)[field]}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 p-2 rounded"
+                    className="w-full border border-gray-300 p-2 rounded-md"
                   />
                 );
               })}
-              <div className="flex justify-between">
+
+              {/* Buttons */}
+              <div className="flex justify-between pt-2">
                 <button
                   type="submit"
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                 >
                   Save
                 </button>

@@ -52,87 +52,93 @@ export default function DoctorListPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Header />
-      <main className="flex-grow">
-        <div
-          style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-          className="p-4 justify-center text-center flex items-center text-2xl"
+
+      {/* Subheader / Navigation Tabs */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+        <Link
+          href="/receptionist/appointment"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
         >
-          <Link
-            href="/receptionist/appointment"
-            className={
-              pathname === "/receptionist/appointment"
-                ? "text-white flex-1"
-                : "text-black flex-1"
-            }
-          >
-            Add Appointment
-          </Link>
-          <span>|</span>
-          <Link
-            href="/receptionist/appointment/doctor"
-            className={
-              pathname === "/receptionist/appointment/doctor"
-                ? "text-white flex-1"
-                : "text-black flex-1"
-            }
-          >
-            Doctor
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/vitals"
-            className={
-              usePathname() === "/receptionist/appointment/vitals"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Vitals Entry
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/list"
-            className={
-              usePathname() === "/receptionist/appointment/list"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Appointment List
-          </Link>
+          Add Appointment
+        </Link>
+        <Link
+          href="/receptionist/appointment/doctor"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/doctor"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Doctor
+        </Link>
+        <Link
+          href="/receptionist/appointment/vitals"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/vitals"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Vitals Entry
+        </Link>
+        <Link
+          href="/receptionist/appointment/list"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/list"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Appointment List
+        </Link>
+      </nav>
+
+      <main className="flex-grow px-6 sm:px-10 pb-10 max-w-7xl mx-auto">
+        <div className="flex justify-center mb-8 space-x-6 items-end">
+          <div className="flex flex-col">
+            <label
+              htmlFor="search"
+              className="text-gray-700 font-semibold mb-2"
+            >
+              Search
+            </label>
+            <input
+              id="search"
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 w-96 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Search doctors by name, contact..."
+            />
+          </div>
+          <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow transition">
+            SEARCH
+          </button>
         </div>
 
-        <div className="p-10">
-          <div className="flex justify-center mb-8 space-x-4 items-center">
-            <div>
-              <label className="text-white-800 font-semibold">Search</label>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-white-600 rounded px-4 py-2 w-96 block"
-              />
-            </div>
-            <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
-              SEARCH
-            </button>
-          </div>
+        {loading && (
+          <p className="text-center text-gray-500">Loading doctors…</p>
+        )}
+        {error && <p className="text-center text-red-600">Error: {error}</p>}
 
-          {loading && (
-            <p className="text-center text-gray-500">Loading doctors…</p>
-          )}
-          {error && <p className="text-center text-red-500">Error: {error}</p>}
-          {!loading && !error && (
-            <table className="w-full border-collapse ">
-              <thead>
-                <tr className="bg-green-900 text-white text-xl">
-                  <th className="p-4 border">Name</th>
-                  <th className="p-4 border">Specialization</th>
-                  <th className="p-4 border">Degree</th>
-                  <th className="p-4 border">Contact</th>
-                  <th className="p-4 border">Available</th>
+        {!loading && !error && (
+          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+            <table className="w-full border-collapse text-gray-800">
+              <thead className="bg-green-700 text-white text-lg select-none">
+                <tr>
+                  <th className="p-4 border border-green-600">Name</th>
+                  <th className="p-4 border border-green-600">
+                    Specialization
+                  </th>
+                  <th className="p-4 border border-green-600">Degree</th>
+                  <th className="p-4 border border-green-600">Contact</th>
+                  <th className="p-4 border border-green-600">Available</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,13 +153,17 @@ export default function DoctorListPage() {
                   >
                     <tr
                       key={index}
-                      className="hover:bg-gray-800  transition-colors duration-200 cursor-pointer"
+                      className="hover:bg-green-50 cursor-pointer transition-colors duration-200"
                     >
-                      <td className="p-4 border">{doctor.name}</td>
-                      <td className="p-4 border">Surgery</td>
-                      <td className="p-4 border">MBBS, MD</td>
-                      <td className="p-4 border">{doctor.contact}</td>
-                      <td className="p-4 border">
+                      <td className="p-4 border border-green-100">
+                        {doctor.name}
+                      </td>
+                      <td className="p-4 border border-green-100">Surgery</td>
+                      <td className="p-4 border border-green-100">MBBS, MD</td>
+                      <td className="p-4 border border-green-100">
+                        {doctor.contact}
+                      </td>
+                      <td className="p-4 border border-green-100">
                         {doctor.available ? "Yes" : "No"}
                       </td>
                     </tr>
@@ -161,9 +171,10 @@ export default function DoctorListPage() {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </main>
+
       <Footer />
     </div>
   );

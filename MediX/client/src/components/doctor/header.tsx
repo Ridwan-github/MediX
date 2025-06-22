@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
@@ -14,16 +13,16 @@ export default function Header() {
   const isActive = (route: string) => pathname === route;
 
   const navLinkClasses = (active: boolean) =>
-    `px-4 py-2 rounded-md transition-all duration-200 text-sm sm:text-base ${
+    `px-4 py-2 rounded-xl transition-all duration-200 text-sm sm:text-base font-medium ${
       active
-        ? "bg-violet-700 text-white"
-        : "text-gray-300 hover:bg-violet-800 hover:text-white"
+        ? "bg-green-800 text-white"
+        : "text-green-900 hover:bg-green-200 hover:text-green-900"
     }`;
 
   return (
-    <header className="bg-gradient-to-r from-indigo-950 via-violet-900 to-indigo-900 text-white shadow-md sticky top-0 z-50">
+    <header className="bg-gradient-to-r from-green-100/80 via-green-200/50 to-green-100/80 backdrop-blur-sm text-green-900 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between">
-        {/* Logo / Navigation */}
+        {/* Navigation Links */}
         <div className="flex items-center gap-2 sm:gap-6">
           <Link href="/doctor" className={navLinkClasses(isActive("/doctor"))}>
             🏠 Home
@@ -46,17 +45,17 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link href="/doctor/profile">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 ${
+              className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 transition ${
                 pathname === "/doctor/profile"
-                  ? "bg-white border-violet-700"
-                  : "bg-gray-800 border-gray-600 hover:border-violet-600"
+                  ? "bg-white border-green-800"
+                  : "bg-green-100 border-green-300 hover:border-green-500"
               }`}
             >
               <span
                 className={`text-2xl ${
                   pathname === "/doctor/profile"
-                    ? "text-violet-700"
-                    : "text-white"
+                    ? "text-green-800"
+                    : "text-green-700"
                 }`}
               >
                 👤
@@ -66,7 +65,7 @@ export default function Header() {
 
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm sm:text-base rounded-md bg-violet-700 hover:bg-red-600 text-white font-medium shadow transition duration-200"
+            className="px-4 py-2 text-sm sm:text-base rounded-xl bg-green-800 hover:bg-red-600 text-white font-medium shadow transition duration-200"
           >
             Logout
           </button>

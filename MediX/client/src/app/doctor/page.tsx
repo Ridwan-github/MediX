@@ -63,26 +63,28 @@ export default function DoctorPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
       <SubHeader />
       <main className="flex-grow py-10 px-4 sm:px-10">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-400">
-            My Dashboard
+          {/* Dashboard Heading */}
+          <h1 className="text-4xl font-bold text-center text-green-800 mb-10">
+            Doctor Dashboard
           </h1>
 
+          {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
             {cards.map((card, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-700 hover:shadow-teal-600/30 transition-all duration-200"
+                className="bg-green-50/40 backdrop-blur-md rounded-2xl border border-green-200 shadow-lg p-6 sm:p-8 hover:shadow-green-400/30 transition duration-200"
               >
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-300 text-center">
+                <h2 className="text-md sm:text-lg font-medium text-gray-700 text-center mb-2">
                   {card.label}
                 </h2>
                 <p
-                  className={`text-3xl sm:text-4xl font-bold mt-4 text-center ${card.color}`}
+                  className={`text-3xl sm:text-4xl font-bold text-center ${card.color}`}
                 >
                   {card.value}
                 </p>

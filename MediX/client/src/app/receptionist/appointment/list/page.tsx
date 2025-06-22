@@ -164,100 +164,110 @@ export default function AppointmentPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
-      <main className="flex-grow">
-        <div
-          style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-          className="p-4 justify-center text-center flex items-center text-2xl"
-        >
-          <Link
-            href="/receptionist/appointment"
-            className={
-              usePathname() === "/receptionist/appointment"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Add Appointment
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/doctor"
-            className={
-              usePathname() === "/receptionist/appointment/doctor"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Doctor
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/vitals"
-            className={
-              usePathname() === "/receptionist/appointment/vitals"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Vitals Entry
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/list"
-            className={
-              usePathname() === "/receptionist/appointment/list"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Appointment List
-          </Link>
-        </div>
-        <div className="p-10">
-          <div className="flex justify-center mb-8 space-x-4 items-center">
-            <div>
-              <label className="text-white-800 font-semibold">Search</label>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-white-600 rounded px-4 py-2 w-96 block"
-              />
-            </div>
-            <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
-              SEARCH
-            </button>
-          </div>
 
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-green-900 text-white text-xl">
-                <th className="p-4 border">Patient ID</th>
-                <th className="p-4 border">Patient Name</th>
-                <th className="p-4 border">Phone</th>
-                <th className="p-4 border">Doctor Name</th>
-                <th className="p-4 border">Serial #</th>
-                <th className="p-4 border">Date</th>
-                <th className="p-4 border">Show More</th>
+      {/* Subheader */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+        <Link
+          href="/receptionist/appointment"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Add Appointment
+        </Link>
+        <Link
+          href="/receptionist/appointment/doctor"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/doctor"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Doctor
+        </Link>
+        <Link
+          href="/receptionist/appointment/vitals"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/vitals"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Vitals Entry
+        </Link>
+        <Link
+          href="/receptionist/appointment/list"
+          className={`px-4 py-2 rounded-lg transition ${
+            usePathname() === "/receptionist/appointment/list"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          }`}
+        >
+          Appointment List
+        </Link>
+      </nav>
+
+      {/* Body */}
+      <main className="flex-grow px-6 sm:px-12 pb-12">
+        {/* Search */}
+        <div className="flex justify-center mb-8 gap-4 items-end">
+          <div className="flex flex-col">
+            <label className="font-semibold mb-2">Search</label>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, phone, doctor..."
+              className="border border-gray-300 rounded-lg px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <button className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow">
+            SEARCH
+          </button>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full text-center text-gray-800">
+            <thead className="bg-green-700 text-white text-md">
+              <tr>
+                <th className="p-3 border border-green-600">Patient ID</th>
+                <th className="p-3 border border-green-600">Patient Name</th>
+                <th className="p-3 border border-green-600">Phone</th>
+                <th className="p-3 border border-green-600">Doctor Name</th>
+                <th className="p-3 border border-green-600">Serial #</th>
+                <th className="p-3 border border-green-600">Date</th>
+                <th className="p-3 border border-green-600">Show More</th>
               </tr>
             </thead>
             <tbody>
               {filteredRows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-900">
-                  <td className="p-4 border">{row.patientId}</td>
-                  <td className="p-4 border">{row.patientName}</td>
-                  <td className="p-4 border">{row.patientPhone}</td>
-                  <td className="p-4 border">{row.doctorName}</td>
-                  <td className="p-4 border">{row.id}</td>
-                  <td className="p-4 border">{row.appointmentDate}</td>
-                  <td className="p-4 border">
-                    <button
-                      type="button"
-                      className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded"
-                      onClick={() => handleShowMore(row)}
-                    >
+                <tr
+                  key={row.id}
+                  className="hover:bg-green-50 transition cursor-pointer"
+                >
+                  <td className="p-3 border border-gray-200">
+                    {row.patientId}
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    {row.patientName}
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    {row.patientPhone}
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    {row.doctorName}
+                  </td>
+                  <td className="p-3 border border-gray-200">{row.id}</td>
+                  <td className="p-3 border border-gray-200">
+                    {row.appointmentDate}
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow">
                       Show More
                     </button>
                   </td>
@@ -265,44 +275,45 @@ export default function AppointmentPage() {
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* Modal */}
-          {showModal && selectedAppointment && (
-            <div className="fixed inset-0 flex items-center justify-center ">
-              <div className="bg-black rounded-3xl shadow-lg p-8 w-full max-w-md relative">
-                <button
-                  className="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl"
-                  onClick={handleCloseModal}
-                  aria-label="Close"
-                >
-                  &times;
-                </button>
-                <h2 className="text-2xl font-bold mb-4 text-green-800">
-                  Patient Details
-                </h2>
-                <div className="space-y-2 text-lg">
-                  <div>
-                    <span className="font-semibold">Age:</span>{" "}
-                    {selectedAppointment.age}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Gender:</span>{" "}
-                    {selectedAppointment.gender}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Weight:</span>{" "}
-                    {selectedAppointment.weight}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Pressure:</span>{" "}
-                    {selectedAppointment.pressure}
-                  </div>
+        {/* Modal */}
+        {showModal && selectedAppointment && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+            <div className="bg-white text-gray-800 p-6 rounded-2xl w-full max-w-md shadow-xl relative">
+              <button
+                className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-2xl"
+                onClick={handleCloseModal}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-4 text-center text-green-800">
+                Patient Details
+              </h2>
+              <div className="space-y-3 text-base">
+                <div>
+                  <span className="font-semibold">Age:</span>{" "}
+                  {selectedAppointment.age}
+                </div>
+                <div>
+                  <span className="font-semibold">Gender:</span>{" "}
+                  {selectedAppointment.gender}
+                </div>
+                <div>
+                  <span className="font-semibold">Weight:</span>{" "}
+                  {selectedAppointment.weight}
+                </div>
+                <div>
+                  <span className="font-semibold">Pressure:</span>{" "}
+                  {selectedAppointment.pressure}
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
+
       <Footer />
     </div>
   );
