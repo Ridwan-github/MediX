@@ -99,7 +99,7 @@ export default function DoctorListPage() {
         </Link>
       </nav>
 
-      <main className="flex-grow px-6 sm:px-10 pb-10 max-w-7xl mx-auto">
+      <main className="flex-grow px-6 sm:px-12 pb-12">
         <div className="flex justify-center mb-8 space-x-6 items-end">
           <div className="flex flex-col">
             <label
@@ -129,7 +129,7 @@ export default function DoctorListPage() {
 
         {!loading && !error && (
           <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table className="w-full border-collapse text-gray-800">
+            <table className="w-full border-collapse text-gray-800 text-center">
               <thead className="bg-green-700 text-white text-lg select-none">
                 <tr>
                   <th className="p-4 border border-green-600">Name</th>
@@ -164,7 +164,15 @@ export default function DoctorListPage() {
                         {doctor.contact}
                       </td>
                       <td className="p-4 border border-green-100">
-                        {doctor.available ? "Yes" : "No"}
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            doctor.available
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {doctor.available ? "Available" : "Not Available"}
+                        </span>
                       </td>
                     </tr>
                   </Link>
