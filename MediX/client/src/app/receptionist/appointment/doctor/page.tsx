@@ -56,11 +56,11 @@ export default function DoctorListPage() {
       <Header />
 
       {/* Subheader / Navigation Tabs */}
-      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
         <Link
           href="/receptionist/appointment"
           className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment"
+            pathname === "/receptionist/appointment"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
           }`}
@@ -70,7 +70,7 @@ export default function DoctorListPage() {
         <Link
           href="/receptionist/appointment/doctor"
           className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/doctor"
+            pathname === "/receptionist/appointment/doctor"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
           }`}
@@ -80,7 +80,7 @@ export default function DoctorListPage() {
         <Link
           href="/receptionist/appointment/vitals"
           className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/vitals"
+            pathname === "/receptionist/appointment/vitals"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
           }`}
@@ -90,7 +90,7 @@ export default function DoctorListPage() {
         <Link
           href="/receptionist/appointment/list"
           className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/list"
+            pathname === "/receptionist/appointment/list"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
           }`}
@@ -100,7 +100,7 @@ export default function DoctorListPage() {
       </nav>
 
       <main className="flex-grow px-6 sm:px-12 pb-12">
-        <div className="flex justify-center mb-8 space-x-6 items-end">
+        <div className="flex justify-center mb-10 items-end gap-6">
           <div className="flex flex-col">
             <label
               htmlFor="search"
@@ -113,22 +113,19 @@ export default function DoctorListPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 w-96 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Search doctors by name, contact..."
+              placeholder="Search doctors"
+              className="w-96 p-4 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c0c5cc,inset_-4px_-4px_6px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow transition">
-            SEARCH
-          </button>
         </div>
 
         {loading && (
-          <p className="text-center text-gray-500">Loading doctors…</p>
+          <p className="text-center text-gray-500 text-lg">Loading doctors…</p>
         )}
         {error && <p className="text-center text-red-600">Error: {error}</p>}
 
         {!loading && !error && (
-          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
             <table className="w-full border-collapse text-gray-800 text-center">
               <thead className="bg-green-700 text-white text-lg select-none">
                 <tr>
@@ -151,10 +148,7 @@ export default function DoctorListPage() {
                     passHref
                     legacyBehavior
                   >
-                    <tr
-                      key={index}
-                      className="hover:bg-green-50 cursor-pointer transition-colors duration-200"
-                    >
+                    <tr className="hover:bg-green-50 cursor-pointer transition-all duration-200">
                       <td className="p-4 border border-green-100">
                         {doctor.name}
                       </td>

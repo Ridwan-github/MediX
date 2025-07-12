@@ -44,7 +44,7 @@ export default function ReceptionistPage() {
             ].map((card, index) => (
               <div
                 key={index}
-                className="bg-white border border-green-200 rounded-3xl p-8 text-center shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_5px_#d0d4da,inset_-2px_-2px_5px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out"
               >
                 <h2 className="text-xl font-semibold text-green-700 mb-3">
                   {card.title}

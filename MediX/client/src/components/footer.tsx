@@ -2,26 +2,15 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="backdrop-blur-md bg-green-600/15 border-t border-green-100 text-gray-700 pt-10 pb-8 px-6 sm:px-10 lg:px-16 mt-auto shadow-inner rounded-t-2xl md:rounded-t-3xl">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6 items-center max-w-7xl mx-auto">
+    <footer className="bg-[#e6f2ec] shadow-inner shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] border-t border-green-100 text-gray-700 pt-10 pb-8 px-6 sm:px-10 lg:px-16 mt-auto rounded-t-2xl md:rounded-t-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6 items-center max-w-7xl mx-auto max-h-24">
         {/* Left: Logo */}
         <div className="flex justify-center md:justify-start items-center">
-          <div
-            className="
-              bg-white 
-              w-24 h-24 md:w-28 md:h-28 
-              rounded-full 
-              p-1 
-              shadow-lg 
-              border-4 border-green-300 
-              overflow-hidden    /* clip children */
-              flex items-center justify-center
-            "
-          >
+          <div className="bg-[#e6f2ec] w-24 h-24 md:w-28 md:h-28 rounded-full p-1 shadow-[6px_6px_10px_#c2d0c8,-6px_-6px_10px_#ffffff] border-4 border-green-300 overflow-hidden flex items-center justify-center">
             <img
               src="/logo.jpg"
               alt="Hospital Logo"
-              className="w-full h-full object-contain" /* scale inside */
+              className="w-full h-full object-contain"
             />
           </div>
         </div>

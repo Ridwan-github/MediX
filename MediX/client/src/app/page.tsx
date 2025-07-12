@@ -7,10 +7,16 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [clicked, setClicked] = useState(false); // 👈 Animation trigger state
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Trigger button press animation
+    setClicked(true);
+    setTimeout(() => setClicked(false), 150); // Reset animation
+
     try {
       const resDoctors = await fetch("http://localhost:8080/api/doctors");
       let doctor = null;
@@ -48,8 +54,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="w-full max-w-md rounded-3xl border border-green-200 shadow-xl bg-green-100/30 backdrop-blur-md p-10 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-[#e6f2ec] px-4">
+      <div className="w-full max-w-md rounded-3xl bg-[#e6f2ec] p-10 shadow-[10px_10px_30px_#c2d0c8,-10px_-10px_30px_#ffffff]">
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image
@@ -63,13 +69,13 @@ export default function Home() {
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl font-extrabold text-center mb-2">
+        <h1 className="text-3xl font-extrabold text-center mb-2 text-gray-800">
           Welcome to{" "}
           <span className="text-green-700">
             Medi<span className="text-black">X</span>
           </span>
         </h1>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-500 mb-8">
           Smart hospital management system
         </p>
 
@@ -80,7 +86,7 @@ export default function Home() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+            className="px-4 py-3 rounded-xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] placeholder-gray-500 focus:outline-none"
             required
           />
 
@@ -90,7 +96,7 @@ export default function Home() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+              className="px-4 py-3 pr-10 w-full rounded-xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] placeholder-gray-500 focus:outline-none"
               required
             />
             <button
@@ -102,9 +108,13 @@ export default function Home() {
             </button>
           </div>
 
+          {/* 👇 Animated Sign-In Button */}
           <button
             type="submit"
-            className="mt-2 bg-green-700 hover:bg-green-600 text-white font-semibold py-2 rounded-xl transition duration-200"
+            aria-pressed={clicked}
+            className={`mt-2 py-3 rounded-xl bg-[#e6f2ec] text-green-800 font-semibold shadow-[6px_6px_10px_#c2d0c8,-6px_-6px_10px_#ffffff] hover:bg-[#d9ede3] transition duration-150 ease-in-out transform ${
+              clicked ? "scale-95" : "scale-100"
+            }`}
           >
             Sign In
           </button>

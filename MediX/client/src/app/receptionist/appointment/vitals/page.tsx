@@ -203,86 +203,67 @@ export default function VitalsPage() {
     <main className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
 
-      {/* Subheader Nav */}
-      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
-        <Link
-          href="/receptionist/appointment"
-          className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          }`}
-        >
-          Add Appointment
-        </Link>
-        <Link
-          href="/receptionist/appointment/doctor"
-          className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/doctor"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          }`}
-        >
-          Doctor
-        </Link>
-        <Link
-          href="/receptionist/appointment/vitals"
-          className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/vitals"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          }`}
-        >
-          Vitals Entry
-        </Link>
-        <Link
-          href="/receptionist/appointment/list"
-          className={`px-4 py-2 rounded-lg transition ${
-            usePathname() === "/receptionist/appointment/list"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          }`}
-        >
-          Appointment List
-        </Link>
+      {/* Subheader Navigation */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+        {[
+          ["Add Appointment", "/receptionist/appointment"],
+          ["Doctor", "/receptionist/appointment/doctor"],
+          ["Vitals Entry", "/receptionist/appointment/vitals"],
+          ["Appointment List", "/receptionist/appointment/list"],
+        ].map(([label, path]) => (
+          <Link
+            key={path}
+            href={path}
+            className={`px-4 py-2 rounded-lg transition ${
+              usePathname() === path
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
       </nav>
 
       <div className="px-6 sm:px-12 pb-10">
-        {/* Search */}
-        <div className="flex justify-center mb-8 gap-4 items-end">
+        {/* Search Bar */}
+        <div className="flex justify-center mb-10 items-end gap-6">
           <div className="flex flex-col">
-            <label className="font-semibold mb-2">Search</label>
+            <label
+              htmlFor="search"
+              className="text-gray-700 font-semibold mb-2"
+            >
+              Search
+            </label>
             <input
+              id="search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Name, contact, doctor, date..."
-              className="border border-gray-300 rounded-lg px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Search"
+              className="w-96 p-4 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c0c5cc,inset_-4px_-4px_6px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          <button className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow">
-            SEARCH
-          </button>
         </div>
 
-        <h1 className="text-2xl font-bold text-center mb-6">
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
           Select a Patient to Enter Vitals
         </h1>
 
-        {/* Appointment Table */}
+        {/* Table */}
         {loading && (
           <p className="text-center text-gray-500">Loading appointments...</p>
         )}
         {error && <p className="text-center text-red-600">Error: {error}</p>}
 
-        <div className="overflow-x-auto shadow-sm rounded-xl border border-gray-200">
+        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
           <table className="w-full text-center text-gray-700">
-            <thead className="bg-green-700 text-white text-md">
+            <thead className="bg-green-700 text-white text-md select-none">
               <tr>
-                <th className="p-3 border border-green-600">Name</th>
-                <th className="p-3 border border-green-600">Contact</th>
-                <th className="p-3 border border-green-600">Doctor</th>
-                <th className="p-3 border border-green-600">
+                <th className="p-4 border border-green-600">Name</th>
+                <th className="p-4 border border-green-600">Contact</th>
+                <th className="p-4 border border-green-600">Doctor</th>
+                <th className="p-4 border border-green-600">
                   Appointment Date
                 </th>
               </tr>
@@ -291,17 +272,17 @@ export default function VitalsPage() {
               {filteredAppointments.map((item) => (
                 <tr
                   key={item.appointmentId}
-                  className="hover:bg-green-50 cursor-pointer transition"
+                  className="hover:bg-green-50 cursor-pointer transition-all duration-200"
                   onClick={() => setSelectedPatient(item)}
                 >
-                  <td className="p-3 border border-gray-200">{item.name}</td>
-                  <td className="p-3 border border-gray-200">
+                  <td className="p-4 border border-gray-200">{item.name}</td>
+                  <td className="p-4 border border-gray-200">
                     {item.phoneNumber}
                   </td>
-                  <td className="p-3 border border-gray-200">
+                  <td className="p-4 border border-gray-200">
                     {item.doctorName}
                   </td>
-                  <td className="p-3 border border-gray-200">{item.date}</td>
+                  <td className="p-4 border border-gray-200">{item.date}</td>
                 </tr>
               ))}
             </tbody>
@@ -309,15 +290,16 @@ export default function VitalsPage() {
         </div>
       </div>
 
-      {/* Vitals Modal */}
+      {/* Vitals Entry Modal */}
       {selectedPatient && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-center text-gray-800">
+          <div className="bg-white p-8 rounded-3xl w-full max-w-md shadow-[6px_6px_20px_#d0d4da,-6px_-6px_20px_#ffffff]">
+            <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
               Enter Vitals for {selectedPatient.name}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Fields */}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Input Fields */}
               {["age", "gender", "weight", "pressure"].map((field) => {
                 if (field === "gender") {
                   return (
@@ -327,7 +309,7 @@ export default function VitalsPage() {
                       value={vitals.gender}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 p-2 rounded-md bg-white"
+                      className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                       <option value="">Select Gender</option>
                       <option value="Male">Male</option>
@@ -343,20 +325,20 @@ export default function VitalsPage() {
                     key={field}
                     type={type}
                     name={field}
+                    required
                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     value={(vitals as any)[field]}
                     onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 p-2 rounded-md"
+                    className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 );
               })}
 
               {/* Buttons */}
-              <div className="flex justify-between pt-2">
+              <div className="flex justify-between pt-2 gap-4">
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-[4px_4px_8px_#bfc5cc,-4px_-4px_8px_#ffffff] transition"
                 >
                   Save
                 </button>
@@ -366,7 +348,7 @@ export default function VitalsPage() {
                     clearForm();
                     setSelectedPatient(null);
                   }}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl shadow-[4px_4px_8px_#bfc5cc,-4px_-4px_8px_#ffffff] transition"
                 >
                   Cancel
                 </button>

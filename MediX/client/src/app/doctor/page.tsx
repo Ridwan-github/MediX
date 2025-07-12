@@ -63,34 +63,27 @@ export default function DoctorPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-800">
+    <div className="min-h-screen flex flex-col bg-[#ffffff] text-gray-800">
       <Header />
       <SubHeader />
-      <main className="flex-grow py-10 px-4 sm:px-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Dashboard Heading */}
-          <h1 className="text-4xl font-bold text-center text-green-800 mb-10">
-            Doctor Dashboard
-          </h1>
-
-          {/* Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-            {cards.map((card, index) => (
-              <div
-                key={index}
-                className="bg-green-50/40 backdrop-blur-md rounded-2xl border border-green-200 shadow-lg p-6 sm:p-8 hover:shadow-green-400/30 transition duration-200"
+      <main className="flex-grow py-10 px-6 sm:px-12 max-w-6xl mx-auto">
+        {/* Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+          {cards.map((card, index) => (
+            <div
+              key={index}
+              className="bg-[#f0f6f2] rounded-3xl border border-green-900 shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] p-6 sm:p-8 transition-shadow duration-300 cursor-default hover:shadow-[inset_8px_8px_16px_#a0b6a9,inset_-8px_-8px_16px_#ffffff]"
+            >
+              <h2 className="text-md sm:text-lg font-semibold text-green-800 text-center mb-3 select-none">
+                {card.label}
+              </h2>
+              <p
+                className={`text-4xl font-extrabold text-center select-none ${card.color}`}
               >
-                <h2 className="text-md sm:text-lg font-medium text-gray-700 text-center mb-2">
-                  {card.label}
-                </h2>
-                <p
-                  className={`text-3xl sm:text-4xl font-bold text-center ${card.color}`}
-                >
-                  {card.value}
-                </p>
-              </div>
-            ))}
-          </div>
+                {card.value}
+              </p>
+            </div>
+          ))}
         </div>
       </main>
       <Footer />

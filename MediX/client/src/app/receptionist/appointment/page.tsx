@@ -147,7 +147,7 @@ export default function AppointmentPage() {
       <Header />
 
       {/* Subheader / Navigation Tabs */}
-      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 my-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
         <Link
           href="/receptionist/appointment"
           className={`px-4 py-2 rounded-lg transition ${
@@ -191,14 +191,14 @@ export default function AppointmentPage() {
       </nav>
 
       {/* Body Content */}
-      <main className="flex-grow bg-gray-50 text-gray-900 rounded-t-3xl shadow-lg mx-6 mb-10 p-10 max-w-4xl mx-auto">
+      <main className="flex-grow bg-[#f2fff7] text-gray-900 rounded-t-3xl shadow-inner mx-6 mb-10 p-10 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-gray-800 text-center">
           Patient Info
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl shadow-md p-8 max-w-md mx-auto space-y-6"
+          className="bg-white rounded-3xl p-8 max-w-md mx-auto space-y-6 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]"
         >
           <input
             type="text"
@@ -207,7 +207,7 @@ export default function AppointmentPage() {
             required
             value={patient.name}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <input
@@ -217,7 +217,7 @@ export default function AppointmentPage() {
             required
             value={patient.contact}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <select
@@ -225,7 +225,7 @@ export default function AppointmentPage() {
             required
             value={patient.doctor}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="" disabled>
               Select a Doctor
@@ -244,20 +244,20 @@ export default function AppointmentPage() {
             value={patient.appointmentDate || ""}
             onChange={handleChange}
             min={todayDate}
-            className="w-full p-3 rounded-xl border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <div className="flex justify-between gap-6">
             <button
               type="submit"
-              className="flex-1 bg-green-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-green-700 transition"
+              className="flex-1 bg-[#e0e5ec] text-green-800 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-green-100 transition duration-500"
             >
               Add Patient
             </button>
             <button
               type="button"
               onClick={clearForm}
-              className="flex-1 bg-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-red-700 transition"
+              className="flex-1 bg-[#e0e5ec] text-red-700 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-red-100 transition duration-500"
             >
               Clear
             </button>

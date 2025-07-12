@@ -37,8 +37,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Profile Card */}
-          <div className="rounded-3xl shadow-xl overflow-hidden border border-gray-200 bg-white">
-            {/* Profile Header */}
+          <div className="rounded-3xl shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff] overflow-hidden border border-gray-200 bg-white">
+            {/* Header */}
             <div className="bg-gradient-to-r from-green-500 to-green-700 p-8 text-white text-center relative">
               <div className="w-28 h-28 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
                 <span className="text-5xl text-green-600">👤</span>
@@ -49,28 +49,28 @@ export default function ProfilePage() {
               <p className="text-green-100 mt-1">{receptionistProfile.role}</p>
             </div>
 
-            {/* Profile Info */}
+            {/* Info Grid */}
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Personal Info */}
-              <div className="bg-green-50 border-l-4 border-green-500 rounded-xl p-6 shadow-sm">
+              <div className="bg-green-50 border-l-4 border-green-500 rounded-xl p-6 shadow-[inset_4px_4px_10px_#cfe9c7,inset_-4px_-4px_10px_#ffffff]">
                 <h3 className="text-sm font-semibold text-green-600 uppercase mb-4 tracking-wider">
                   Personal Information
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-3 text-gray-700">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Name:</span>
+                    <span>Name:</span>
                     <span className="font-medium">
                       {receptionistProfile.name}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Gender:</span>
+                    <span>Gender:</span>
                     <span className="font-medium">
                       {receptionistProfile.gender}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Age:</span>
+                    <span>Age:</span>
                     <span className="font-medium">
                       {receptionistProfile.age} years
                     </span>
@@ -79,25 +79,25 @@ export default function ProfilePage() {
               </div>
 
               {/* Work Info */}
-              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6 shadow-sm">
+              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6 shadow-[inset_4px_4px_10px_#cfdffa,inset_-4px_-4px_10px_#ffffff]">
                 <h3 className="text-sm font-semibold text-blue-600 uppercase mb-4 tracking-wider">
                   Work Information
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-3 text-gray-700">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Employee ID:</span>
+                    <span>Employee ID:</span>
                     <span className="font-medium">
                       {receptionistProfile.id}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Role:</span>
+                    <span>Role:</span>
                     <span className="font-medium">
                       {receptionistProfile.role}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Working Hours:</span>
+                    <span>Working Hours:</span>
                     <span className="font-medium">
                       {receptionistProfile.workingHours}
                     </span>
@@ -108,10 +108,10 @@ export default function ProfilePage() {
 
             {/* Action Buttons */}
             <div className="flex justify-center gap-6 p-8 border-t border-gray-100 bg-gray-50">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow-md transition duration-200">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow-[4px_4px_10px_#bfd8be,-4px_-4px_10px_#ffffff] transition duration-200">
                 Edit Profile
               </button>
-              <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl shadow-md transition duration-200">
+              <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl shadow-[4px_4px_10px_#c8ccd1,-4px_-4px_10px_#ffffff] transition duration-200">
                 Change Password
               </button>
             </div>
