@@ -7,6 +7,7 @@ export default function SubHeader() {
   const getTitle = () => {
     if (pathname === "/doctor/prescribe") return "Quick Prescribe";
     if (pathname === "/doctor/history") return "Patient History";
+    if (pathname === "/doctor/list") return "List of Appointments";
     return "Doctor Dashboard";
   };
 

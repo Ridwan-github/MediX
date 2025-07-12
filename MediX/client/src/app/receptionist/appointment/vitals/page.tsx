@@ -128,7 +128,8 @@ export default function VitalsPage() {
     e.preventDefault();
     if (!selectedPatient) return;
 
-    const pid = selectedPatient.id;
+    // Use the correct patient ID from the selected patient
+    const patientId = selectedPatient.patientId;
 
     // Build request payload
     const payload = {
@@ -138,43 +139,61 @@ export default function VitalsPage() {
       bloodPressure: vitals.pressure,
     };
 
-    console.log("PUT vitals for patient", pid, payload);
+    console.log("PUT vitals for patient", patientId, payload);
 
     try {
-      const res = await fetch(`http://localhost:8080/api/patients/${pid}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // First, update the patient with vitals data
+      const res = await fetch(
+        `http://localhost:8080/api/patients/${patientId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Failed to save vitals:", res.status, errorText);
+        throw new Error(`Failed to save vitals: ${res.status}`);
+      }
+
       console.log("Vitals saved for:", selectedPatient.name, payload);
+
+      // Then, update the appointment status to READY
+      const statusRes = await fetch(
+        `http://localhost:8080/api/appointments/${selectedPatient.appointmentId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "READY" }),
+        }
+      );
+
+      if (!statusRes.ok) {
+        const errorText = await statusRes.text();
+        console.error(
+          "Failed to update appointment status:",
+          statusRes.status,
+          errorText
+        );
+        throw new Error(
+          `Failed to update appointment status: ${statusRes.status}`
+        );
+      }
+
+      console.log("Appointment status set to READY");
+
+      // Refresh the appointments list
+      await fetchAppointments();
+
+      // Clear form and close modal
       clearForm();
       setSelectedPatient(null);
     } catch (err: any) {
-      console.error("Failed to save vitals:", err);
+      console.error("Error in vitals submission:", err);
+      alert(`Failed to save vitals: ${err.message}`);
     }
-
-    const statusRes = await fetch(
-      `http://localhost:8080/api/appointments/${selectedPatient.appointmentId}/status`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "READY" }),
-      }
-    );
-    if (!statusRes.ok) {
-      console.error(
-        "Failed to update appointment status:",
-        statusRes.statusText
-      );
-    } else {
-      console.log("Appointment status set to READY");
-    }
-
-    await fetchAppointments(); // Refresh appointments list
-
-    clearForm();
-    setSelectedPatient(null);
   };
 
   const clearForm = () => {

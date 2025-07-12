@@ -34,6 +34,12 @@ export default function Header() {
             💊 Quick Prescribe
           </Link>
           <Link
+            href="/doctor/list"
+            className={navLinkClasses(isActive("/doctor/list"))}
+          >
+            📋 List
+          </Link>
+          <Link
             href="/doctor/history"
             className={navLinkClasses(isActive("/doctor/history"))}
           >
