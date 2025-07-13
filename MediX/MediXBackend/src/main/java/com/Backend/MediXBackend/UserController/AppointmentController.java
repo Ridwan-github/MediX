@@ -1,6 +1,7 @@
 package com.Backend.MediXBackend.UserController;
 
 import com.Backend.MediXBackend.User.Appointment;
+import com.Backend.MediXBackend.User.AppointmentWithDetails;
 import com.Backend.MediXBackend.UserService.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -73,5 +74,11 @@ public class AppointmentController {
         return appointment.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body((Appointment) Map.of("error", "Appointment not found", "appointmentId", id)));
+    }
+
+    @GetMapping("/with-details")
+    public ResponseEntity<List<AppointmentWithDetails>> getAppointmentsWithDetails() {
+        List<AppointmentWithDetails> appointments = appointmentService.getAppointmentsWithDetails();
+        return ResponseEntity.ok(appointments);
     }
 }

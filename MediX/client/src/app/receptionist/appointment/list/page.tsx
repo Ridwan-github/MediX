@@ -10,8 +10,6 @@ export default function AppointmentPage() {
   const lowerNavTextColor = "#ffffff";
 
   const [appointments, setAppointments] = useState<any[]>([]);
-  const [patients, setPatients] = useState<any[]>([]);
-  const [doctors, setDoctors] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +21,7 @@ export default function AppointmentPage() {
   const fetchAppointments = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/appointments", {
+      const res = await fetch("http://localhost:8080/api/appointments/with-details", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -47,69 +45,17 @@ export default function AppointmentPage() {
     (appt) => appt.status === "READY"
   );
 
-  useEffect(() => {
-    if (pendingAppointments.length === 0) return;
-    const fetchPatient = async () => {
-      const ids = pendingAppointments.map((a) => a.patientId).join(",");
-      try {
-        const res = await fetch(`http://localhost:8080/api/patients?id=${ids}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        setPatients(await res.json());
-      } catch (err: any) {
-        setError(err.message);
-      }
-    };
-    fetchPatient();
-  }, [pendingAppointments]);
-
-  useEffect(() => {
-    if (pendingAppointments.length === 0) return;
-
-    const fetchDoctors = async () => {
-      let doctorId = pendingAppointments.map(
-        (appointment) => appointment.doctorId
-      );
-      try {
-        const res = await fetch(
-          `http://localhost:8080/api/doctors?id=${doctorId.join(",")}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        setDoctors(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDoctors();
-  }, [pendingAppointments]);
-
-  const rows = pendingAppointments.map((appt) => {
-    const pat = patients.find((p) => p.id === appt.patientId) || {};
-    const doc =
-      doctors.find(
-        (d) => d.id === appt.doctorId || d.doctorId === appt.doctorId
-      ) || {};
-
-    return {
-      ...appt,
-      patientName: pat.name,
-      patientPhone: pat.phoneNumber,
-      doctorName: doc.user?.name || doc.name || "",
-      appointmentDate: appt.appointmentDate,
-      age: pat.age,
-      gender: pat.gender,
-      weight: pat.weight,
-      pressure: pat.bloodPressure,
-    };
-  });
+  const rows = pendingAppointments.map((appt) => ({
+    ...appt,
+    patientName: appt.patientName || "",
+    patientPhone: appt.patientPhone || "",
+    doctorName: appt.doctorName || "",
+    appointmentDate: appt.appointmentDate,
+    age: appt.age,
+    gender: appt.gender,
+    weight: appt.weight,
+    pressure: appt.pressure,
+  }));
 
   if (loading) {
     return <div className="text-center text-2xl">Loading...</div>;
