@@ -2,12 +2,18 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const [clicked, setClicked] = useState(false);
 
   const handleLogout = () => {
+    // Trigger button press animation
+    setClicked(true);
+    setTimeout(() => setClicked(false), 150); // Reset animation
+    
     router.push("/");
   };
 
@@ -61,7 +67,10 @@ export default function Header() {
 
           <button
             onClick={handleLogout}
-            className="ml-2 px-4 py-1 rounded-xl bg-[#e6f2ec] text-green-800 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm font-semibold shadow-[4px_4px_6px_#c2d0c8,-4px_-4px_6px_#ffffff]"
+            aria-pressed={clicked}
+            className={`ml-2 px-4 py-1 rounded-xl bg-[#e6f2ec] text-green-800 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm font-semibold shadow-[4px_4px_6px_#c2d0c8,-4px_-4px_6px_#ffffff] transform ${
+              clicked ? "scale-95" : "scale-100"
+            }`}
           >
             Logout
           </button>

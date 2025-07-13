@@ -12,6 +12,10 @@ export default function VitalsPage() {
   const [error, setError] = useState<string | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -218,6 +222,28 @@ export default function VitalsPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
 
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
@@ -233,10 +259,21 @@ export default function VitalsPage() {
           <Link
             key={path}
             href={path}
-            className={`px-4 py-2 rounded-lg transition ${
+            onClick={() => handleNavClick(
+              path === "/receptionist/appointment" ? "addAppointment" :
+              path === "/receptionist/appointment/doctor" ? "doctor" :
+              path === "/receptionist/appointment/vitals" ? "vitals" : "list"
+            )}
+            className={`px-4 py-2 rounded-lg transition transform ${
               usePathname() === path
                 ? "bg-green-700/80 text-white shadow-lg"
                 : "hover:bg-green-600/40"
+            } ${
+              (path === "/receptionist/appointment" && clickedAddAppointment) ||
+              (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
+              (path === "/receptionist/appointment/vitals" && clickedVitals) ||
+              (path === "/receptionist/appointment/list" && clickedList)
+                ? "scale-95" : "scale-100"
             }`}
           >
             {label}

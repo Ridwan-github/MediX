@@ -26,6 +26,7 @@ export default function DoctorListPage() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState<string>("");
   const [currentDoctor, setCurrentDoctor] = useState<any>(null);
+  const [clickedStartAppointment, setClickedStartAppointment] = useState<number | null>(null);
 
   useEffect(() => {
     // If we have email in URL, store it
@@ -166,6 +167,10 @@ export default function DoctorListPage() {
   );
 
   const handleStartAppointment = (appointment: any) => {
+    // Trigger button press animation
+    setClickedStartAppointment(appointment.id);
+    setTimeout(() => setClickedStartAppointment(null), 150); // Reset animation
+    
     console.log("Starting appointment:", appointment);
   };
 
@@ -239,7 +244,10 @@ export default function DoctorListPage() {
                     <td className="p-3 border border-gray-200">
                       <button
                         onClick={() => handleStartAppointment(row)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition"
+                        aria-pressed={clickedStartAppointment === row.id}
+                        className={`bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                          clickedStartAppointment === row.id ? "scale-95" : "scale-100"
+                        }`}
                       >
                         Start Appointment
                       </button>

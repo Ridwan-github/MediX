@@ -19,6 +19,10 @@ export default function DoctorListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
@@ -51,6 +55,28 @@ export default function DoctorListPage() {
       doctor.contact.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Header />
@@ -59,40 +85,52 @@ export default function DoctorListPage() {
       <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
         <Link
           href="/receptionist/appointment"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('addAppointment')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             pathname === "/receptionist/appointment"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedAddAppointment ? "scale-95" : "scale-100"
           }`}
         >
           Add Appointment
         </Link>
         <Link
           href="/receptionist/appointment/doctor"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('doctor')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             pathname === "/receptionist/appointment/doctor"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedDoctor ? "scale-95" : "scale-100"
           }`}
         >
           Doctor
         </Link>
         <Link
           href="/receptionist/appointment/vitals"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('vitals')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             pathname === "/receptionist/appointment/vitals"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedVitals ? "scale-95" : "scale-100"
           }`}
         >
           Vitals Entry
         </Link>
         <Link
           href="/receptionist/appointment/list"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('list')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             pathname === "/receptionist/appointment/list"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedList ? "scale-95" : "scale-100"
           }`}
         >
           Appointment List

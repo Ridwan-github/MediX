@@ -17,6 +17,11 @@ export default function AppointmentPage() {
     null
   );
   const [loading, setLoading] = useState(false);
+  const [clickedShowMore, setClickedShowMore] = useState<number | null>(null);
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -73,6 +78,10 @@ export default function AppointmentPage() {
   );
 
   const handleShowMore = (row: any) => {
+    // Trigger button press animation
+    setClickedShowMore(row.id);
+    setTimeout(() => setClickedShowMore(null), 150); // Reset animation
+    
     setSelectedAppointment(row);
     setShowModal(true);
   };
@@ -80,6 +89,28 @@ export default function AppointmentPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedAppointment(null);
+  };
+
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
   };
 
   return (
@@ -97,10 +128,21 @@ export default function AppointmentPage() {
           <Link
             key={path}
             href={path}
-            className={`px-4 py-2 rounded-lg transition ${
+            onClick={() => handleNavClick(
+              path === "/receptionist/appointment" ? "addAppointment" :
+              path === "/receptionist/appointment/doctor" ? "doctor" :
+              path === "/receptionist/appointment/vitals" ? "vitals" : "list"
+            )}
+            className={`px-4 py-2 rounded-lg transition transform ${
               usePathname() === path
                 ? "bg-green-700/80 text-white shadow-lg"
                 : "hover:bg-green-600/40"
+            } ${
+              (path === "/receptionist/appointment" && clickedAddAppointment) ||
+              (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
+              (path === "/receptionist/appointment/vitals" && clickedVitals) ||
+              (path === "/receptionist/appointment/list" && clickedList)
+                ? "scale-95" : "scale-100"
             }`}
           >
             {label}
@@ -177,7 +219,10 @@ export default function AppointmentPage() {
                   <td className="p-3 border border-gray-200">
                     <button
                       onClick={() => handleShowMore(row)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition"
+                      aria-pressed={clickedShowMore === row.id}
+                      className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                        clickedShowMore === row.id ? "scale-95" : "scale-100"
+                      }`}
                     >
                       Show More
                     </button>

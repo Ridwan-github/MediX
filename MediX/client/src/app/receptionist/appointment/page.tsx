@@ -11,6 +11,12 @@ export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
   const router = useRouter();
+  const [clickedAdd, setClickedAdd] = useState(false);
+  const [clickedClear, setClickedClear] = useState(false);
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const searchParams = useSearchParams();
   const selectedDoctor = searchParams?.get("doctor");
@@ -54,6 +60,11 @@ export default function AppointmentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Trigger button press animation
+    setClickedAdd(true);
+    setTimeout(() => setClickedAdd(false), 150); // Reset animation
+
     try {
       let patientId;
 
@@ -134,12 +145,38 @@ export default function AppointmentPage() {
   };
 
   const clearForm = () => {
+    // Trigger button press animation
+    setClickedClear(true);
+    setTimeout(() => setClickedClear(false), 150); // Reset animation
+    
     setPatient({
       name: "",
       contact: "",
       appointmentDate: todayDate,
       doctor: "",
     });
+  };
+
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
   };
 
   return (
@@ -150,40 +187,52 @@ export default function AppointmentPage() {
       <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
         <Link
           href="/receptionist/appointment"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('addAppointment')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedAddAppointment ? "scale-95" : "scale-100"
           }`}
         >
           Add Appointment
         </Link>
         <Link
           href="/receptionist/appointment/doctor"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('doctor')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/doctor"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedDoctor ? "scale-95" : "scale-100"
           }`}
         >
           Doctor
         </Link>
         <Link
           href="/receptionist/appointment/vitals"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('vitals')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/vitals"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedVitals ? "scale-95" : "scale-100"
           }`}
         >
           Vitals Entry
         </Link>
         <Link
           href="/receptionist/appointment/list"
-          className={`px-4 py-2 rounded-lg transition ${
+          onClick={() => handleNavClick('list')}
+          className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/list"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
+          } ${
+            clickedList ? "scale-95" : "scale-100"
           }`}
         >
           Appointment List
@@ -250,14 +299,20 @@ export default function AppointmentPage() {
           <div className="flex justify-between gap-6">
             <button
               type="submit"
-              className="flex-1 bg-[#e0e5ec] text-green-800 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-green-100 transition duration-500"
+              aria-pressed={clickedAdd}
+              className={`flex-1 bg-[#e0e5ec] text-green-800 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-green-100 transition duration-500 transform ${
+                clickedAdd ? "scale-95" : "scale-100"
+              }`}
             >
               Add Patient
             </button>
             <button
               type="button"
               onClick={clearForm}
-              className="flex-1 bg-[#e0e5ec] text-red-700 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-red-100 transition duration-500"
+              aria-pressed={clickedClear}
+              className={`flex-1 bg-[#e0e5ec] text-red-700 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-red-100 transition duration-500 transform ${
+                clickedClear ? "scale-95" : "scale-100"
+              }`}
             >
               Clear
             </button>

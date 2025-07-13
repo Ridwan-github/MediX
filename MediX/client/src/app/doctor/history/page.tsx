@@ -49,8 +49,13 @@ export default function History() {
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescriptions | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [clickedView, setClickedView] = useState<number | null>(null);
 
   const handlePrescriptionClick = (prescription: Prescriptions) => {
+    // Trigger button press animation
+    setClickedView(prescription.id);
+    setTimeout(() => setClickedView(null), 150); // Reset animation
+
     setSelectedPrescription(prescription);
     setShowHistory(true);
   };
@@ -62,7 +67,7 @@ export default function History() {
 
   if (showHistory && selectedPrescription) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col">
+      <div className="min-h-screen bg-transparent text-white flex flex-col">
         <Header />
         <SubHeader />
         <main className="flex-grow container mx-auto px-4 py-10">
@@ -166,7 +171,12 @@ export default function History() {
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => handlePrescriptionClick(prescription)}
-                        className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow"
+                        aria-pressed={clickedView === prescription.id}
+                        className={`bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow transform ${
+                          clickedView === prescription.id
+                            ? "scale-95"
+                            : "scale-100"
+                        }`}
                       >
                         View
                       </button>
