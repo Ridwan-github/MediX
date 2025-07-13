@@ -2,64 +2,75 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const [clicked, setClicked] = useState(false);
 
   const handleLogout = () => {
-    // Add any logout logic here (e.g., clearing tokens) if needed
+    // Trigger button press animation
+    setClicked(true);
+    setTimeout(() => setClicked(false), 150); // Reset animation
+    
     router.push("/");
   };
 
   return (
-    <header className="bg-gradient-to-br from-green-900 via-green-850 to-green-800 text-white p-4">
-      <div className="flex flex-row items-center justify-between text-3xl">
-        <div>
+    <header className="bg-[#e6f2ec] shadow-[inset_1px_1px_3px_#d4e0d8,inset_-1px_-1px_3px_#ffffff] border-b border-green-100 p-4 rounded-b-2xl mx-4">
+      <div className="flex flex-row items-center justify-between text-lg md:text-2xl font-medium text-gray-800">
+        {/* Left: Navigation Links */}
+        <div className="flex items-center space-x-6">
           <Link
             href="/receptionist"
-            className={
-              pathname === "/receptionist" ? "text-white" : "text-black"
-            }
+            className={`transition-colors duration-200 ${
+              pathname === "/receptionist"
+                ? "text-green-700 font-semibold"
+                : "text-gray-600 hover:text-green-700"
+            }`}
           >
-            <span className="icon" role="img" aria-label="Home">
+            <span role="img" aria-label="Home" className="mr-1">
               🏠
-            </span>{" "}
+            </span>
             Home
           </Link>
-          <span> | </span>
+
           <Link
             href="/receptionist/appointment"
-            className={
+            className={`transition-colors duration-200 ${
               pathname.startsWith("/receptionist/appointment")
-                ? "text-white"
-                : "text-black"
-            }
+                ? "text-green-700 font-semibold"
+                : "text-gray-600 hover:text-green-700"
+            }`}
           >
-            <span className="icon" role="img" aria-label="Appointments">
+            <span role="img" aria-label="Appointments" className="mr-1">
               📅
-            </span>{" "}
+            </span>
             Appointments
           </Link>
         </div>
+
+        {/* Right: Profile Icon and Logout */}
         <div className="flex items-center gap-4">
-          <div className="user-profile-icon-container">
-            <Link href="/receptionist/profile" className="flex items-center">
-              <span className="icon" role="img" aria-label="User Profile">
-                {usePathname() === "/receptionist/profile" ? (
-                  <div className="w-10 h-10 bg-white rounded-full p-2 flex items-center justify-center shadow-lg">
-                    <span className="text-2xl text-green-600">👤</span>
-                  </div>
-                ) : (
-                  "👤"
-                )}
+          <Link href="/receptionist/profile" className="relative">
+            {pathname === "/receptionist/profile" ? (
+              <div className="w-10 h-10 bg-[#e6f2ec] rounded-full p-2 flex items-center justify-center shadow-inner shadow-[inset_4px_4px_6px_#c2d0c8,inset_-4px_-4px_6px_#ffffff]">
+                <span className="text-xl text-green-700">👤</span>
+              </div>
+            ) : (
+              <span className="text-2xl text-gray-600 hover:text-green-700 transition">
+                👤
               </span>
-            </Link>
-          </div>
+            )}
+          </Link>
+
           <button
             onClick={handleLogout}
-            className="ml-2 px-4 py-1 rounded bg-white text-green-700 hover:bg-red-600 hover:text-white transition-colors duration-200 text-base font-semibold shadow"
-            style={{ fontSize: "1rem" }}
+            aria-pressed={clicked}
+            className={`ml-2 px-4 py-1 rounded-xl bg-[#e6f2ec] text-green-800 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm font-semibold shadow-[4px_4px_6px_#c2d0c8,-4px_-4px_6px_#ffffff] transform ${
+              clicked ? "scale-95" : "scale-100"
+            }`}
           >
             Logout
           </button>

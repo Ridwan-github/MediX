@@ -55,4 +55,12 @@ public class DoctorController {
                         .body((Doctor) Map.of("error", "Doctor not found", "doctorId", id)));
     }
 
+    @GetMapping("/doctors/email/{email}")
+    public ResponseEntity<?> getDoctorByEmail(@PathVariable String email) {
+        Optional<Doctor> doctorOpt = doctorService.getDoctorByEmail(email);
+        return doctorOpt.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body((Doctor) Map.of("error", "Doctor not found", "email", email)));
+    }
+
 }

@@ -46,4 +46,8 @@ public class DoctorService {
         return doctorRepo.findById(id);
     }
 
+    public Optional<Doctor> getDoctorByEmail(String email) {
+        return doctorRepo.findByUserEmail(email);
+    }
+
 }

@@ -19,6 +19,10 @@ export default function DoctorListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
@@ -51,88 +55,125 @@ export default function DoctorListPage() {
       doctor.contact.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Header />
-      <main className="flex-grow">
-        <div
-          style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-          className="p-4 justify-center text-center flex items-center text-2xl"
+
+      {/* Subheader / Navigation Tabs */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+        <Link
+          href="/receptionist/appointment"
+          onClick={() => handleNavClick('addAppointment')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            pathname === "/receptionist/appointment"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedAddAppointment ? "scale-95" : "scale-100"
+          }`}
         >
-          <Link
-            href="/receptionist/appointment"
-            className={
-              pathname === "/receptionist/appointment"
-                ? "text-white flex-1"
-                : "text-black flex-1"
-            }
-          >
-            Add Appointment
-          </Link>
-          <span>|</span>
-          <Link
-            href="/receptionist/appointment/doctor"
-            className={
-              pathname === "/receptionist/appointment/doctor"
-                ? "text-white flex-1"
-                : "text-black flex-1"
-            }
-          >
-            Doctor
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/vitals"
-            className={
-              usePathname() === "/receptionist/appointment/vitals"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Vitals Entry
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/list"
-            className={
-              usePathname() === "/receptionist/appointment/list"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Appointment List
-          </Link>
+          Add Appointment
+        </Link>
+        <Link
+          href="/receptionist/appointment/doctor"
+          onClick={() => handleNavClick('doctor')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            pathname === "/receptionist/appointment/doctor"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedDoctor ? "scale-95" : "scale-100"
+          }`}
+        >
+          Doctor
+        </Link>
+        <Link
+          href="/receptionist/appointment/vitals"
+          onClick={() => handleNavClick('vitals')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            pathname === "/receptionist/appointment/vitals"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedVitals ? "scale-95" : "scale-100"
+          }`}
+        >
+          Vitals Entry
+        </Link>
+        <Link
+          href="/receptionist/appointment/list"
+          onClick={() => handleNavClick('list')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            pathname === "/receptionist/appointment/list"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedList ? "scale-95" : "scale-100"
+          }`}
+        >
+          Appointment List
+        </Link>
+      </nav>
+
+      <main className="flex-grow px-6 sm:px-12 pb-12">
+        <div className="flex justify-center mb-10 items-end gap-6">
+          <div className="flex flex-col">
+            <label
+              htmlFor="search"
+              className="text-gray-700 font-semibold mb-2"
+            >
+              Search
+            </label>
+            <input
+              id="search"
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search doctors"
+              className="w-96 p-4 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c0c5cc,inset_-4px_-4px_6px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
         </div>
 
-        <div className="p-10">
-          <div className="flex justify-center mb-8 space-x-4 items-center">
-            <div>
-              <label className="text-white-800 font-semibold">Search</label>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-white-600 rounded px-4 py-2 w-96 block"
-              />
-            </div>
-            <button className="bg-green-700 text-white px-4 py-2 mt-6 rounded hover:bg-green-900">
-              SEARCH
-            </button>
-          </div>
+        {loading && (
+          <p className="text-center text-gray-500 text-lg">Loading doctors…</p>
+        )}
+        {error && <p className="text-center text-red-600">Error: {error}</p>}
 
-          {loading && (
-            <p className="text-center text-gray-500">Loading doctors…</p>
-          )}
-          {error && <p className="text-center text-red-500">Error: {error}</p>}
-          {!loading && !error && (
-            <table className="w-full border-collapse ">
-              <thead>
-                <tr className="bg-green-900 text-white text-xl">
-                  <th className="p-4 border">Name</th>
-                  <th className="p-4 border">Specialization</th>
-                  <th className="p-4 border">Degree</th>
-                  <th className="p-4 border">Contact</th>
-                  <th className="p-4 border">Available</th>
+        {!loading && !error && (
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
+            <table className="w-full border-collapse text-gray-800 text-center">
+              <thead className="bg-green-700 text-white text-lg select-none">
+                <tr>
+                  <th className="p-4 border border-green-600">Name</th>
+                  <th className="p-4 border border-green-600">
+                    Specialization
+                  </th>
+                  <th className="p-4 border border-green-600">Degree</th>
+                  <th className="p-4 border border-green-600">Contact</th>
+                  <th className="p-4 border border-green-600">Available</th>
                 </tr>
               </thead>
               <tbody>
@@ -145,25 +186,35 @@ export default function DoctorListPage() {
                     passHref
                     legacyBehavior
                   >
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-800  transition-colors duration-200 cursor-pointer"
-                    >
-                      <td className="p-4 border">{doctor.name}</td>
-                      <td className="p-4 border">{doctor.specialization}</td>
-                      <td className="p-4 border">{doctor.degree}</td>
-                      <td className="p-4 border">{doctor.contact}</td>
-                      <td className="p-4 border">
-                        {doctor.available ? "Yes" : "No"}
+                    <tr className="hover:bg-green-50 cursor-pointer transition-all duration-200">
+                      <td className="p-4 border border-green-100">
+                        {doctor.name}
+                      </td>
+                      <td className="p-4 border border-green-100">Surgery</td>
+                      <td className="p-4 border border-green-100">MBBS, MD</td>
+                      <td className="p-4 border border-green-100">
+                        {doctor.contact}
+                      </td>
+                      <td className="p-4 border border-green-100">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            doctor.available
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {doctor.available ? "Available" : "Not Available"}
+                        </span>
                       </td>
                     </tr>
                   </Link>
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </main>
+
       <Footer />
     </div>
   );

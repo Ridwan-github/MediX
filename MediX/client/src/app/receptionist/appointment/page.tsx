@@ -5,10 +5,18 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
+  const router = useRouter();
+  const [clickedAdd, setClickedAdd] = useState(false);
+  const [clickedClear, setClickedClear] = useState(false);
+  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedDoctor, setClickedDoctor] = useState(false);
+  const [clickedVitals, setClickedVitals] = useState(false);
+  const [clickedList, setClickedList] = useState(false);
 
   const searchParams = useSearchParams();
   const selectedDoctor = searchParams?.get("doctor");
@@ -22,21 +30,19 @@ export default function AppointmentPage() {
     }
   }, [selectedDoctor]);
 
-  const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+  const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
 
   useEffect(() => {
     // First fetch available doctors
     fetch("http://localhost:8080/api/doctors")
       .then((res) => res.json())
       .then((data) => {
-        // extract doctor names
-        const doctorNames = data.map((d) => d.user.name);
-        setAvailableDoctors(doctorNames);
+        setAvailableDoctors(data);
       })
       .catch((err) => console.error(err));
   }, []);
 
-  const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = new Date().toISOString().slice(0, 10);
 
   const [patient, setPatient] = useState({
     name: "",
@@ -45,37 +51,104 @@ export default function AppointmentPage() {
     doctor: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setPatient((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Trigger button press animation
+    setClickedAdd(true);
+    setTimeout(() => setClickedAdd(false), 150); // Reset animation
+
     try {
-      const appointment = {
-        name: patient.name,
-        contact: patient.contact,
-        appointmentDate: patient.appointmentDate,
-        doctor: patient.doctor,
-      };
-      const response = await fetch("http://localhost:8080/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(appointment),
-      });
-      if (!response.ok) {
-        console.error("Failed to add patient:", response.statusText);
+      let patientId;
+
+      // Step 1 & 2: Check if patient exists by phone number
+      const patientResponse = await fetch(
+        `http://localhost:8080/api/patients/by-phone?phoneNumber=${patient.contact}`
+      );
+
+      console.log("Patient response status:", patientResponse.status);
+
+      if (patientResponse.ok) {
+        // Patient exists, get their ID
+        const existingPatient = await patientResponse.json();
+        patientId = existingPatient.id;
+      } else if (patientResponse.status === 404) {
+        console.log("Patient not found, creating a new one");
+        // Step 3: Patient does not exist, create a new one
+        const newPatientResponse = await fetch(
+          "http://localhost:8080/api/patients/basic",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: patient.name,
+              phoneNumber: patient.contact,
+            }),
+          }
+        );
+        console.log("New patient response status:", newPatientResponse.status);
+        const newPatient = await newPatientResponse.json();
+        patientId = newPatient.id;
+        console.log("New patient created with ID:", patientId);
       } else {
-        console.log("Patient added successfully");
-        clearForm();
+        // Handle other errors
+        console.error(
+          "Failed to check for patient:",
+          patientResponse.statusText
+        );
+        return;
+      }
+
+      // Step 4 & 5 is assumed: you have the doctorId
+      if (!patient.doctor) {
+        console.error("Doctor not selected");
+        return;
+      }
+
+      // Step 6: Create the appointment
+      const appointmentData = {
+        patientId: patientId,
+        doctorId: parseInt(patient.doctor, 10), // This should now be a valid ID
+        appointmentDate: patient.appointmentDate,
+      };
+
+      const appointmentResponse = await fetch(
+        "http://localhost:8080/api/appointments",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(appointmentData),
+        }
+      );
+
+      if (!appointmentResponse.ok) {
+        console.error(
+          "Failed to create appointment:",
+          appointmentResponse.statusText
+        );
+      } else {
+        console.log("Appointment created successfully");
+        // clearForm();
       }
     } catch (error) {
-      console.error("Error submitting patient:", error);
+      console.error("Error in appointment creation process:", error);
     }
+
+    router.push("/receptionist/appointment/vitals");
   };
 
   const clearForm = () => {
+    // Trigger button press animation
+    setClickedClear(true);
+    setTimeout(() => setClickedClear(false), 150); // Reset animation
+    
     setPatient({
       name: "",
       contact: "",
@@ -84,133 +157,169 @@ export default function AppointmentPage() {
     });
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        <div
-          style={{ backgroundColor: lowerNavBgColor, color: lowerNavTextColor }}
-          className="p-4 justify-center text-center flex items-center text-2xl"
-        >
-          <Link
-            href="/receptionist/appointment"
-            className={
-              usePathname() === "/receptionist/appointment"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Add Appointment
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/doctor"
-            className={
-              usePathname() === "/receptionist/appointment/doctor"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Doctor
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/vitals"
-            className={
-              usePathname() === "/receptionist/appointment/vitals"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Vitals Entry
-          </Link>
-          <span> | </span>
-          <Link
-            href="/receptionist/appointment/list"
-            className={
-              usePathname() === "/receptionist/appointment/list"
-                ? "text-white w-0 flex-1"
-                : "text-black w-0 flex-1"
-            }
-          >
-            Appointment List
-          </Link>
-        </div>
+  const handleNavClick = (navType: string) => {
+    // Trigger button press animation based on nav type
+    switch (navType) {
+      case 'addAppointment':
+        setClickedAddAppointment(true);
+        setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case 'doctor':
+        setClickedDoctor(true);
+        setTimeout(() => setClickedDoctor(false), 150);
+        break;
+      case 'vitals':
+        setClickedVitals(true);
+        setTimeout(() => setClickedVitals(false), 150);
+        break;
+      case 'list':
+        setClickedList(true);
+        setTimeout(() => setClickedList(false), 150);
+        break;
+    }
+  };
 
-        <div className="justify-center text-center mt-10 mb-10">
-          <h1 className="text-3xl font-bold">Patient Info</h1>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col items-center mt-4 justify-between space-y-4 bg-gray-800 rounded-3xl shadow-lg p-8"
-            style={{ width: "400px", margin: "0 auto" }}
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      <Header />
+
+      {/* Subheader / Navigation Tabs */}
+      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
+        <Link
+          href="/receptionist/appointment"
+          onClick={() => handleNavClick('addAppointment')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            usePathname() === "/receptionist/appointment"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedAddAppointment ? "scale-95" : "scale-100"
+          }`}
+        >
+          Add Appointment
+        </Link>
+        <Link
+          href="/receptionist/appointment/doctor"
+          onClick={() => handleNavClick('doctor')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            usePathname() === "/receptionist/appointment/doctor"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedDoctor ? "scale-95" : "scale-100"
+          }`}
+        >
+          Doctor
+        </Link>
+        <Link
+          href="/receptionist/appointment/vitals"
+          onClick={() => handleNavClick('vitals')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            usePathname() === "/receptionist/appointment/vitals"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedVitals ? "scale-95" : "scale-100"
+          }`}
+        >
+          Vitals Entry
+        </Link>
+        <Link
+          href="/receptionist/appointment/list"
+          onClick={() => handleNavClick('list')}
+          className={`px-4 py-2 rounded-lg transition transform ${
+            usePathname() === "/receptionist/appointment/list"
+              ? "bg-green-700/80 text-white shadow-lg"
+              : "hover:bg-green-600/40"
+          } ${
+            clickedList ? "scale-95" : "scale-100"
+          }`}
+        >
+          Appointment List
+        </Link>
+      </nav>
+
+      {/* Body Content */}
+      <main className="flex-grow bg-[#f2fff7] text-gray-900 rounded-t-3xl shadow-inner mx-6 mb-10 p-10 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-gray-800 text-center">
+          Patient Info
+        </h1>
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-3xl p-8 max-w-md mx-auto space-y-6 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]"
+        >
+          <input
+            type="text"
+            name="name"
+            placeholder="Patient Name"
+            required
+            value={patient.name}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <input
+            type="tel"
+            name="contact"
+            placeholder="Contact Number"
+            required
+            value={patient.contact}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <select
+            name="doctor"
+            required
+            value={patient.doctor}
+            onChange={handleChange}
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              required
-              value={patient.name}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <input
-              type="tel"
-              name="contact"
-              placeholder="Contact Number"
-              required
-              value={patient.contact}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <select
-              name="doctor"
-              required
-              value={patient.doctor}
-              onChange={handleChange}
-              className="border border-gray-300 p-2 rounded bg-gray-800 text-white"
-              style={{ width: "300px" }}
+            <option value="" disabled>
+              Select a Doctor
+            </option>
+            {availableDoctors.map((doctor) => (
+              <option key={doctor.doctorId} value={doctor.doctorId}>
+                {doctor.user.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="date"
+            name="appointmentDate"
+            required
+            value={patient.appointmentDate || ""}
+            onChange={handleChange}
+            min={todayDate}
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <div className="flex justify-between gap-6">
+            <button
+              type="submit"
+              aria-pressed={clickedAdd}
+              className={`flex-1 bg-[#e0e5ec] text-green-800 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-green-100 transition duration-500 transform ${
+                clickedAdd ? "scale-95" : "scale-100"
+              }`}
             >
-              <option value="">Select a Doctor</option>
-              {availableDoctors.map((doctor, idx) => (
-                <option key={idx} value={doctor}>
-                  {doctor}
-                </option>
-              ))}
-            </select>
-            <input
-              type="date"
-              name="appointmentDate"
-              required
-              value={patient.appointmentDate || todayDate}
-              onChange={handleChange}
-              min={todayDate}
-              className="border border-gray-300 p-2 rounded"
-              style={{ width: "300px" }}
-            />
-            <div
-              className="flex justify-center w-half max-w-md space-x-8"
-              style={{ width: "300px" }}
+              Add Patient
+            </button>
+            <button
+              type="button"
+              onClick={clearForm}
+              aria-pressed={clickedClear}
+              className={`flex-1 bg-[#e0e5ec] text-red-700 font-semibold py-3 rounded-xl shadow-[6px_6px_10px_#c2c8d0,-6px_-6px_10px_#ffffff] hover:bg-red-100 transition duration-500 transform ${
+                clickedClear ? "scale-95" : "scale-100"
+              }`}
             >
-              <button
-                type="submit"
-                className="bg-green-500 text-black p-2 rounded transition-colors duration-200 hover:bg-blue-700 hover:text-white"
-              >
-                Add Patient
-              </button>
-              <button
-                type="button"
-                onClick={clearForm}
-                className="bg-red-500 text-white p-2 rounded transition-colors duration-200 hover:bg-red-700 hover:text-white"
-                style={{ width: "110px" }}
-              >
-                Clear
-              </button>
-            </div>
-          </form>
-        </div>
+              Clear
+            </button>
+          </div>
+        </form>
       </main>
+
       <Footer />
     </div>
   );

@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     @Query("SELECT MAX(d.doctorId) FROM Doctor d")
     Optional<Long> findMaxDoctorId();
+
+    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.email = :email")
+    Optional<Doctor> findByUserEmail(String email);
 }
