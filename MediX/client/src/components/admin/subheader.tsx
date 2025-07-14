@@ -5,11 +5,10 @@ export default function SubHeader() {
   const pathname = usePathname();
 
   const getTitle = () => {
-    if (pathname === "/pharmacist/Medicines") return "Medicines";
-    if (pathname === "/pharmacist/Sell") return "Sell Medicines";
-    if (pathname === "/pharmacist/History") return "History";
-    if (pathname === "/pharmacist/Sell/Finalize") return "Finalize and Lock";
-    return "Pharmacist Dashboard";
+    if (pathname === "/admin/Users") return "Users";
+    if (pathname === "/admin/Medicines") return "Medicines";
+    if (pathname === "/admin/Orders") return "Orders";
+    return "Admin Dashboard";
   };
 
   return (

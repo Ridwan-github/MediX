@@ -12,12 +12,12 @@ export default function PrescriptionPage() {
   const [monthlySoldAmount, setMonthlySoldAmount] = useState("150000");
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-white text-white flex flex-col">
       <Header />
       <SubHeader />
       <main className="flex-grow p-10">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center text-gray-200">
+          <h1 className="text-4xl font-bold mb-8 text-center !text-black">
             My Dashboard
           </h1>
 

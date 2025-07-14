@@ -7,85 +7,77 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const navItems = [
+    { href: "/pharmacist", label: "Home", icon: "🏠" },
+    { href: "/pharmacist/Medicines", label: "Medicines", icon: "💊" },
+    { href: "/pharmacist/Sell", label: "Sell", icon: "🛒" },
+    { href: "/pharmacist/History", label: "History", icon: "📜" },
+  ];
+
   const handleLogout = () => {
-    // Add any logout logic here (e.g., clearing tokens) if needed
+    // Add logout logic if needed
     router.push("/");
   };
 
+  const isActive = (route: string) => pathname === route;
+
+  const navLinkClasses = (active: boolean) =>
+    `px-4 py-2 rounded-xl transition-all duration-200 text-sm sm:text-base font-medium ${
+      active
+        ? "bg-green-800 text-white"
+        : "text-green-900 hover:bg-green-200 hover:text-green-900"
+    }`;
+
   return (
-    <header className="bg-gradient-to-br from-green-900 via-green-850 to-green-800 text-white p-4">
-      <div className="flex flex-row items-center justify-between text-3xl">
-        <div>
-          <Link
-            href="/pharmacist"
-            className={pathname === "/pharmacist" ? "text-white" : "text-black"}
-          >
-            <span className="icon" role="img" aria-label="Home">
-              🏠
-            </span>{" "}
-            Home
-          </Link>
-          <span> | </span>
-          <Link
-            href="/pharmacist/Medicines"
-            className={
-              pathname.startsWith("/pharmacist/Medicines")
-                ? "text-white"
-                : "text-black"
-            }
-          >
-            <span className="icon" role="img" aria-label="Appointments">
-            💊
-            </span>{" "}
-            Medicines
-          </Link>
-          <span> | </span>
-          <Link
-            href="/pharmacist/Sell"
-            className={
-              pathname.startsWith("/pharmacist/Sell")
-                ? "text-white"
-                : "text-black"
-            }
-          >
-            <span className="icon" role="img" aria-label="Appointments">
-            🛒
-            </span>{" "}
-            Sell
-          </Link>
-          <span> | </span>
-            <Link
-                href="/pharmacist/History"
-                className={
-                pathname.startsWith("/pharmacist/History")
-                    ? "text-white"
-                    : "text-black"
-                }
-            >
-            <span className="icon" role="img" aria-label="Appointments">
-            📜
-            </span>{" "}
-            History
-            </Link>
+    <header className="bg-gradient-to-r from-green-100/80 via-green-200/50 to-green-100/80 backdrop-blur-sm text-green-900 shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between">
+        {/* Navigation Links */}
+        <div className="flex items-center gap-2 sm:gap-6">
+          {navItems.map((item) => {
+            const isExactMatch = pathname === item.href;
+            const isActiveLink = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${navLinkClasses(isActiveLink)} transform ${
+                  isExactMatch ? "scale-95" : "scale-100"
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
+
+        {/* Profile & Logout */}
         <div className="flex items-center gap-4">
-          <div className="user-profile-icon-container">
-            <Link href="/pharmacist/Profile" className="flex items-center">
-              <span className="icon" role="img" aria-label="User Profile">
-                {usePathname() === "/pharmacist/Profile" ? (
-                  <div className="w-10 h-10 bg-white rounded-full p-2 flex items-center justify-center shadow-lg">
-                    <span className="text-2xl text-green-600">👤</span>
-                  </div>
-                ) : (
-                  "👤"
-                )}
+          <Link href="/pharmacist/Profile">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 transition ${
+                pathname === "/pharmacist/Profile"
+                  ? "bg-white border-green-800"
+                  : "bg-green-100 border-green-300 hover:border-green-500"
+              }`}
+            >
+              <span
+                className={`text-2xl ${
+                  pathname === "/pharmacist/Profile"
+                    ? "text-green-800"
+                    : "text-green-700"
+                }`}
+              >
+                👤
               </span>
-            </Link>
-          </div>
+            </div>
+          </Link>
+
           <button
             onClick={handleLogout}
-            className="ml-2 px-4 py-1 rounded bg-white text-green-700 hover:bg-red-600 hover:text-white transition-colors duration-200 text-base font-semibold shadow"
-            style={{ fontSize: "1rem" }}
+            className={`px-4 py-2 text-sm sm:text-base rounded-xl bg-green-800 hover:bg-red-600 text-white font-medium shadow transition duration-200 transform ${
+              isActive("/pharmacist") ? "scale-95" : "scale-100"
+            }`}
           >
             Logout
           </button>
