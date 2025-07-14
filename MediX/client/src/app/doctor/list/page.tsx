@@ -26,7 +26,9 @@ export default function DoctorListPage() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState<string>("");
   const [currentDoctor, setCurrentDoctor] = useState<any>(null);
-  const [clickedStartAppointment, setClickedStartAppointment] = useState<number | null>(null);
+  const [clickedStartAppointment, setClickedStartAppointment] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     // If we have email in URL, store it
@@ -170,7 +172,7 @@ export default function DoctorListPage() {
     // Trigger button press animation
     setClickedStartAppointment(appointment.id);
     setTimeout(() => setClickedStartAppointment(null), 150); // Reset animation
-    
+
     console.log("Starting appointment:", appointment);
   };
 
@@ -246,7 +248,9 @@ export default function DoctorListPage() {
                         onClick={() => handleStartAppointment(row)}
                         aria-pressed={clickedStartAppointment === row.id}
                         className={`bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                          clickedStartAppointment === row.id ? "scale-95" : "scale-100"
+                          clickedStartAppointment === row.id
+                            ? "scale-95"
+                            : "scale-100"
                         }`}
                       >
                         Start Appointment
@@ -283,7 +287,7 @@ export default function DoctorListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search patients"
-              className="w-96 p-4 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c0c5cc,inset_-4px_-4px_6px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-96 p-4 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c0c5cc,inset_-2px_-2px_4px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
         </div>

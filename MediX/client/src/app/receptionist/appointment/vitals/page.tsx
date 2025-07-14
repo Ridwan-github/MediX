@@ -225,19 +225,19 @@ export default function VitalsPage() {
   const handleNavClick = (navType: string) => {
     // Trigger button press animation based on nav type
     switch (navType) {
-      case 'addAppointment':
+      case "addAppointment":
         setClickedAddAppointment(true);
         setTimeout(() => setClickedAddAppointment(false), 150);
         break;
-      case 'doctor':
+      case "doctor":
         setClickedDoctor(true);
         setTimeout(() => setClickedDoctor(false), 150);
         break;
-      case 'vitals':
+      case "vitals":
         setClickedVitals(true);
         setTimeout(() => setClickedVitals(false), 150);
         break;
-      case 'list':
+      case "list":
         setClickedList(true);
         setTimeout(() => setClickedList(false), 150);
         break;
@@ -259,11 +259,17 @@ export default function VitalsPage() {
           <Link
             key={path}
             href={path}
-            onClick={() => handleNavClick(
-              path === "/receptionist/appointment" ? "addAppointment" :
-              path === "/receptionist/appointment/doctor" ? "doctor" :
-              path === "/receptionist/appointment/vitals" ? "vitals" : "list"
-            )}
+            onClick={() =>
+              handleNavClick(
+                path === "/receptionist/appointment"
+                  ? "addAppointment"
+                  : path === "/receptionist/appointment/doctor"
+                  ? "doctor"
+                  : path === "/receptionist/appointment/vitals"
+                  ? "vitals"
+                  : "list"
+              )
+            }
             className={`px-4 py-2 rounded-lg transition transform ${
               usePathname() === path
                 ? "bg-green-700/80 text-white shadow-lg"
@@ -273,7 +279,8 @@ export default function VitalsPage() {
               (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
               (path === "/receptionist/appointment/vitals" && clickedVitals) ||
               (path === "/receptionist/appointment/list" && clickedList)
-                ? "scale-95" : "scale-100"
+                ? "scale-95"
+                : "scale-100"
             }`}
           >
             {label}
@@ -297,7 +304,7 @@ export default function VitalsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search"
-              className="w-96 p-4 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c0c5cc,inset_-4px_-4px_6px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-96 p-4 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c0c5cc,inset_-2px_-2px_4px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
         </div>

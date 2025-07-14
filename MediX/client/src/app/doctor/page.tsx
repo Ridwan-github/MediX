@@ -46,7 +46,9 @@ export default function DoctorPage() {
   // Fetch doctor information
   const fetchDoctorInfo = async (email: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/doctors/email/${email}`);
+      const response = await fetch(
+        `http://localhost:8080/api/doctors/email/${email}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -62,7 +64,9 @@ export default function DoctorPage() {
   // Fetch all appointments
   const fetchAppointments = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/appointments/with-details");
+      const response = await fetch(
+        "http://localhost:8080/api/appointments/with-details"
+      );
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -76,8 +80,11 @@ export default function DoctorPage() {
   };
 
   // Calculate statistics
-  const calculateStats = (doctorData: Doctor, appointmentsData: Appointment[]) => {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const calculateStats = (
+    doctorData: Doctor,
+    appointmentsData: Appointment[]
+  ) => {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Start of current week (Sunday)
     const endOfWeek = new Date();
@@ -102,17 +109,26 @@ export default function DoctorPage() {
     // Next appointment (first future appointment)
     const futureAppointments = doctorAppointments
       .filter((appt) => new Date(appt.appointmentDate) >= new Date())
-      .sort((a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime());
+      .sort(
+        (a, b) =>
+          new Date(a.appointmentDate).getTime() -
+          new Date(b.appointmentDate).getTime()
+      );
 
-    const nextAppointment = futureAppointments.length > 0 ? futureAppointments[0] : null;
+    const nextAppointment =
+      futureAppointments.length > 0 ? futureAppointments[0] : null;
 
     return {
       numberOfPatients: todaysAppointments.length.toString(),
-      patientsRemaining: todaysAppointments.filter(appt => appt.status === "READY").length.toString(),
+      patientsRemaining: todaysAppointments
+        .filter((appt) => appt.status === "READY")
+        .length.toString(),
       weeklyAppointments: weeklyAppointments.length.toString(),
-      nextAppointment: nextAppointment 
-        ? `${nextAppointment.patientName} - ${new Date(nextAppointment.appointmentDate).toLocaleDateString()}`
-        : "No upcoming appointments"
+      nextAppointment: nextAppointment
+        ? `${nextAppointment.patientName} - ${new Date(
+            nextAppointment.appointmentDate
+          ).toLocaleDateString()}`
+        : "No upcoming appointments",
     };
   };
 
@@ -120,7 +136,7 @@ export default function DoctorPage() {
   useEffect(() => {
     const loadData = async () => {
       if (!email) return;
-      
+
       setLoading(true);
       setError(null);
 
@@ -150,7 +166,8 @@ export default function DoctorPage() {
   const [patientsRemaining, setPatientsRemaining] = useState("0");
   const [reportsToReview, setReportsToReview] = useState("0");
   const [weeklyAppointments, setWeeklyAppointments] = useState("0");
-  const [averageConsultationTime, setAverageConsultationTime] = useState("0 mins");
+  const [averageConsultationTime, setAverageConsultationTime] =
+    useState("0 mins");
 
   // Color map for each stat card
   const cards = [
@@ -212,7 +229,7 @@ export default function DoctorPage() {
           {cards.map((card, index) => (
             <div
               key={index}
-              className="bg-[#f0f6f2] rounded-3xl border border-green-900 shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] p-6 sm:p-8 transition-shadow duration-300 cursor-default hover:shadow-[inset_8px_8px_16px_#a0b6a9,inset_-8px_-8px_16px_#ffffff]"
+              className="bg-[#f0f6f2] rounded-3xl  shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] p-6 sm:p-8 transition-shadow duration-300 cursor-default hover:shadow-[inset_4px_4px_8px_#a0b6a9,inset_-4px_-4px_8px_#ffffff]"
             >
               <h2 className="text-md sm:text-lg font-semibold text-green-800 text-center mb-3 select-none">
                 {card.label}

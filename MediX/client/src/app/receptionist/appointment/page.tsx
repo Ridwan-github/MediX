@@ -60,7 +60,7 @@ export default function AppointmentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Trigger button press animation
     setClickedAdd(true);
     setTimeout(() => setClickedAdd(false), 150); // Reset animation
@@ -148,7 +148,7 @@ export default function AppointmentPage() {
     // Trigger button press animation
     setClickedClear(true);
     setTimeout(() => setClickedClear(false), 150); // Reset animation
-    
+
     setPatient({
       name: "",
       contact: "",
@@ -160,19 +160,19 @@ export default function AppointmentPage() {
   const handleNavClick = (navType: string) => {
     // Trigger button press animation based on nav type
     switch (navType) {
-      case 'addAppointment':
+      case "addAppointment":
         setClickedAddAppointment(true);
         setTimeout(() => setClickedAddAppointment(false), 150);
         break;
-      case 'doctor':
+      case "doctor":
         setClickedDoctor(true);
         setTimeout(() => setClickedDoctor(false), 150);
         break;
-      case 'vitals':
+      case "vitals":
         setClickedVitals(true);
         setTimeout(() => setClickedVitals(false), 150);
         break;
-      case 'list':
+      case "list":
         setClickedList(true);
         setTimeout(() => setClickedList(false), 150);
         break;
@@ -187,53 +187,45 @@ export default function AppointmentPage() {
       <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
         <Link
           href="/receptionist/appointment"
-          onClick={() => handleNavClick('addAppointment')}
+          onClick={() => handleNavClick("addAppointment")}
           className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
-          } ${
-            clickedAddAppointment ? "scale-95" : "scale-100"
-          }`}
+          } ${clickedAddAppointment ? "scale-95" : "scale-100"}`}
         >
           Add Appointment
         </Link>
         <Link
           href="/receptionist/appointment/doctor"
-          onClick={() => handleNavClick('doctor')}
+          onClick={() => handleNavClick("doctor")}
           className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/doctor"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
-          } ${
-            clickedDoctor ? "scale-95" : "scale-100"
-          }`}
+          } ${clickedDoctor ? "scale-95" : "scale-100"}`}
         >
           Doctor
         </Link>
         <Link
           href="/receptionist/appointment/vitals"
-          onClick={() => handleNavClick('vitals')}
+          onClick={() => handleNavClick("vitals")}
           className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/vitals"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
-          } ${
-            clickedVitals ? "scale-95" : "scale-100"
-          }`}
+          } ${clickedVitals ? "scale-95" : "scale-100"}`}
         >
           Vitals Entry
         </Link>
         <Link
           href="/receptionist/appointment/list"
-          onClick={() => handleNavClick('list')}
+          onClick={() => handleNavClick("list")}
           className={`px-4 py-2 rounded-lg transition transform ${
             usePathname() === "/receptionist/appointment/list"
               ? "bg-green-700/80 text-white shadow-lg"
               : "hover:bg-green-600/40"
-          } ${
-            clickedList ? "scale-95" : "scale-100"
-          }`}
+          } ${clickedList ? "scale-95" : "scale-100"}`}
         >
           Appointment List
         </Link>
@@ -256,7 +248,7 @@ export default function AppointmentPage() {
             required
             value={patient.name}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <input
@@ -266,7 +258,7 @@ export default function AppointmentPage() {
             required
             value={patient.contact}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <select
@@ -274,7 +266,7 @@ export default function AppointmentPage() {
             required
             value={patient.doctor}
             onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="" disabled>
               Select a Doctor
@@ -293,7 +285,7 @@ export default function AppointmentPage() {
             value={patient.appointmentDate || ""}
             onChange={handleChange}
             min={todayDate}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#b8bdc4,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <div className="flex justify-between gap-6">

@@ -19,6 +19,17 @@ export default function Home() {
     setTimeout(() => setClicked(false), 150); // Reset animation
 
     try {
+      if (!email.trim() || !password.trim()) {
+        setError("Email and password cannot be empty.");
+        return;
+      } else if (
+        email.trim() === "admin@admin.com" &&
+        password.trim() === "admin"
+      ) {
+        router.push("/admin");
+        return;
+      }
+
       const resDoctors = await fetch("http://localhost:8080/api/doctors");
       let doctor = null;
       if (resDoctors.ok) {
@@ -97,7 +108,7 @@ export default function Home() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="px-4 py-3 pr-10 w-full rounded-xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_10px_#c2d0c8,inset_-6px_-6px_10px_#ffffff] placeholder-gray-500 focus:outline-none"
+              className="px-4 py-3 pr-10 w-full rounded-xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none"
               required
             />
             <button
