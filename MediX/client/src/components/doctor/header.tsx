@@ -2,6 +2,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { AiOutlineHome } from "react-icons/ai";
+import {
+  MdOutlineMedication,
+  MdOutlineListAlt,
+  MdOutlineHistory,
+} from "react-icons/md";
 
 export default function Header() {
   const pathname = usePathname();
@@ -23,19 +29,19 @@ export default function Header() {
   const handleNavClick = (navType: string) => {
     // Trigger button press animation based on nav type
     switch (navType) {
-      case 'home':
+      case "home":
         setClickedHome(true);
         setTimeout(() => setClickedHome(false), 150);
         break;
-      case 'prescribe':
+      case "prescribe":
         setClickedPrescribe(true);
         setTimeout(() => setClickedPrescribe(false), 150);
         break;
-      case 'list':
+      case "list":
         setClickedList(true);
         setTimeout(() => setClickedList(false), 150);
         break;
-      case 'history':
+      case "history":
         setClickedHistory(true);
         setTimeout(() => setClickedHistory(false), 150);
         break;
@@ -56,41 +62,58 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between">
         {/* Navigation Links */}
         <div className="flex items-center gap-2 sm:gap-6">
-          <Link 
-            href="/doctor" 
+          <Link
+            href="/doctor"
             className={`${navLinkClasses(isActive("/doctor"))} transform ${
               clickedHome ? "scale-95" : "scale-100"
-            }`}
-            onClick={() => handleNavClick('home')}
+            } flex items-center gap-1`}
+            onClick={() => handleNavClick("home")}
           >
-            🏠 Home
+            <AiOutlineHome className="text-base sm:text-lg font-bold" />
+            Home
           </Link>
           <Link
             href="/doctor/prescribe"
-            className={`${navLinkClasses(isActive("/doctor/prescribe"))} transform ${
+            className={`${navLinkClasses(
+              isActive("/doctor/prescribe")
+            )} transform ${
               clickedPrescribe ? "scale-95" : "scale-100"
-            }`}
-            onClick={() => handleNavClick('prescribe')}
+            } flex items-center gap-1`}
+            onClick={() => handleNavClick("prescribe")}
           >
-            💊 Quick Prescribe
+            <MdOutlineMedication className="text-base sm:text-lg font-bold" />
+            Quick Prescribe
           </Link>
           <Link
             href="/doctor/list"
             className={`${navLinkClasses(isActive("/doctor/list"))} transform ${
               clickedList ? "scale-95" : "scale-100"
-            }`}
-            onClick={() => handleNavClick('list')}
+            } flex items-center gap-1`}
+            onClick={() => handleNavClick("list")}
           >
-            📋 List
+            <img
+              src="/list.png"
+              alt="List"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain font-bold"
+              style={{
+                minWidth: "1.25rem",
+                minHeight: "1.25rem",
+                fontWeight: "bold",
+              }}
+            />
+            List
           </Link>
           <Link
             href="/doctor/history"
-            className={`${navLinkClasses(isActive("/doctor/history"))} transform ${
+            className={`${navLinkClasses(
+              isActive("/doctor/history")
+            )} transform ${
               clickedHistory ? "scale-95" : "scale-100"
-            }`}
-            onClick={() => handleNavClick('history')}
+            } flex items-center gap-1`}
+            onClick={() => handleNavClick("history")}
           >
-            📜 History
+            <MdOutlineHistory className="text-base sm:text-lg font-bold" />
+            History
           </Link>
         </div>
 

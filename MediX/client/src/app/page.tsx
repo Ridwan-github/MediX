@@ -28,6 +28,12 @@ export default function Home() {
       ) {
         router.push("/admin");
         return;
+      } else if (
+        email.trim() === "receptionist@gmail.com" &&
+        password.trim() === "receptionist"
+      ) {
+        router.push("/receptionist");
+        return;
       }
 
       const resDoctors = await fetch("http://localhost:8080/api/doctors");
@@ -71,7 +77,7 @@ export default function Home() {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image
-            src="/logo.jpg"
+            src="/lo.png"
             alt="MediX Logo"
             width={100}
             height={80}

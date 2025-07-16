@@ -19,9 +19,33 @@ export default function RecordsPage() {
 
   // Sample list of users
   const [users, setUsers] = useState<User[]>([
-    { id: "1", name: "John Doe", email: "john@example.com", role: "Doctor", gender: "Male", age: "35", joinDate: "2020-01-15" },
-    { id: "2", name: "Jane Smith", email: "jane@example.com", role: "Pharmacist", gender: "Female", age: "30", joinDate: "2019-03-10" },
-    { id: "3", name: "David Johnson", email: "david@example.com", role: "Receptionist", gender: "Male", age: "25", joinDate: "2021-07-20" },
+    {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
+      role: "Doctor",
+      gender: "Male",
+      age: "35",
+      joinDate: "2020-01-15",
+    },
+    {
+      id: "2",
+      name: "Jane Smith",
+      email: "jane@example.com",
+      role: "Pharmacist",
+      gender: "Female",
+      age: "30",
+      joinDate: "2019-03-10",
+    },
+    {
+      id: "3",
+      name: "David Johnson",
+      email: "david@example.com",
+      role: "Receptionist",
+      gender: "Male",
+      age: "25",
+      joinDate: "2021-07-20",
+    },
     // More sample users...
   ]);
 
@@ -40,16 +64,24 @@ export default function RecordsPage() {
     setUsers(users.filter((user) => user.id !== userId));
   };
 
-  const filteredUsers = filterRole === "All" ? users : users.filter(user => user.role === filterRole);
+  const filteredUsers =
+    filterRole === "All"
+      ? users
+      : users.filter((user) => user.role === filterRole);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-    <Header />
+      <Header />
       <main className="flex-grow p-8">
         <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-10">
           {/* Filter Dropdown */}
           <div className="mb-6 flex justify-end">
-            <label htmlFor="role" className="mr-4 text-sm text-gray-700 font-semibold">Filter by Role</label>
+            <label
+              htmlFor="role"
+              className="mr-4 text-sm text-gray-700 font-semibold"
+            >
+              Filter by Role
+            </label>
             <select
               id="role"
               value={filterRole}
@@ -78,7 +110,10 @@ export default function RecordsPage() {
             </thead>
             <tbody>
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="border-b border-gray-300">
+                <tr
+                  key={user.id}
+                  className="border-b border-gray-300 text-black"
+                >
                   <td className="p-4 text-sm">{user.name}</td>
                   <td className="p-4 text-sm">{user.email}</td>
                   <td className="p-4 text-sm">{user.role}</td>
@@ -106,7 +141,7 @@ export default function RecordsPage() {
         </div>
       </main>
 
-    <Footer />
+      <Footer />
     </div>
   );
 }

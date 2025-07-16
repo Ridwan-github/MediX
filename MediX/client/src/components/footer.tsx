@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="flex justify-center md:justify-start items-center">
           <div className="bg-[#e6f2ec] w-24 h-24 md:w-28 md:h-28 rounded-full p-1 shadow-[6px_6px_10px_#c2d0c8,-6px_-6px_10px_#ffffff] border-4 border-green-300 overflow-hidden flex items-center justify-center">
             <img
-              src="/logo.jpg"
+              src="/lo.png"
               alt="Hospital Logo"
               className="w-full h-full object-contain"
             />

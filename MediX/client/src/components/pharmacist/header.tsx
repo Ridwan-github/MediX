@@ -2,16 +2,18 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { AiOutlineHome } from "react-icons/ai";
+import { MdOutlineMedication, MdOutlineShoppingCart, MdOutlineHistory } from "react-icons/md";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
   const navItems = [
-    { href: "/pharmacist", label: "Home", icon: "🏠" },
-    { href: "/pharmacist/Medicines", label: "Medicines", icon: "💊" },
-    { href: "/pharmacist/Sell", label: "Sell", icon: "🛒" },
-    { href: "/pharmacist/History", label: "History", icon: "📜" },
+    { href: "/pharmacist", label: "Home", icon: <AiOutlineHome className="text-base sm:text-lg font-bold" /> },
+    { href: "/pharmacist/Medicines", label: "Medicines", icon: <MdOutlineMedication className="text-base sm:text-lg font-bold" /> },
+    { href: "/pharmacist/Sell", label: "Sell", icon: <MdOutlineShoppingCart className="text-base sm:text-lg font-bold" /> },
+    { href: "/pharmacist/History", label: "History", icon: <MdOutlineHistory className="text-base sm:text-lg font-bold" /> },
   ];
 
   const handleLogout = () => {
@@ -42,9 +44,9 @@ export default function Header() {
                 href={item.href}
                 className={`${navLinkClasses(isActiveLink)} transform ${
                   isExactMatch ? "scale-95" : "scale-100"
-                }`}
+                } flex items-center gap-1`}
               >
-                <span className="text-lg">{item.icon}</span>
+                {item.icon}
                 <span>{item.label}</span>
               </Link>
             );

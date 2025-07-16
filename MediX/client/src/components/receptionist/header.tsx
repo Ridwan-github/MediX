@@ -3,6 +3,8 @@ import Link from "next/link";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { AiOutlineHome } from "react-icons/ai";
+import { MdOutlineEventNote } from "react-icons/md";
 
 export default function Header() {
   const pathname = usePathname();
@@ -13,62 +15,65 @@ export default function Header() {
     // Trigger button press animation
     setClicked(true);
     setTimeout(() => setClicked(false), 150); // Reset animation
-    
+
     router.push("/");
   };
 
   return (
-    <header className="bg-[#e6f2ec] shadow-[inset_1px_1px_3px_#d4e0d8,inset_-1px_-1px_3px_#ffffff] border-b border-green-100 p-4 rounded-b-2xl mx-4">
-      <div className="flex flex-row items-center justify-between text-lg md:text-2xl font-medium text-gray-800">
-        {/* Left: Navigation Links */}
-        <div className="flex items-center space-x-6">
+    <header className="bg-gradient-to-r from-green-100/80 via-green-200/50 to-green-100/80 backdrop-blur-sm text-green-900 shadow-md sticky top-0 z-50 mb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 flex items-center justify-between">
+        {/* Navigation Links */}
+        <div className="flex items-center gap-2 sm:gap-6">
           <Link
             href="/receptionist"
-            className={`transition-colors duration-200 ${
+            className={`px-4 py-2 rounded-xl transition-all duration-200 text-sm sm:text-base font-medium ${
               pathname === "/receptionist"
-                ? "text-green-700 font-semibold"
-                : "text-gray-600 hover:text-green-700"
-            }`}
+                ? "bg-green-800 text-white"
+                : "text-green-900 hover:bg-green-200 hover:text-green-900"
+            } transform flex items-center gap-1`}
           >
-            <span role="img" aria-label="Home" className="mr-1">
-              🏠
-            </span>
+            <AiOutlineHome className="text-base sm:text-lg font-bold" />
             Home
           </Link>
-
           <Link
             href="/receptionist/appointment"
-            className={`transition-colors duration-200 ${
+            className={`px-4 py-2 rounded-xl transition-all duration-200 text-sm sm:text-base font-medium ${
               pathname.startsWith("/receptionist/appointment")
-                ? "text-green-700 font-semibold"
-                : "text-gray-600 hover:text-green-700"
-            }`}
+                ? "bg-green-800 text-white"
+                : "text-green-900 hover:bg-green-200 hover:text-green-900"
+            } transform flex items-center gap-1`}
           >
-            <span role="img" aria-label="Appointments" className="mr-1">
-              📅
-            </span>
+            <MdOutlineEventNote className="text-base sm:text-lg font-bold" />
             Appointments
           </Link>
         </div>
 
-        {/* Right: Profile Icon and Logout */}
+        {/* Profile & Logout */}
         <div className="flex items-center gap-4">
-          <Link href="/receptionist/profile" className="relative">
-            {pathname === "/receptionist/profile" ? (
-              <div className="w-10 h-10 bg-[#e6f2ec] rounded-full p-2 flex items-center justify-center shadow-inner shadow-[inset_4px_4px_6px_#c2d0c8,inset_-4px_-4px_6px_#ffffff]">
-                <span className="text-xl text-green-700">👤</span>
-              </div>
-            ) : (
-              <span className="text-2xl text-gray-600 hover:text-green-700 transition">
+          <Link href="/receptionist/profile">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border-2 transition ${
+                pathname === "/receptionist/profile"
+                  ? "bg-white border-green-800"
+                  : "bg-green-100 border-green-300 hover:border-green-500"
+              }`}
+            >
+              <span
+                className={`text-2xl ${
+                  pathname === "/receptionist/profile"
+                    ? "text-green-800"
+                    : "text-green-700"
+                }`}
+              >
                 👤
               </span>
-            )}
+            </div>
           </Link>
 
           <button
             onClick={handleLogout}
             aria-pressed={clicked}
-            className={`ml-2 px-4 py-1 rounded-xl bg-[#e6f2ec] text-green-800 hover:bg-red-500 hover:text-white transition-colors duration-200 text-sm font-semibold shadow-[4px_4px_6px_#c2d0c8,-4px_-4px_6px_#ffffff] transform ${
+            className={`px-4 py-2 text-sm sm:text-base rounded-xl bg-green-800 hover:bg-red-600 text-white font-medium shadow transition duration-200 transform ${
               clicked ? "scale-95" : "scale-100"
             }`}
           >

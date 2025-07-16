@@ -249,43 +249,45 @@ export default function VitalsPage() {
       <Header />
 
       {/* Subheader Navigation */}
-      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none">
-        {[
-          ["Add Appointment", "/receptionist/appointment"],
-          ["Doctor", "/receptionist/appointment/doctor"],
-          ["Vitals Entry", "/receptionist/appointment/vitals"],
-          ["Appointment List", "/receptionist/appointment/list"],
-        ].map(([label, path]) => (
-          <Link
-            key={path}
-            href={path}
-            onClick={() =>
-              handleNavClick(
-                path === "/receptionist/appointment"
-                  ? "addAppointment"
-                  : path === "/receptionist/appointment/doctor"
-                  ? "doctor"
-                  : path === "/receptionist/appointment/vitals"
-                  ? "vitals"
-                  : "list"
-              )
-            }
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === path
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${
-              (path === "/receptionist/appointment" && clickedAddAppointment) ||
-              (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
-              (path === "/receptionist/appointment/vitals" && clickedVitals) ||
-              (path === "/receptionist/appointment/list" && clickedList)
-                ? "scale-95"
-                : "scale-100"
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
+      <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
+        <div className="flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+          {[
+            ["Add Appointment", "/receptionist/appointment"],
+            ["Doctor", "/receptionist/appointment/doctor"],
+            ["Vitals Entry", "/receptionist/appointment/vitals"],
+            ["Appointment List", "/receptionist/appointment/list"],
+          ].map(([label, path]) => (
+            <Link
+              key={path}
+              href={path}
+              onClick={() =>
+                handleNavClick(
+                  path === "/receptionist/appointment"
+                    ? "addAppointment"
+                    : path === "/receptionist/appointment/doctor"
+                    ? "doctor"
+                    : path === "/receptionist/appointment/vitals"
+                    ? "vitals"
+                    : "list"
+                )
+              }
+              className={`px-4 py-2 rounded-lg transition transform ${
+                usePathname() === path
+                  ? "bg-green-700/80 text-white shadow-lg"
+                  : "hover:bg-green-600/40"
+              } ${
+                (path === "/receptionist/appointment" && clickedAddAppointment) ||
+                (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
+                (path === "/receptionist/appointment/vitals" && clickedVitals) ||
+                (path === "/receptionist/appointment/list" && clickedList)
+                  ? "scale-95"
+                  : "scale-100"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </nav>
 
       <div className="px-6 sm:px-12 pb-10">

@@ -14,7 +14,9 @@ export default function ReceptionistPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:8080/api/appointments/with-details");
+        const res = await fetch(
+          "http://localhost:8080/api/appointments/with-details"
+        );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const today = new Date().toISOString().slice(0, 10);
@@ -39,19 +41,20 @@ export default function ReceptionistPage() {
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Header />
       <main className="flex-grow p-6 sm:p-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-4 mt-0">
+          <div className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 text-center border border-green-300 mb-10">
+            <h1 className="text-green-900 text-3xl sm:text-4xl font-semibold tracking-wide">
+              My Dashboard
+            </h1>
+          </div>
+        </div>
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-10 text-center text-green-700 drop-shadow-sm">
-            My Dashboard
-          </h1>
-
           {error && (
             <div className="text-center text-red-600 mb-4">{error}</div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10">
-            <div
-              className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out"
-            >
+            <div className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out">
               <h2 className="text-xl font-semibold text-green-700 mb-3">
                 Patients Added Today
               </h2>
@@ -59,9 +62,7 @@ export default function ReceptionistPage() {
                 {loading ? "..." : numberOfPatients}
               </p>
             </div>
-            <div
-              className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out"
-            >
+            <div className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out">
               <h2 className="text-xl font-semibold text-green-700 mb-3">
                 Vitals to entry
               </h2>

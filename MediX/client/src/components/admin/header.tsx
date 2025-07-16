@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { AiOutlineHome, AiOutlineUserAdd } from "react-icons/ai";
+import { MdOutlineListAlt } from "react-icons/md";
 
 export default function Header() {
   const pathname = usePathname();
@@ -56,28 +58,31 @@ export default function Header() {
             href="/admin" 
             className={`${navLinkClasses(isActive("/admin"))} transform ${
               clickedHome ? "scale-95" : "scale-100"
-            }`}
+            } flex items-center gap-1`}
             onClick={() => handleNavClick('home')}
           >
-            🏠 Home
+            <AiOutlineHome className="text-base sm:text-lg font-bold" />
+            Home
           </Link>
           <Link
             href="/admin/Add_User"
             className={`${navLinkClasses(isActive("/admin/Add_User"))} transform ${
               clickedAddUser ? "scale-95" : "scale-100"
-            }`}
+            } flex items-center gap-1`}
             onClick={() => handleNavClick('Add User')}
           >
-            ➕ Add User
+            <AiOutlineUserAdd className="text-base sm:text-lg font-bold" />
+            Add User
           </Link>
           <Link
             href="/admin/Records"
             className={`${navLinkClasses(isActive("/doctor/list"))} transform ${
               clickedRecord ? "scale-95" : "scale-100"
-            }`}
+            } flex items-center gap-1`}
             onClick={() => handleNavClick('Records')}
           >
-            📋 Records
+            <MdOutlineListAlt className="text-base sm:text-lg font-bold" />
+            Records
           </Link>
         </div>
 

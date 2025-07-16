@@ -82,51 +82,53 @@ export default function DoctorListPage() {
       <Header />
 
       {/* Subheader / Navigation Tabs */}
-      <nav className="backdrop-blur-md bg-green-600/20 border border-green-400 rounded-xl shadow-md mx-6 mt-2 mb-6 py-3 px-8 flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
-        <Link
-          href="/receptionist/appointment"
-          onClick={() => handleNavClick("addAppointment")}
-          className={`px-4 py-2 rounded-lg transition transform ${
-            pathname === "/receptionist/appointment"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          } ${clickedAddAppointment ? "scale-95" : "scale-100"}`}
-        >
-          Add Appointment
-        </Link>
-        <Link
-          href="/receptionist/appointment/doctor"
-          onClick={() => handleNavClick("doctor")}
-          className={`px-4 py-2 rounded-lg transition transform ${
-            pathname === "/receptionist/appointment/doctor"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          } ${clickedDoctor ? "scale-95" : "scale-100"}`}
-        >
-          Doctor
-        </Link>
-        <Link
-          href="/receptionist/appointment/vitals"
-          onClick={() => handleNavClick("vitals")}
-          className={`px-4 py-2 rounded-lg transition transform ${
-            pathname === "/receptionist/appointment/vitals"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          } ${clickedVitals ? "scale-95" : "scale-100"}`}
-        >
-          Vitals Entry
-        </Link>
-        <Link
-          href="/receptionist/appointment/list"
-          onClick={() => handleNavClick("list")}
-          className={`px-4 py-2 rounded-lg transition transform ${
-            pathname === "/receptionist/appointment/list"
-              ? "bg-green-700/80 text-white shadow-lg"
-              : "hover:bg-green-600/40"
-          } ${clickedList ? "scale-95" : "scale-100"}`}
-        >
-          Appointment List
-        </Link>
+      <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 text-center border border-green-300">
+        <div className="flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+          <Link
+            href="/receptionist/appointment"
+            onClick={() => handleNavClick("addAppointment")}
+            className={`px-4 py-2 rounded-lg transition transform ${
+              pathname === "/receptionist/appointment"
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            } ${clickedAddAppointment ? "scale-95" : "scale-100"}`}
+          >
+            Add Appointment
+          </Link>
+          <Link
+            href="/receptionist/appointment/doctor"
+            onClick={() => handleNavClick("doctor")}
+            className={`px-4 py-2 rounded-lg transition transform ${
+              pathname === "/receptionist/appointment/doctor"
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            } ${clickedDoctor ? "scale-95" : "scale-100"}`}
+          >
+            Doctor
+          </Link>
+          <Link
+            href="/receptionist/appointment/vitals"
+            onClick={() => handleNavClick("vitals")}
+            className={`px-4 py-2 rounded-lg transition transform ${
+              pathname === "/receptionist/appointment/vitals"
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            } ${clickedVitals ? "scale-95" : "scale-100"}`}
+          >
+            Vitals Entry
+          </Link>
+          <Link
+            href="/receptionist/appointment/list"
+            onClick={() => handleNavClick("list")}
+            className={`px-4 py-2 rounded-lg transition transform ${
+              pathname === "/receptionist/appointment/list"
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            } ${clickedList ? "scale-95" : "scale-100"}`}
+          >
+            Appointment List
+          </Link>
+        </div>
       </nav>
 
       <main className="flex-grow px-6 sm:px-12 pb-12">
