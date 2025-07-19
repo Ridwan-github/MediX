@@ -112,6 +112,20 @@ export default function AppointmentPage() {
         return;
       }
 
+      // DUPLICATE CHECK: Fetch all appointments and check for duplicate
+      const appointmentsResponse = await fetch("http://localhost:8080/api/appointments/with-details");
+      const appointments = await appointmentsResponse.json();
+      const duplicate = appointments.some((appt: any) =>
+        appt.patientName?.trim().toLowerCase() === patient.name.trim().toLowerCase() &&
+        String(appt.doctorId) === String(patient.doctor) &&
+        appt.patientPhone?.trim() === patient.contact.trim() &&
+        appt.appointmentDate.slice(0, 10) === patient.appointmentDate
+      );
+      if (duplicate) {
+        alert("Duplicate appointment found! This patient already has an appointment with this doctor on this date.");
+        return;
+      }
+
       // Step 6: Create the appointment
       const appointmentData = {
         patientId: patientId,

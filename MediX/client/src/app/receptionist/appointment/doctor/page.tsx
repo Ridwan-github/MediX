@@ -11,6 +11,7 @@ type Doctor = {
   degree: string; // will remain blank for now
   contact: string;
   available: boolean;
+  doctorId: string;
 };
 
 export default function DoctorListPage() {
@@ -40,6 +41,7 @@ export default function DoctorListPage() {
           degree: "", // foreign key for qualificationId
           contact: d.user.phoneNumber,
           available: Boolean(d.availableDays),
+          doctorId: d.doctorId,
         }));
         setDoctors(mapped);
       })
@@ -174,9 +176,7 @@ export default function DoctorListPage() {
                 {filteredDoctors.map((doctor, index) => (
                   <Link
                     key={index}
-                    href={`/receptionist/appointment?doctor=${encodeURIComponent(
-                      doctor.name
-                    )}`}
+                    href={`/receptionist/appointment?doctor=${doctor.doctorId}`}
                     passHref
                     legacyBehavior
                   >

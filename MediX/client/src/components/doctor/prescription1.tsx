@@ -6,17 +6,17 @@ export default function Prescription1() {
       <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-400 rounded-b-xl shadow-md z-10 border-t-4 border-gray-600"></div>
 
       <img
-        src="/Prescription1.jpg"
+        src="/Prescription.png"
         alt="Prescription Background"
         className="absolute w-full h-full object-cover z-0"
       />
 
       <input
-        className="absolute z-10 bg-transparent border border-black text-sm p-1 top-[217px] left-[140px] w-[200px] h-[38px] text-black"
+        className="absolute z-10 bg-transparent  text-sm p-1 top-[217px] left-[140px] w-[200px] h-[38px] text-black"
         placeholder="Name"
       />
       <input
-        className="absolute z-10 bg-transparent border border-black text-sm p-1 top-[217px] left-[480px] w-[70px] h-[38px]  text-black"
+        className="absolute z-10 bg-transparent  text-sm p-1 top-[217px] left-[480px] w-[70px] h-[38px]  text-black"
         placeholder="Age"
       />
       <input

@@ -1,0 +1,2 @@
+add cookies while login so that no need to login again
+change the select box to search box in the add appointment page
