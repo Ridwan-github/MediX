@@ -13,6 +13,11 @@ interface PrescriptionData {
   oe: string;
   invs: string;
   adv: string;
+  medicines: {
+    name: string;
+    nums: string[];
+    comment?: string;
+  }[];
 }
 
 interface DoctorInfo {
@@ -103,33 +108,53 @@ export default function PrescriptionPreview() {
           {/* Prescription Data */}
           {data ? (
             <>
-              <span className="absolute z-10 px-2 text-base font-medium top-[217px] left-[140px] w-[200px] h-[38px] flex items-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[140px] w-[200px] h-[38px] flex items-center">
                 {data.name}
               </span>
-              <span className="absolute z-10 px-2 text-base font-medium top-[217px] left-[480px] w-[70px] h-[38px] flex items-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[480px] w-[70px] h-[38px] flex items-center">
                 {data.age}
               </span>
-              <span className="absolute z-10 px-2 text-base font-medium top-[217px] left-[620px] w-[40px] h-[40px] flex items-center justify-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[620px] w-[40px] h-[40px] flex items-center justify-center">
                 {data.gender === "Male" ? "✔" : ""}
               </span>
-              <span className="absolute z-10 px-2 text-base font-medium top-[217px] left-[728px] w-[40px] h-[40px] flex items-center justify-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[728px] w-[40px] h-[40px] flex items-center justify-center">
                 {data.gender === "Female" ? "✔" : ""}
               </span>
-              <span className="absolute z-10 px-2 text-base font-medium top-[263px] left-[612.5px] w-[165px] h-[39px] flex items-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[263px] left-[612.5px] w-[165px] h-[39px] flex items-center">
                 {data.date}
               </span>
-              <span className="absolute z-10 px-2 text-lg top-[300px] left-[50px] w-[500px] h-[140px] flex items-start p-2 whitespace-pre-line">
+              <span className="absolute z-10 px-2 text-lg top-[300px] left-[5px] w-[250px] h-[140px] flex items-start p-2 whitespace-pre-line">
                 {data.cc}
               </span>
-              <span className="absolute z-10 px-2 text-lg top-[466px] left-[50px] w-[500px] h-[140px] flex items-start p-2 whitespace-pre-line">
+              <span className="absolute z-10 px-2 text-lg top-[466px] left-[5px] w-[250px] h-[140px] flex items-start p-2 whitespace-pre-line">
                 {data.oe}
               </span>
-              <span className="absolute z-10 px-2 text-lg top-[633px] left-[50px] w-[500px] h-[120px] flex items-start p-2 whitespace-pre-line">
+              <span className="absolute z-10 px-2 text-lg top-[633px] left-[5px] w-[250px] h-[120px] flex items-start p-2 whitespace-pre-line">
                 {data.invs}
               </span>
-              <span className="absolute z-10 px-2 text-lg top-[773px] left-[50px] w-[500px] h-[140px] flex items-start p-2 whitespace-pre-line">
+              <span className="absolute z-10 px-2 text-lg top-[773px] left-[5px] w-[250px] h-[140px] flex items-start p-2 whitespace-pre-line">
                 {data.adv}
               </span>
+              {/* Medicines List */}
+              {Array.isArray(data.medicines) && data.medicines.length > 0 && (
+                <div className="absolute z-10 top-[350px] left-[370px] w-[500px] h-[613px] flex flex-col gap-4 p-2 overflow-y-auto">
+                  {data.medicines.map((med, idx) => (
+                    <div key={idx} className="mb-2">
+                      <div className="font-bold text-lg text-green-900 mb-1">
+                        Medicine name: {med.name}
+                      </div>
+                      <div className="text-sm text-green-800 mb-1">
+                        Dosage: {med.nums && med.nums.join("-")}
+                      </div>
+                      {med.comment && (
+                        <div className="text-xs text-gray-700 italic">
+                          Comment: {med.comment}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -162,7 +187,7 @@ export default function PrescriptionPreview() {
           html {
             margin: 0 !important;
             padding: 0 !important;
-            width: 100vw !important;
+            width: 80vw !important;
             height: 100vh !important;
           }
           .print-area {

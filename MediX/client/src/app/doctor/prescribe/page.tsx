@@ -22,6 +22,11 @@ export default function Prescribe() {
     adv: "",
   });
 
+  // Add state for dynamic medicine fields
+  const [medicines, setMedicines] = useState([
+    { name: "", nums: ["", "", ""], comment: "" },
+  ]);
+
   useEffect(() => {
     const urlEmail = searchParams?.get("email");
     if (urlEmail) {
@@ -78,7 +83,9 @@ export default function Prescribe() {
     },
   ];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type } = e.target;
     if (type === "radio") {
       setForm((prev) => ({ ...prev, gender: value }));
@@ -87,15 +94,39 @@ export default function Prescribe() {
     }
   };
 
+  const handleMedicineChange = (idx: number, field: string, value: string, numIdx?: number) => {
+    setMedicines((prev) =>
+      prev.map((med, i) => {
+        if (i !== idx) return med;
+        if (field === "name") return { ...med, name: value };
+        if (field === "comment") return { ...med, comment: value };
+        if (field === "num" && numIdx !== undefined) {
+          const newNums = [...med.nums];
+          newNums[numIdx] = value;
+          return { ...med, nums: newNums };
+        }
+        return med;
+      })
+    );
+  };
+
+  const addMedicine = () => {
+    setMedicines((prev) => [...prev, { name: "", nums: ["", "", ""], comment: "" }]);
+  };
+
+  const removeMedicine = () => {
+    setMedicines((prev) => prev.length > 1 ? prev.slice(0, -1) : prev);
+  };
+
   const handleContinue = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
     const currentDate = `${yyyy}-${mm}-${dd}`;
     localStorage.setItem(
       "prescriptionData",
-      JSON.stringify({ ...form, date: currentDate })
+      JSON.stringify({ ...form, date: currentDate, medicines })
     );
     router.push("/doctor/prescribe/preview");
   };
@@ -108,11 +139,15 @@ export default function Prescribe() {
         <div className="flex flex-col md:flex-row justify-center items-start gap-8">
           {/* Form Section */}
           <div className="w-full max-w-2xl mx-auto md:mx-0 bg-white border border-green-200 rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-semibold mb-6 text-green-800">New Prescription</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-green-800">
+              New Prescription
+            </h2>
             <form className="space-y-5">
               <div className="flex gap-4">
                 <div className="flex-1 flex flex-col">
-                  <label className="mb-1 text-sm font-medium text-gray-700">Patient Name</label>
+                  <label className="mb-1 text-sm font-medium text-gray-700">
+                    Patient Name
+                  </label>
                   <input
                     name="name"
                     value={form.name}
@@ -122,7 +157,9 @@ export default function Prescribe() {
                   />
                 </div>
                 <div className="flex flex-col w-24">
-                  <label className="mb-1 text-sm font-medium text-gray-700">Age</label>
+                  <label className="mb-1 text-sm font-medium text-gray-700">
+                    Age
+                  </label>
                   <input
                     name="age"
                     value={form.age}
@@ -134,7 +171,9 @@ export default function Prescribe() {
                   />
                 </div>
                 <div className="flex flex-col justify-end h-full min-h-[60px]">
-                  <label className="mb-1 text-sm font-medium text-gray-700">Gender:</label>
+                  <label className="mb-1 text-sm font-medium text-gray-700">
+                    Gender:
+                  </label>
                   <div className="flex items-center gap-2 h-[42px]">
                     <label className="flex items-center gap-1">
                       <input
@@ -162,7 +201,9 @@ export default function Prescribe() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700">C/C (Chief Complaint)</label>
+                <label className="mb-1 text-sm font-medium text-gray-700">
+                  C/C (Chief Complaint)
+                </label>
                 <textarea
                   name="cc"
                   value={form.cc}
@@ -172,7 +213,9 @@ export default function Prescribe() {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700">O/E (On Examination)</label>
+                <label className="mb-1 text-sm font-medium text-gray-700">
+                  O/E (On Examination)
+                </label>
                 <textarea
                   name="oe"
                   value={form.oe}
@@ -182,7 +225,9 @@ export default function Prescribe() {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700">Invs (Investigations)</label>
+                <label className="mb-1 text-sm font-medium text-gray-700">
+                  Invs (Investigations)
+                </label>
                 <textarea
                   name="invs"
                   value={form.invs}
@@ -192,7 +237,9 @@ export default function Prescribe() {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700">ADV (Advice)</label>
+                <label className="mb-1 text-sm font-medium text-gray-700">
+                  ADV (Advice)
+                </label>
                 <textarea
                   name="adv"
                   value={form.adv}
@@ -201,7 +248,94 @@ export default function Prescribe() {
                   rows={2}
                 />
               </div>
-              <div className="flex justify-end gap-4 mt-6">
+              {/* Dynamic Medicine Section */}
+              <div className="flex flex-col gap-6 mt-6">
+                {medicines.map((med, idx) => (
+                  <div key={idx} className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                    <div className="flex flex-col mb-2">
+                      <label className="mb-1 text-sm font-medium text-gray-700">Medicine Name</label>
+                      <input
+                        type="text"
+                        value={med.name}
+                        onChange={e => handleMedicineChange(idx, "name", e.target.value)}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <label className="text-sm font-medium text-gray-700 mr-2">Dosage</label>
+                      <input
+                        type="number"
+                        value={med.nums[0]}
+                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 0)}
+                        className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                        min="0"
+                      />
+                      <span>-</span>
+                      <input
+                        type="number"
+                        value={med.nums[1]}
+                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 1)}
+                        className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                        min="0"
+                      />
+                      <span>-</span>
+                      <input
+                        type="number"
+                        value={med.nums[2]}
+                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 2)}
+                        className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                        min="0"
+                      />
+                    </div>
+                    <div className="flex flex-col mb-2">
+                      <label className="mb-1 text-sm font-medium text-gray-700">Comment</label>
+                      <textarea
+                        value={med.comment}
+                        onChange={e => handleMedicineChange(idx, "comment", e.target.value)}
+                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                        rows={2}
+                      />
+                    </div>
+                    {/* Remove button for all but the first set */}
+                    {medicines.length > 1 && idx === medicines.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={removeMedicine}
+                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold"
+                        aria-label="Remove medicine"
+                      >
+                        &minus;
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addMedicine}
+                  className="self-end bg-green-600 hover:bg-green-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl shadow-md"
+                  aria-label="Add medicine"
+                >
+                  +
+                </button>
+              </div>
+              <div className="flex items-center justify-end gap-4 mt-6">
+                <button
+                  type="button"
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-3 rounded-xl shadow-md transition duration-200"
+                  onClick={() =>
+                    setForm({
+                      name: "",
+                      age: "",
+                      gender: "",
+                      cc: "",
+                      oe: "",
+                      invs: "",
+                      adv: "",
+                    })
+                  }
+                >
+                  Clear
+                </button>
                 <button
                   type="button"
                   className="bg-green-700 hover:bg-green-800 text-white font-semibold px-8 py-3 rounded-xl shadow-md transition duration-200"
