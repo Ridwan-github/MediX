@@ -1,25 +1,76 @@
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 
 type ReceptionistProfile = {
   name: string;
-  gender: string;
-  age: number;
+  email: string;
+  phoneNumber: string;
+  address: string;
   id: string;
   role: string;
-  workingHours: string;
-};
-
-const receptionistProfile: ReceptionistProfile = {
-  name: "John Doe",
-  gender: "Male",
-  age: 30,
-  id: "REC123",
-  role: "Receptionist",
-  workingHours: "9 AM - 5 PM",
 };
 
 export default function ProfilePage() {
+  const [receptionistProfile, setReceptionistProfile] =
+    useState<ReceptionistProfile | null>(null);
+  const router = useRouter();
+
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
+
+  useEffect(() => {
+    // Get receptionist data from localStorage
+    const storedData = localStorage.getItem("receptionistData");
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setReceptionistProfile({
+        name: data.name || "N/A",
+        email: data.email || "N/A",
+        phoneNumber: data.phoneNumber || "N/A",
+        address: data.address || "N/A",
+        id: data.id?.toString() || "N/A",
+        role: "Receptionist",
+      });
+    } else {
+      // Fallback: try to get individual items from localStorage
+      const name = localStorage.getItem("receptionistName");
+      const email = localStorage.getItem("receptionistEmail");
+      const phoneNumber = localStorage.getItem("receptionistPhoneNumber");
+      const address = localStorage.getItem("receptionistAddress");
+      const id = localStorage.getItem("receptionistId");
+
+      if (name || email || phoneNumber || address || id) {
+        setReceptionistProfile({
+          name: name || "N/A",
+          email: email || "N/A",
+          phoneNumber: phoneNumber || "N/A",
+          address: address || "N/A",
+          id: id || "N/A",
+          role: "Receptionist",
+        });
+      }
+    }
+  }, []);
+
+  if (!receptionistProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
@@ -64,15 +115,15 @@ export default function ProfilePage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Gender:</span>
+                    <span>Email:</span>
                     <span className="font-medium">
-                      {receptionistProfile.gender}
+                      {receptionistProfile.email}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Age:</span>
+                    <span>Phone:</span>
                     <span className="font-medium">
-                      {receptionistProfile.age} years
+                      {receptionistProfile.phoneNumber}
                     </span>
                   </div>
                 </div>
@@ -91,15 +142,13 @@ export default function ProfilePage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Role:</span>
-                    <span className="font-medium">
-                      {receptionistProfile.role}
-                    </span>
+                    <span>Working Hours:</span>
+                    <span className="font-medium">9 AM - 5 PM</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Working Hours:</span>
+                    <span>Address:</span>
                     <span className="font-medium">
-                      {receptionistProfile.workingHours}
+                      {receptionistProfile.address}
                     </span>
                   </div>
                 </div>

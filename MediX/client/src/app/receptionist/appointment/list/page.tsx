@@ -4,6 +4,7 @@ import Footer from "@/components/footer";
 import Link from "next/link";
 import { useState, useEffect, use } from "react";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AppointmentPage() {
   const lowerNavBgColor = "#1F4604";
@@ -22,6 +23,16 @@ export default function AppointmentPage() {
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
   const [clickedList, setClickedList] = useState(false);
+  const router = useRouter();
+
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -148,9 +159,12 @@ export default function AppointmentPage() {
                   ? "bg-green-700/80 text-white shadow-lg"
                   : "hover:bg-green-600/40"
               } ${
-                (path === "/receptionist/appointment" && clickedAddAppointment) ||
-                (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
-                (path === "/receptionist/appointment/vitals" && clickedVitals) ||
+                (path === "/receptionist/appointment" &&
+                  clickedAddAppointment) ||
+                (path === "/receptionist/appointment/doctor" &&
+                  clickedDoctor) ||
+                (path === "/receptionist/appointment/vitals" &&
+                  clickedVitals) ||
                 (path === "/receptionist/appointment/list" && clickedList)
                   ? "scale-95"
                   : "scale-100"

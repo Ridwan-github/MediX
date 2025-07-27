@@ -38,6 +38,7 @@ public class ReceptionistController {
                         .body((User) Map.of("error", "Receptionist not found", "receptionistId", id)));
     }
 
+
     @PostMapping("/by-email")
     public ResponseEntity<?> getReceptionistByEmail(@RequestBody Map<String, String> credentials) {
         try {

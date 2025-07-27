@@ -28,12 +28,6 @@ export default function Home() {
       ) {
         router.push("/admin");
         return;
-      } else if (
-        email.trim() === "receptionist@gmail.com" &&
-        password.trim() === "receptionist"
-      ) {
-        router.push("/receptionist");
-        return;
       }
 
       const resDoctors = await fetch("http://localhost:8080/api/doctors");
@@ -51,14 +45,45 @@ export default function Home() {
       }
 
       const resReception = await fetch(
-        "http://localhost:8080/api/receptionist"
+        "http://localhost:8080/api/receptionists/by-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password.trim(),
+          }),
+        }
       );
       if (resReception.ok) {
-        const receptionists = await resReception.json();
-        const receptionist = receptionists.find(
-          (r) => r.email === email.trim() && r.password === password.trim()
-        );
-        if (receptionist) {
+        const receptionistResponse = await resReception.json();
+        if (receptionistResponse.success) {
+          // Store receptionist data in localStorage
+          const receptionistData = receptionistResponse.data;
+          localStorage.setItem(
+            "receptionistId",
+            receptionistData.id.toString()
+          );
+          localStorage.setItem("receptionistName", receptionistData.name);
+          localStorage.setItem("receptionistEmail", receptionistData.email);
+          localStorage.setItem(
+            "receptionistPhoneNumber",
+            receptionistData.phoneNumber
+          );
+          localStorage.setItem(
+            "receptionistPassword",
+            receptionistData.password
+          );
+          localStorage.setItem("receptionistAddress", receptionistData.address);
+
+          // Optionally, store the entire data object as JSON
+          localStorage.setItem(
+            "receptionistData",
+            JSON.stringify(receptionistData)
+          );
+
           router.push(`/receptionist?email=${encodeURIComponent(email)}`);
           return;
         }

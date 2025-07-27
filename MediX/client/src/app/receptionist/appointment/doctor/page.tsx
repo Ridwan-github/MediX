@@ -4,6 +4,7 @@ import Footer from "@/components/footer";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Doctor = {
   name: string;
@@ -24,9 +25,19 @@ export default function DoctorListPage() {
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
   const [clickedList, setClickedList] = useState(false);
+  const router = useRouter();
 
   const lowerNavBgColor = "#1F4604";
   const lowerNavTextColor = "#ffffff";
+
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/doctors")

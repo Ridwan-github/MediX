@@ -5,6 +5,7 @@ import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function VitalsPage() {
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -16,6 +17,16 @@ export default function VitalsPage() {
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
   const [clickedList, setClickedList] = useState(false);
+  const router = useRouter();
+
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
 
   const fetchAppointments = async () => {
     setLoading(true);

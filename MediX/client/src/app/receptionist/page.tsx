@@ -2,12 +2,23 @@
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ReceptionistPage() {
   const [numberOfPatients, setNumberOfPatients] = useState(0);
   const [vitalsToEntry, setVitalsToEntry] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -26,8 +26,16 @@ interface DoctorInfo {
     phoneNumber: string;
     email: string;
   };
-  degree?: string;
-  specialization?: string;
+  qualifications: {
+    qualification: {
+      name: string;
+    };
+  }[];
+  specializations: {
+    specialization: {
+      name: string;
+    };
+  }[];
 }
 
 export default function PrescriptionPreview() {
@@ -90,14 +98,18 @@ export default function PrescriptionPreview() {
               <span className="text-3xl font-bold text-green-900 leading-tight">
                 {doctor.user.name}
               </span>
-              {doctor.degree && (
+              {doctor.qualifications && doctor.qualifications.length > 0 && (
                 <span className="text-lg text-green-800 font-medium leading-tight">
-                  {doctor.degree}
+                  {doctor.qualifications
+                    .map((q) => q.qualification.name)
+                    .join(", ")}
                 </span>
               )}
-              {doctor.specialization && (
+              {doctor.specializations && doctor.specializations.length > 0 && (
                 <span className="text-base text-green-700 leading-tight">
-                  {doctor.specialization}
+                  {doctor.specializations
+                    .map((s) => s.specialization.name)
+                    .join(", ")}
                 </span>
               )}
               <span className="text-m text-green-600 mt-1">

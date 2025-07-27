@@ -12,7 +12,20 @@ type Doctor = {
     phoneNumber: string;
     email: string;
   };
-  available: boolean;
+  yearsOfExperience: number;
+  availableDays: string;
+  availableTimes: string;
+  licenseNumber: string;
+  qualifications: {
+    qualification: {
+      name: string;
+    };
+  }[];
+  specializations: {
+    specialization: {
+      name: string;
+    };
+  }[];
 };
 
 export default function ProfilePage() {
@@ -74,7 +87,11 @@ export default function ProfilePage() {
               {doctor?.user?.name}
             </h2>
             <p className="text-green-800 text-lg mt-1">
-              Assistant Professor (Surgery)
+              {doctor.specializations && doctor.specializations.length > 0
+                ? doctor.specializations
+                    .map((s) => s.specialization.name)
+                    .join(", ")
+                : "General Practitioner"}
             </p>
           </div>
 
@@ -98,10 +115,17 @@ export default function ProfilePage() {
                   <span className="font-medium">Phone:</span>
                   <span>{doctor.user.phoneNumber}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">License Number:</span>
+                  <span>{doctor.licenseNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Available Times:</span>
+                  <span>{doctor.availableTimes}</span>
+                </div>
               </div>
             </div>
 
-            {/* Work Info */}
             <div className="bg-white/70 rounded-xl p-6 border-l-4 border-green-700 shadow-sm">
               <h3 className="text-xl font-semibold text-green-800 mb-4">
                 Work Information
@@ -112,16 +136,33 @@ export default function ProfilePage() {
                   <span>{doctor.doctorId}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-medium">Role:</span>
-                  <span>Assistant Professor (Surgery)</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="font-medium">Specialist:</span>
-                  <span>General Surgery</span>
+                  <span>
+                    {doctor.specializations && doctor.specializations.length > 0
+                      ? doctor.specializations
+                          .map((s) => s.specialization.name)
+                          .join(", ")
+                      : "General Practitioner"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Degree:</span>
-                  <span>MBBS, BCS(Health), FCPS (Surgery)</span>
+                  <span>
+                    {doctor.qualifications && doctor.qualifications.length > 0
+                      ? doctor.qualifications
+                          .map((q) => q.qualification.name)
+                          .join(", ")
+                      : "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Experience:</span>
+                  <span>{doctor.yearsOfExperience} years</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="font-medium">Available Days:</span>
+                  <span>{doctor.availableDays}</span>
                 </div>
               </div>
             </div>

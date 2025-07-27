@@ -16,6 +16,9 @@ export default function Header() {
     setClicked(true);
     setTimeout(() => setClicked(false), 150); // Reset animation
 
+    // Clear all localStorage data
+    localStorage.clear();
+
     router.push("/");
   };
 

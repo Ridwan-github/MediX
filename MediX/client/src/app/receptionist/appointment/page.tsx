@@ -21,6 +21,15 @@ export default function AppointmentPage() {
   const searchParams = useSearchParams();
   const selectedDoctor = searchParams?.get("doctor");
 
+  // Authentication check
+  useEffect(() => {
+    const receptionistId = localStorage.getItem("receptionistId");
+    if (!receptionistId || receptionistId.trim() === "") {
+      router.push("/");
+      return;
+    }
+  }, [router]);
+
   useEffect(() => {
     if (selectedDoctor) {
       setPatient((prev) => ({
@@ -113,16 +122,22 @@ export default function AppointmentPage() {
       }
 
       // DUPLICATE CHECK: Fetch all appointments and check for duplicate
-      const appointmentsResponse = await fetch("http://localhost:8080/api/appointments/with-details");
+      const appointmentsResponse = await fetch(
+        "http://localhost:8080/api/appointments/with-details"
+      );
       const appointments = await appointmentsResponse.json();
-      const duplicate = appointments.some((appt: any) =>
-        appt.patientName?.trim().toLowerCase() === patient.name.trim().toLowerCase() &&
-        String(appt.doctorId) === String(patient.doctor) &&
-        appt.patientPhone?.trim() === patient.contact.trim() &&
-        appt.appointmentDate.slice(0, 10) === patient.appointmentDate
+      const duplicate = appointments.some(
+        (appt: any) =>
+          appt.patientName?.trim().toLowerCase() ===
+            patient.name.trim().toLowerCase() &&
+          String(appt.doctorId) === String(patient.doctor) &&
+          appt.patientPhone?.trim() === patient.contact.trim() &&
+          appt.appointmentDate.slice(0, 10) === patient.appointmentDate
       );
       if (duplicate) {
-        alert("Duplicate appointment found! This patient already has an appointment with this doctor on this date.");
+        alert(
+          "Duplicate appointment found! This patient already has an appointment with this doctor on this date."
+        );
         return;
       }
 
