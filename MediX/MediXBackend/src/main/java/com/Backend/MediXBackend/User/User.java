@@ -19,7 +19,7 @@ public class User {
 
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonBackReference("doctor-user")  // Changed to match the reference name
     private Doctor doctor;
 
     public Long getId() {
