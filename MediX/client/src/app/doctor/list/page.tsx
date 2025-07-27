@@ -140,21 +140,11 @@ export default function DoctorListPage() {
   const todayAppointments = filteredRows.filter(
     (appt) => appt.appointmentDate === today
   );
-  const missedAppointments = filteredRows.filter(
-    (appt) => appt.appointmentDate < today
-  );
   const upcomingAppointments = filteredRows.filter(
     (appt) => appt.appointmentDate > today
   );
 
   const filteredToday = todayAppointments.filter(
-    (r) =>
-      r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
-      r.patientPhone?.includes(search) ||
-      r.id.toString().includes(search)
-  );
-
-  const filteredMissed = missedAppointments.filter(
     (r) =>
       r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
       r.patientPhone?.includes(search) ||
@@ -168,12 +158,54 @@ export default function DoctorListPage() {
       r.id.toString().includes(search)
   );
 
-  const handleStartAppointment = (appointment: any) => {
+  const handleStartAppointment = async (appointment: any) => {
     // Trigger button press animation
     setClickedStartAppointment(appointment.id);
     setTimeout(() => setClickedStartAppointment(null), 150); // Reset animation
 
-    console.log("Starting appointment:", appointment);
+    try {
+      // Fetch patient data from the API
+      const response = await fetch(`http://localhost:8080/api/patients/${appointment.patientId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch patient data: ${response.status}`);
+      }
+      
+      const patientData = await response.json();
+      
+      // Parse blood pressure if it exists
+      let pressure1 = "";
+      let pressure2 = "";
+      if (patientData.bloodPressure) {
+        const pressureParts = patientData.bloodPressure.split('/');
+        if (pressureParts.length === 2) {
+          pressure1 = pressureParts[0];
+          pressure2 = pressureParts[1];
+        }
+      }
+      
+      // Store the required patient data in localStorage
+      const patientInfo = {
+        name: patientData.name || "",
+        age: patientData.age?.toString() || "",
+        gender: patientData.gender || "",
+        weight: patientData.weight?.toString() || "",
+        pressure1: pressure1,
+        pressure2: pressure2,
+        cc: "",
+        oe: "",
+        invs: "",
+        adv: "",
+      };
+      
+      localStorage.setItem("patientData", JSON.stringify(patientInfo));
+      
+      // Redirect to prescribe page with patient data flag
+      window.location.href = `/doctor/prescribe?patientData=1&email=${email}`;
+      
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+      alert("Failed to fetch patient information. Please try again.");
+    }
   };
 
   if (loading) {
@@ -298,14 +330,6 @@ export default function DoctorListPage() {
           "Today's Appointments",
           "bg-green-700",
           "text-green-800"
-        )}
-
-        {/* Missed Appointments */}
-        {renderAppointmentSection(
-          filteredMissed,
-          "Missed Appointments",
-          "bg-red-700",
-          "text-red-800"
         )}
 
         {/* Upcoming Appointments */}

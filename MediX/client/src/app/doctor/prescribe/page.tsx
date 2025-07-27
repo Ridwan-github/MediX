@@ -16,6 +16,9 @@ export default function Prescribe() {
     name: "",
     age: "",
     gender: "",
+    weight: "",
+    pressure1: "",
+    pressure2: "",
     cc: "",
     oe: "",
     invs: "",
@@ -36,9 +39,35 @@ export default function Prescribe() {
       const stored = localStorage.getItem("email") || "";
       setEmail(stored);
     }
+
+    // Check if we should load patient data
+    const hasPatientData = searchParams?.get("patientData") === "1";
     // Only prefill if ?edit=1 is present
     const isEdit = searchParams?.get("edit") === "1";
-    if (isEdit) {
+
+    if (hasPatientData) {
+      // Load patient data from localStorage
+      const patientData = localStorage.getItem("patientData");
+      if (patientData) {
+        const parsed = JSON.parse(patientData);
+        setForm({
+          name: parsed.name || "",
+          age: parsed.age || "",
+          gender: parsed.gender || "",
+          weight: parsed.weight || "",
+          pressure1: parsed.pressure1 || "",
+          pressure2: parsed.pressure2 || "",
+          cc: parsed.cc || "",
+          oe: parsed.oe || "",
+          invs: parsed.invs || "",
+          adv: parsed.adv || "",
+        });
+        // Clear the patient data from localStorage after loading
+        localStorage.removeItem("patientData");
+      }
+      // Reset medicines to default when loading patient data
+      setMedicines([{ name: "", nums: ["", "", ""], comment: "" }]);
+    } else if (isEdit) {
       const prescriptionData = localStorage.getItem("prescriptionData");
       if (prescriptionData) {
         const parsed = JSON.parse(prescriptionData);
@@ -46,22 +75,38 @@ export default function Prescribe() {
           name: parsed.name || "",
           age: parsed.age || "",
           gender: parsed.gender || "",
+          weight: parsed.weight || "",
+          pressure1: parsed.pressure1 || "",
+          pressure2: parsed.pressure2 || "",
           cc: parsed.cc || "",
           oe: parsed.oe || "",
           invs: parsed.invs || "",
           adv: parsed.adv || "",
         });
+        // Load medicines from localStorage if available
+        if (
+          parsed.medicines &&
+          Array.isArray(parsed.medicines) &&
+          parsed.medicines.length > 0
+        ) {
+          setMedicines(parsed.medicines);
+        }
       }
     } else {
       setForm({
         name: "",
         age: "",
         gender: "",
+        weight: "",
+        pressure1: "",
+        pressure2: "",
         cc: "",
         oe: "",
         invs: "",
         adv: "",
       });
+      // Reset medicines to default when not editing
+      setMedicines([{ name: "", nums: ["", "", ""], comment: "" }]);
     }
   }, [searchParams]);
 
@@ -94,7 +139,12 @@ export default function Prescribe() {
     }
   };
 
-  const handleMedicineChange = (idx: number, field: string, value: string, numIdx?: number) => {
+  const handleMedicineChange = (
+    idx: number,
+    field: string,
+    value: string,
+    numIdx?: number
+  ) => {
     setMedicines((prev) =>
       prev.map((med, i) => {
         if (i !== idx) return med;
@@ -111,11 +161,14 @@ export default function Prescribe() {
   };
 
   const addMedicine = () => {
-    setMedicines((prev) => [...prev, { name: "", nums: ["", "", ""], comment: "" }]);
+    setMedicines((prev) => [
+      ...prev,
+      { name: "", nums: ["", "", ""], comment: "" },
+    ]);
   };
 
   const removeMedicine = () => {
-    setMedicines((prev) => prev.length > 1 ? prev.slice(0, -1) : prev);
+    setMedicines((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   };
 
   const handleContinue = () => {
@@ -200,6 +253,60 @@ export default function Prescribe() {
                   </div>
                 </div>
               </div>
+              <div className="flex gap-4">
+                <div className="flex flex-col w-32">
+                  <label className="mb-1 text-sm font-medium text-gray-700">
+                    Weight (kg)
+                  </label>
+                  <input
+                    name="weight"
+                    value={form.weight ?? ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, weight: e.target.value }))
+                    }
+                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 h-[42px]"
+                    autoComplete="off"
+                    type="number"
+                    min="0"
+                  />
+                </div>
+                <div className="flex flex-col w-40">
+                  <label className="mb-1 text-sm font-medium text-gray-700">
+                    Pressure (mmHg)
+                  </label>
+                  <div className="flex items-center gap-2 h-[42px]">
+                    <input
+                      name="pressure1"
+                      value={form.pressure1 ?? ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          pressure1: e.target.value,
+                        }))
+                      }
+                      className="w-16 border border-gray-300 rounded-lg px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                      autoComplete="off"
+                      type="number"
+                      min="0"
+                    />
+                    <span>/</span>
+                    <input
+                      name="pressure2"
+                      value={form.pressure2 ?? ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          pressure2: e.target.value,
+                        }))
+                      }
+                      className="w-16 border border-gray-300 rounded-lg px-2 py-2 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                      autoComplete="off"
+                      type="number"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="flex flex-col">
                 <label className="mb-1 text-sm font-medium text-gray-700">
                   C/C (Chief Complaint)
@@ -251,22 +358,33 @@ export default function Prescribe() {
               {/* Dynamic Medicine Section */}
               <div className="flex flex-col gap-6 mt-6">
                 {medicines.map((med, idx) => (
-                  <div key={idx} className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                  <div
+                    key={idx}
+                    className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative"
+                  >
                     <div className="flex flex-col mb-2">
-                      <label className="mb-1 text-sm font-medium text-gray-700">Medicine Name</label>
+                      <label className="mb-1 text-sm font-medium text-gray-700">
+                        Medicine Name
+                      </label>
                       <input
                         type="text"
                         value={med.name}
-                        onChange={e => handleMedicineChange(idx, "name", e.target.value)}
+                        onChange={(e) =>
+                          handleMedicineChange(idx, "name", e.target.value)
+                        }
                         className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                       />
                     </div>
                     <div className="flex items-center gap-2 mb-2">
-                      <label className="text-sm font-medium text-gray-700 mr-2">Dosage</label>
+                      <label className="text-sm font-medium text-gray-700 mr-2">
+                        Dosage
+                      </label>
                       <input
                         type="number"
                         value={med.nums[0]}
-                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 0)}
+                        onChange={(e) =>
+                          handleMedicineChange(idx, "num", e.target.value, 0)
+                        }
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
@@ -274,7 +392,9 @@ export default function Prescribe() {
                       <input
                         type="number"
                         value={med.nums[1]}
-                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 1)}
+                        onChange={(e) =>
+                          handleMedicineChange(idx, "num", e.target.value, 1)
+                        }
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
@@ -282,16 +402,22 @@ export default function Prescribe() {
                       <input
                         type="number"
                         value={med.nums[2]}
-                        onChange={e => handleMedicineChange(idx, "num", e.target.value, 2)}
+                        onChange={(e) =>
+                          handleMedicineChange(idx, "num", e.target.value, 2)
+                        }
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
                     </div>
                     <div className="flex flex-col mb-2">
-                      <label className="mb-1 text-sm font-medium text-gray-700">Comment</label>
+                      <label className="mb-1 text-sm font-medium text-gray-700">
+                        Comment
+                      </label>
                       <textarea
                         value={med.comment}
-                        onChange={e => handleMedicineChange(idx, "comment", e.target.value)}
+                        onChange={(e) =>
+                          handleMedicineChange(idx, "comment", e.target.value)
+                        }
                         className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                         rows={2}
                       />
@@ -322,17 +448,23 @@ export default function Prescribe() {
                 <button
                   type="button"
                   className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-3 rounded-xl shadow-md transition duration-200"
-                  onClick={() =>
+                  onClick={() => {
                     setForm({
                       name: "",
                       age: "",
                       gender: "",
+                      weight: "",
+                      pressure1: "",
+                      pressure2: "",
                       cc: "",
                       oe: "",
                       invs: "",
                       adv: "",
-                    })
-                  }
+                    });
+                    setMedicines([
+                      { name: "", nums: ["", "", ""], comment: "" },
+                    ]);
+                  }}
                 >
                   Clear
                 </button>

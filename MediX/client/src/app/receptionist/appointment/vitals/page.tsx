@@ -118,7 +118,8 @@ export default function VitalsPage() {
     age: "",
     gender: "",
     weight: "",
-    pressure: "",
+    pressure1: "",
+    pressure2: "",
   });
 
   const handleChange = (
@@ -140,7 +141,7 @@ export default function VitalsPage() {
       age: parseInt(vitals.age, 10),
       gender: vitals.gender,
       weight: parseFloat(vitals.weight),
-      bloodPressure: vitals.pressure,
+      bloodPressure: `${vitals.pressure1}/${vitals.pressure2}`,
     };
 
     console.log("PUT vitals for patient", patientId, payload);
@@ -205,7 +206,8 @@ export default function VitalsPage() {
       age: "",
       gender: "",
       weight: "",
-      pressure: "",
+      pressure1: "",
+      pressure2: "",
     });
   };
 
@@ -276,9 +278,12 @@ export default function VitalsPage() {
                   ? "bg-green-700/80 text-white shadow-lg"
                   : "hover:bg-green-600/40"
               } ${
-                (path === "/receptionist/appointment" && clickedAddAppointment) ||
-                (path === "/receptionist/appointment/doctor" && clickedDoctor) ||
-                (path === "/receptionist/appointment/vitals" && clickedVitals) ||
+                (path === "/receptionist/appointment" &&
+                  clickedAddAppointment) ||
+                (path === "/receptionist/appointment/doctor" &&
+                  clickedDoctor) ||
+                (path === "/receptionist/appointment/vitals" &&
+                  clickedVitals) ||
                 (path === "/receptionist/appointment/list" && clickedList)
                   ? "scale-95"
                   : "scale-100"
@@ -358,7 +363,7 @@ export default function VitalsPage() {
       {/* Vitals Entry Modal */}
       {selectedPatient && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-3xl w-full max-w-md shadow-[6px_6px_20px_#d0d4da,-6px_-6px_20px_#ffffff]">
+          <div className="bg-white p-8 rounded-3xl w-full max-w-md ">
             <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
               Enter Vitals for {selectedPatient.name}
             </h2>
@@ -368,34 +373,80 @@ export default function VitalsPage() {
               {["age", "gender", "weight", "pressure"].map((field) => {
                 if (field === "gender") {
                   return (
-                    <select
-                      key={field}
-                      name="gender"
-                      value={vitals.gender}
-                      onChange={handleChange}
-                      required
-                      className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
+                    <div>
+                      <label className="mb-2 text-sm font-medium text-gray-700">
+                        Gender
+                      </label>
+                      <select
+                        key={field}
+                        name="gender"
+                        value={vitals.gender}
+                        onChange={handleChange}
+                        required
+                        className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
                   );
                 }
+
+                if (field === "pressure") {
+                  return (
+                    <div key={field} className="flex flex-col">
+                      <label className="mb-2 text-sm font-medium text-gray-700">
+                        Blood Pressure (mmHg)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          name="pressure1"
+                          value={vitals.pressure1}
+                          onChange={handleChange}
+                          required
+                          placeholder="120"
+                          min="0"
+                          className="flex-1 p-3 w-[50px] rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                        />
+                        <span className="text-gray-600 font-semibold">/</span>
+                        <input
+                          type="number"
+                          name="pressure2"
+                          value={vitals.pressure2}
+                          onChange={handleChange}
+                          required
+                          placeholder="80"
+                          min="0"
+                          className="flex-1 p-3 w-[50px] rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+
                 const type = ["age", "weight"].includes(field)
                   ? "number"
                   : "text";
                 return (
-                  <input
-                    key={field}
-                    type={type}
-                    name={field}
-                    required
-                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                    value={(vitals as any)[field]}
-                    onChange={handleChange}
-                    className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
+                  <div>
+                    <label className="mb-2 text-sm font-medium text-gray-700">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
+                    <input
+                      key={field}
+                      type={type}
+                      name={field}
+                      required
+                      placeholder={
+                        field.charAt(0).toUpperCase() + field.slice(1)
+                      }
+                      value={(vitals as any)[field]}
+                      onChange={handleChange}
+                      className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
                 );
               })}
 
