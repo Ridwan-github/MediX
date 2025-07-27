@@ -41,7 +41,7 @@ export default function Home() {
       if (resDoctors.ok) {
         const doctors = await resDoctors.json();
         doctor = doctors.find(
-          (d) =>
+          (d: { user: { email: string; password: string } }) =>
             d.user.email === email.trim() && d.user.password === password.trim()
         );
       }
@@ -56,7 +56,7 @@ export default function Home() {
       if (resReception.ok) {
         const receptionists = await resReception.json();
         const receptionist = receptionists.find(
-          (r) => r.email === email.trim() && r.password === password.trim()
+          (r: { email: string; password: string }) => r.email === email.trim() && r.password === password.trim()
         );
         if (receptionist) {
           router.push(`/receptionist?email=${encodeURIComponent(email)}`);
