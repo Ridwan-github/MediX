@@ -1,9 +1,6 @@
 package com.Backend.MediXBackend.Utils;
 
-import com.Backend.MediXBackend.UserRepository.AppointmentRepository;
-import com.Backend.MediXBackend.UserRepository.DoctorRepository;
-import com.Backend.MediXBackend.UserRepository.PatientRepository;
-import com.Backend.MediXBackend.UserRepository.UserRepository;
+import com.Backend.MediXBackend.UserRepository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +16,8 @@ public class IdGeneratorService {
 
     @Autowired
     private AppointmentRepository appointmentRepo;
+    @Autowired
+    private ReceptionistRepository receptionistRepo;
 
     public synchronized Long generateDoctorUserId(int professionCode) {
         int year = Year.now().getValue() % 100;  // e.g., 2025 → 25
@@ -51,6 +50,25 @@ public class IdGeneratorService {
         // Get the current max appointment ID
         Long maxId = appointmentRepo.findMaxAppointmentId().orElse(0L);
         return maxId + 1;
+    }
+
+    // Add this method to IdGeneratorService.java
+    public synchronized Long generateReceptionistId() {
+        // Get max existing receptionist ID in the range 2502001-2502999
+        Long maxId = receptionistRepo.findMaxReceptionistId().orElse(2502000L);
+
+        // If no receptionist exists yet, start with 2502001
+        if (maxId < 2502001) {
+            return 2502001L;
+        }
+
+        // If we haven't reached the limit (2502999), increment
+        if (maxId < 2502999) {
+            return maxId + 1;
+        }
+
+        // If we've reached the limit, throw an exception
+        throw new RuntimeException("Maximum number of receptionists (2502999) reached");
     }
 
 

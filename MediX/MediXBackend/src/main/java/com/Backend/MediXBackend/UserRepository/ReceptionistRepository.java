@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
+public interface ReceptionistRepository extends JpaRepository<User, Long> {
+    @Query("SELECT MAX(u.id) FROM User u WHERE u.id BETWEEN 2502001 AND 2502999")
+    Optional<Long> findMaxReceptionistId();
 }
