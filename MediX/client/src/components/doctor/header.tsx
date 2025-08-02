@@ -72,18 +72,7 @@ export default function Header() {
             <AiOutlineHome className="text-base sm:text-lg font-bold" />
             Home
           </Link>
-          <Link
-            href="/doctor/prescribe"
-            className={`${navLinkClasses(
-              isActive("/doctor/prescribe")
-            )} transform ${
-              clickedPrescribe ? "scale-95" : "scale-100"
-            } flex items-center gap-1`}
-            onClick={() => handleNavClick("prescribe")}
-          >
-            <MdOutlineMedication className="text-base sm:text-lg font-bold" />
-            Quick Prescribe
-          </Link>
+
           <Link
             href="/doctor/list"
             className={`${navLinkClasses(isActive("/doctor/list"))} transform ${
@@ -102,6 +91,18 @@ export default function Header() {
               }}
             />
             List
+          </Link>
+          <Link
+            href="/doctor/prescribe"
+            className={`${navLinkClasses(
+              isActive("/doctor/prescribe")
+            )} transform ${
+              clickedPrescribe ? "scale-95" : "scale-100"
+            } flex items-center gap-1`}
+            onClick={() => handleNavClick("prescribe")}
+          >
+            <MdOutlineMedication className="text-base sm:text-lg font-bold" />
+            Quick Prescribe
           </Link>
           <Link
             href="/doctor/history"

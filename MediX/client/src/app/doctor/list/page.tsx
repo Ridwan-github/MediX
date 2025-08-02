@@ -137,10 +137,15 @@ export default function DoctorListPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const todayAppointments = filteredRows.filter(
+  // Filter out DONE appointments and then filter by date
+  const activeAppointments = filteredRows.filter(
+    (appt) => appt.status !== "DONE"
+  );
+
+  const todayAppointments = activeAppointments.filter(
     (appt) => appt.appointmentDate === today
   );
-  const upcomingAppointments = filteredRows.filter(
+  const upcomingAppointments = activeAppointments.filter(
     (appt) => appt.appointmentDate > today
   );
 
@@ -163,49 +168,17 @@ export default function DoctorListPage() {
     setClickedStartAppointment(appointment.id);
     setTimeout(() => setClickedStartAppointment(null), 150); // Reset animation
 
-    try {
-      // Fetch patient data from the API
-      const response = await fetch(`http://localhost:8080/api/patients/${appointment.patientId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch patient data: ${response.status}`);
+    const statusRes = await fetch(
+      `http://localhost:8080/api/appointments/${appointment.id}/status`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "DONE" }),
       }
-      
-      const patientData = await response.json();
-      
-      // Parse blood pressure if it exists
-      let pressure1 = "";
-      let pressure2 = "";
-      if (patientData.bloodPressure) {
-        const pressureParts = patientData.bloodPressure.split('/');
-        if (pressureParts.length === 2) {
-          pressure1 = pressureParts[0];
-          pressure2 = pressureParts[1];
-        }
-      }
-      
-      // Store the required patient data in localStorage
-      const patientInfo = {
-        name: patientData.name || "",
-        age: patientData.age?.toString() || "",
-        gender: patientData.gender || "",
-        weight: patientData.weight?.toString() || "",
-        pressure1: pressure1,
-        pressure2: pressure2,
-        cc: "",
-        oe: "",
-        invs: "",
-        adv: "",
-      };
-      
-      localStorage.setItem("patientData", JSON.stringify(patientInfo));
-      
-      // Redirect to prescribe page with patient data flag
-      window.location.href = `/doctor/prescribe?patientData=1&email=${email}`;
-      
-    } catch (error) {
-      console.error("Error fetching patient data:", error);
-      alert("Failed to fetch patient information. Please try again.");
-    }
+    );
+
+    // Redirect to prescribe page with patient ID
+    window.location.href = `/doctor/prescribe?patientId=${appointment.patientId}`;
   };
 
   if (loading) {

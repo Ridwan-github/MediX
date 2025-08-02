@@ -42,6 +42,10 @@ export default function PrescriptionPreview() {
   const [data, setData] = useState<PrescriptionData | null>(null);
   const [doctor, setDoctor] = useState<DoctorInfo | null>(null);
   const prescriptionRef = useRef<HTMLDivElement>(null);
+  const patientId =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("patientId")
+      : null;
 
   useEffect(() => {
     const stored = localStorage.getItem("prescriptionData");
@@ -61,7 +65,9 @@ export default function PrescriptionPreview() {
   }, []);
 
   const handleEdit = () => {
-    window.location.href = "/doctor/prescribe?edit=1";
+    window.location.href = `/doctor/prescribe?edit=1&patientId=${
+      patientId ?? ""
+    }`;
   };
 
   const handlePrint = () => {
@@ -131,6 +137,9 @@ export default function PrescriptionPreview() {
               </span>
               <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[728px] w-[40px] h-[40px] flex items-center justify-center">
                 {data.gender === "Female" ? "✔" : ""}
+              </span>
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[263px] left-[365px] w-[165px] h-[39px] flex items-center">
+                {patientId}
               </span>
               <span className="absolute z-10 px-2 text-2xl font-medium top-[263px] left-[612.5px] w-[165px] h-[39px] flex items-center">
                 {data.date}
