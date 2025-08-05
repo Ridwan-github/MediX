@@ -71,4 +71,18 @@ public class ReceptionistController {
             ));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateReceptionist(@PathVariable Long id, @RequestBody User updatedUser) {
+        try {
+            User updatedReceptionist = receptionistService.updateReceptionist(id, updatedUser);
+            return ResponseEntity.ok(updatedReceptionist);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update receptionist", "details", e.getMessage()));
+        }
+    }
 }

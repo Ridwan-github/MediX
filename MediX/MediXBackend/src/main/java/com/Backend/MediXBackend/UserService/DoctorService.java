@@ -137,4 +137,90 @@ public class DoctorService {
 
         return doctor;
     }
+
+    @Transactional
+    public Doctor updateDoctor(Long doctorId, User userUpdates, Doctor doctorUpdates, 
+                              Set<Integer> qualificationIds, Set<Integer> specializationIds) {
+        Doctor existingDoctor = doctorRepo.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + doctorId));
+
+        // Update user information if provided
+        if (userUpdates != null) {
+            User existingUser = existingDoctor.getUser();
+            if (userUpdates.getName() != null) {
+                existingUser.setName(userUpdates.getName());
+            }
+            if (userUpdates.getEmail() != null) {
+                existingUser.setEmail(userUpdates.getEmail());
+            }
+            if (userUpdates.getPhoneNumber() != null) {
+                existingUser.setPhoneNumber(userUpdates.getPhoneNumber());
+            }
+            if (userUpdates.getPassword() != null) {
+                existingUser.setPassword(userUpdates.getPassword());
+            }
+            if (userUpdates.getAddress() != null) {
+                existingUser.setAddress(userUpdates.getAddress());
+            }
+            userRepo.save(existingUser);
+        }
+
+        // Update doctor information if provided
+        if (doctorUpdates != null) {
+            if (doctorUpdates.getYearsOfExperience() != null) {
+                existingDoctor.setYearsOfExperience(doctorUpdates.getYearsOfExperience());
+            }
+            if (doctorUpdates.getAvailableDays() != null) {
+                existingDoctor.setAvailableDays(doctorUpdates.getAvailableDays());
+            }
+            if (doctorUpdates.getAvailableTimes() != null) {
+                existingDoctor.setAvailableTimes(doctorUpdates.getAvailableTimes());
+            }
+            if (doctorUpdates.getLicenseNumber() != null) {
+                existingDoctor.setLicenseNumber(doctorUpdates.getLicenseNumber());
+            }
+        }
+
+        // Update qualifications if provided
+        if (qualificationIds != null) {
+            // Remove existing qualifications
+            doctorQualificationRepo.deleteByDoctorDoctorId(doctorId);
+            
+            // Add new qualifications
+            Set<Qualification> qualifications = qualificationIds.stream()
+                    .map(id -> qualificationRepo.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Qualification not found with id: " + id)))
+                    .collect(Collectors.toSet());
+
+            for (Qualification qualification : qualifications) {
+                DoctorQualification dq = new DoctorQualification();
+                dq.setId(new DoctorQualificationId(doctorId, qualification.getId()));
+                dq.setDoctor(existingDoctor);
+                dq.setQualification(qualification);
+                doctorQualificationRepo.save(dq);
+            }
+        }
+
+        // Update specializations if provided
+        if (specializationIds != null) {
+            // Remove existing specializations
+            doctorSpecializationRepo.deleteByDoctorDoctorId(doctorId);
+            
+            // Add new specializations
+            Set<Specialization> specializations = specializationIds.stream()
+                    .map(id -> specializationRepo.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Specialization not found with id: " + id)))
+                    .collect(Collectors.toSet());
+
+            for (Specialization specialization : specializations) {
+                DoctorSpecialization ds = new DoctorSpecialization();
+                ds.setId(new DoctorSpecializationId(doctorId, specialization.getId()));
+                ds.setDoctor(existingDoctor);
+                ds.setSpecialization(specialization);
+                doctorSpecializationRepo.save(ds);
+            }
+        }
+
+        return doctorRepo.save(existingDoctor);
+    }
 }

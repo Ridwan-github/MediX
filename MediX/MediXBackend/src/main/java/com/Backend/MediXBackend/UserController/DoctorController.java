@@ -91,4 +91,44 @@ public class DoctorController {
                     .body(Map.of("error", "Failed to add specializations", "details", e.getMessage()));
         }
     }
+
+    @PutMapping("/{doctorId}")
+    public ResponseEntity<?> updateDoctor(@PathVariable Long doctorId, @RequestBody Map<String, Object> request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            User userUpdates = null;
+            Doctor doctorUpdates = null;
+            Set<Integer> qualificationIds = null;
+            Set<Integer> specializationIds = null;
+
+            // Extract updates from request
+            if (request.containsKey("user")) {
+                userUpdates = mapper.convertValue(request.get("user"), User.class);
+            }
+            if (request.containsKey("doctor")) {
+                doctorUpdates = mapper.convertValue(request.get("doctor"), Doctor.class);
+            }
+            if (request.containsKey("qualificationIds")) {
+                @SuppressWarnings("unchecked")
+                Set<Integer> tempQualifications = mapper.convertValue(request.get("qualificationIds"), Set.class);
+                qualificationIds = tempQualifications;
+            }
+            if (request.containsKey("specializationIds")) {
+                @SuppressWarnings("unchecked")
+                Set<Integer> tempSpecializations = mapper.convertValue(request.get("specializationIds"), Set.class);
+                specializationIds = tempSpecializations;
+            }
+
+            Doctor updatedDoctor = doctorService.updateDoctor(doctorId, userUpdates, doctorUpdates, qualificationIds, specializationIds);
+            return ResponseEntity.ok(updatedDoctor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update doctor", "details", e.getMessage()));
+        }
+    }
 }
