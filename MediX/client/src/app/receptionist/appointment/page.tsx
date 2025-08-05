@@ -2,7 +2,7 @@
 import Header from "@/components/receptionist/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -14,12 +14,15 @@ export default function AppointmentPage() {
   const [clickedAdd, setClickedAdd] = useState(false);
   const [clickedClear, setClickedClear] = useState(false);
   const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
+  const [clickedRequests, setClickedRequests] = useState(false);
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
   const [clickedList, setClickedList] = useState(false);
 
   const searchParams = useSearchParams();
-  const selectedDoctor = searchParams?.get("doctor");
+  const selectedDoctorFromQuery = searchParams?.get("doctor");
+  const selectedDoctorIdFromQuery = searchParams?.get("doctorId");
+  const selectedDoctorNameFromQuery = searchParams?.get("doctorName");
 
   // Authentication check
   useEffect(() => {
@@ -31,15 +34,46 @@ export default function AppointmentPage() {
   }, [router]);
 
   useEffect(() => {
-    if (selectedDoctor) {
+    if (selectedDoctorFromQuery) {
       setPatient((prev) => ({
         ...prev,
-        doctor: selectedDoctor,
+        doctor: selectedDoctorFromQuery,
       }));
     }
-  }, [selectedDoctor]);
+
+    // Handle new URL parameters from doctor selection
+    if (selectedDoctorIdFromQuery && selectedDoctorNameFromQuery) {
+      setPatient((prev) => ({
+        ...prev,
+        doctor: selectedDoctorIdFromQuery,
+      }));
+      setSearchTerm(decodeURIComponent(selectedDoctorNameFromQuery));
+
+      // Find and set the selected doctor object
+      fetch("http://localhost:8080/api/doctors")
+        .then((res) => res.json())
+        .then((data) => {
+          const doctor = data.find(
+            (d: any) => d.doctorId.toString() === selectedDoctorIdFromQuery
+          );
+          if (doctor) {
+            setSelectedDoctor(doctor);
+          }
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [
+    selectedDoctorFromQuery,
+    selectedDoctorIdFromQuery,
+    selectedDoctorNameFromQuery,
+  ]);
 
   const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredDoctors, setFilteredDoctors] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // First fetch available doctors
@@ -47,8 +81,43 @@ export default function AppointmentPage() {
       .then((res) => res.json())
       .then((data) => {
         setAvailableDoctors(data);
+        setFilteredDoctors(data);
       })
       .catch((err) => console.error(err));
+  }, []);
+
+  // Filter doctors based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredDoctors(availableDoctors);
+    } else {
+      const filtered = availableDoctors.filter(
+        (doctor) =>
+          doctor.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (doctor.specialization &&
+            doctor.specialization
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
+      );
+      setFilteredDoctors(filtered);
+    }
+  }, [searchTerm, availableDoctors]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const todayDate = new Date().toISOString().slice(0, 10);
@@ -65,6 +134,25 @@ export default function AppointmentPage() {
   ) => {
     const { name, value } = e.target;
     setPatient((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setShowDropdown(true);
+  };
+
+  const handleDoctorSelect = (doctor: any) => {
+    setSelectedDoctor(doctor);
+    setPatient((prev) => ({ ...prev, doctor: doctor.doctorId.toString() }));
+    setSearchTerm(doctor.user.name);
+    setShowDropdown(false);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+    setSelectedDoctor(null);
+    setPatient((prev) => ({ ...prev, doctor: "" }));
+    setShowDropdown(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -184,6 +272,11 @@ export default function AppointmentPage() {
       appointmentDate: todayDate,
       doctor: "",
     });
+
+    // Clear search related state
+    setSearchTerm("");
+    setSelectedDoctor(null);
+    setShowDropdown(false);
   };
 
   const handleNavClick = (navType: string) => {
@@ -192,6 +285,10 @@ export default function AppointmentPage() {
       case "addAppointment":
         setClickedAddAppointment(true);
         setTimeout(() => setClickedAddAppointment(false), 150);
+        break;
+      case "requests":
+        setClickedRequests(true);
+        setTimeout(() => setClickedRequests(false), 150);
         break;
       case "doctor":
         setClickedDoctor(true);
@@ -214,7 +311,18 @@ export default function AppointmentPage() {
 
       {/* Subheader / Navigation Tabs */}
       <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
-        <div className="flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+        <div className="flex justify-center gap-6 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+          <Link
+            href="/receptionist/appointment/requests"
+            onClick={() => handleNavClick("requests")}
+            className={`px-4 py-2 rounded-lg transition transform ${
+              usePathname() === "/receptionist/appointment/requests"
+                ? "bg-green-700/80 text-white shadow-lg"
+                : "hover:bg-green-600/40"
+            } ${clickedRequests ? "scale-95" : "scale-100"}`}
+          >
+            Appointment Requests
+          </Link>
           <Link
             href="/receptionist/appointment"
             onClick={() => handleNavClick("addAppointment")}
@@ -292,22 +400,162 @@ export default function AppointmentPage() {
             className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
-          <select
-            name="doctor"
-            required
-            value={patient.doctor}
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="" disabled>
-              Select a Doctor
-            </option>
-            {availableDoctors.map((doctor) => (
-              <option key={doctor.doctorId} value={doctor.doctorId}>
-                {doctor.user.name}
-              </option>
-            ))}
-          </select>
+          {/* Doctor Search */}
+          <div className="relative" ref={searchRef}>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search for a doctor..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onFocus={() => setShowDropdown(true)}
+                required={!selectedDoctor}
+                className="w-full p-3 pl-10 pr-10 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+
+              {/* Search Icon */}
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="21 21l-4.35-4.35"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
+
+              {/* Clear Button */}
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <line
+                      x1="18"
+                      y1="6"
+                      x2="6"
+                      y2="18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1="6"
+                      y1="6"
+                      x2="18"
+                      y2="18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown */}
+            {showDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+                {filteredDoctors.length > 0 ? (
+                  filteredDoctors.map((doctor) => (
+                    <div
+                      key={doctor.doctorId}
+                      onClick={() => handleDoctorSelect(doctor)}
+                      className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center space-x-3"
+                    >
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-semibold text-sm">
+                        {doctor.user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {doctor.user.name}
+                        </div>
+                        {doctor.specialization && (
+                          <div className="text-sm text-gray-500">
+                            {doctor.specialization}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-gray-500 text-center">
+                    No doctors found
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Selected Doctor Display */}
+            {selectedDoctor && !showDropdown && (
+              <div className="mt-2 p-3 bg-green-50 rounded-xl border border-green-200 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-semibold text-sm">
+                    {selectedDoctor.user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      {selectedDoctor.user.name}
+                    </div>
+                    {selectedDoctor.specialization && (
+                      <div className="text-sm text-gray-500">
+                        {selectedDoctor.specialization}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <line
+                      x1="18"
+                      y1="6"
+                      x2="6"
+                      y2="18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1="6"
+                      y1="6"
+                      x2="18"
+                      y2="18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           <input
             type="date"

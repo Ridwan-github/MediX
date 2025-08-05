@@ -46,19 +46,19 @@ export default function Home() {
 
   const testimonials = [
     {
-      name: "Sadia Sultana",
-      role: "Receptionist",
-      text: "MediX has made my job so much easier. I can manage appointments and patient information effortlessly.",
+      name: "Sarah Johnson",
+      role: "Patient",
+      text: "MediX has transformed how I manage my healthcare. The convenience is unmatched!",
       avatar: "👩‍💼",
     },
     {
-      name: "Dr. Salman Kareem",
+      name: "Dr. Michael Chen",
       role: "Healthcare Provider",
       text: "As a doctor, MediX streamlines my practice and improves patient care significantly.",
       avatar: "👨‍⚕️",
     },
     {
-      name: "Anika Rahman",
+      name: "Emma Rodriguez",
       role: "Patient",
       text: "Booking appointments has never been easier. Highly recommend MediX!",
       avatar: "👩‍🎓",
@@ -149,6 +149,9 @@ export default function Home() {
                 >
                   Book Appointment
                 </Link>
+                <button className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105">
+                  Learn More
+                </button>
               </div>
             </div>
 
@@ -160,64 +163,21 @@ export default function Home() {
               }`}
             >
               <div className="relative">
-                {/* Healthcare Promise Section */}
-                <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-3xl p-8 shadow-2xl transform hover:scale-105 transition-all duration-300">
-                  <div className="text-center text-white space-y-6">
-                    {/* Main Promise */}
-                    <div className="space-y-4">
-                      <h2 className="text-3xl font-bold leading-tight">
-                        Healthcare Made
-                        <span className="block text-yellow-300">
-                          Simple & Smart
-                        </span>
-                      </h2>
-                      <div className="w-20 h-1 bg-yellow-300 mx-auto rounded-full"></div>
-                    </div>
-
-                    {/* Key Benefits */}
-                    <div className="grid grid-cols-1 gap-4 mt-8">
-                      <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                        <div className="w-8 h-8 bg-yellow-300 rounded-full flex items-center justify-center">
-                          <span className="text-green-600 text-xl font-bold">
-                            ✓
-                          </span>
-                        </div>
-                        <span className="text-lg font-medium">
-                          Instant Doctor Access
-                        </span>
-                      </div>
-
-                      <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                        <div className="w-8 h-8 bg-yellow-300 rounded-full flex items-center justify-center">
-                          <span className="text-green-600 text-xl font-bold">
-                            ✓
-                          </span>
-                        </div>
-                        <span className="text-lg font-medium">
-                          Digital Health Records
-                        </span>
-                      </div>
-
-                      <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                        <div className="w-8 h-8 bg-yellow-300 rounded-full flex items-center justify-center">
-                          <span className="text-green-600 text-xl font-bold">
-                            ✓
-                          </span>
-                        </div>
-                        <span className="text-lg font-medium">
-                          24/7 Support Available
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-3xl p-8 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                  <Image
+                    src="/Prescription.png"
+                    alt="Digital Prescription"
+                    width={500}
+                    height={400}
+                    className="rounded-2xl shadow-lg"
+                    priority
+                  />
                 </div>
-
-                {/* Floating Elements */}
                 <div className="absolute -top-4 -right-4 bg-white rounded-full p-4 shadow-lg animate-bounce">
-                  <span className="text-3xl">�</span>
+                  <span className="text-3xl">💊</span>
                 </div>
                 <div className="absolute -bottom-4 -left-4 bg-white rounded-full p-4 shadow-lg animate-pulse">
-                  <span className="text-3xl">💚</span>
+                  <span className="text-3xl">🩺</span>
                 </div>
               </div>
             </div>
@@ -233,6 +193,20 @@ export default function Home() {
         <div className="absolute top-40 right-20 animate-float-delayed">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
             <span className="text-2xl">🏥</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="bg-green-600 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center text-white">
+                <div className="text-4xl font-bold mb-2">{stat.number}</div>
+                <div className="text-green-100">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

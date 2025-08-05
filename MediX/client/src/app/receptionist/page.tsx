@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ReceptionistPage() {
-  const [numberOfPatients, setNumberOfPatients] = useState(0);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const [vitalsToEntry, setVitalsToEntry] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,13 +31,13 @@ export default function ReceptionistPage() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const today = new Date().toISOString().slice(0, 10);
-        let patientsToday = 0;
+        let requestsCount = 0;
         let vitalsCount = 0;
         for (const appt of data) {
-          if (appt.appointmentDate === today) patientsToday++;
+          if (appt.status === "REQUESTED") requestsCount++;
           if (appt.status === "NOT_READY") vitalsCount++;
         }
-        setNumberOfPatients(patientsToday);
+        setPendingRequests(requestsCount);
         setVitalsToEntry(vitalsCount);
       } catch (err: any) {
         setError(err.message || "Failed to fetch data");
@@ -67,17 +67,25 @@ export default function ReceptionistPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10">
             <div className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out">
               <h2 className="text-xl font-semibold text-green-700 mb-3">
-                Patients Added Today
+                Pending Appointment Requests
               </h2>
-              <p className="text-4xl font-bold text-blue-600">
-                {loading ? "..." : numberOfPatients}
+              <p
+                className={`text-4xl font-bold ${
+                  pendingRequests === 0 ? "text-blue-600" : "text-red-600"
+                }`}
+              >
+                {loading ? "..." : pendingRequests}
               </p>
             </div>
             <div className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out">
               <h2 className="text-xl font-semibold text-green-700 mb-3">
                 Vitals to entry
               </h2>
-              <p className="text-4xl font-bold text-red-600">
+              <p
+                className={`text-4xl font-bold ${
+                  vitalsToEntry === 0 ? "text-blue-600" : "text-red-600"
+                }`}
+              >
                 {loading ? "..." : vitalsToEntry}
               </p>
             </div>

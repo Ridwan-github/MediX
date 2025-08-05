@@ -13,6 +13,7 @@ export default function VitalsPage() {
   const [error, setError] = useState<string | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
+  const [clickedRequests, setClickedRequests] = useState(false);
   const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
@@ -238,6 +239,10 @@ export default function VitalsPage() {
   const handleNavClick = (navType: string) => {
     // Trigger button press animation based on nav type
     switch (navType) {
+      case "requests":
+        setClickedRequests(true);
+        setTimeout(() => setClickedRequests(false), 150);
+        break;
       case "addAppointment":
         setClickedAddAppointment(true);
         setTimeout(() => setClickedAddAppointment(false), 150);
@@ -263,8 +268,9 @@ export default function VitalsPage() {
 
       {/* Subheader Navigation */}
       <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
-        <div className="flex justify-center gap-8 text-green-800 font-semibold text-lg select-none transition-all duration-500">
+        <div className="flex justify-center gap-6 text-green-800 font-semibold text-lg select-none transition-all duration-500">
           {[
+            ["Appointment Requests", "/receptionist/appointment/requests"],
             ["Add Appointment", "/receptionist/appointment"],
             ["Doctor", "/receptionist/appointment/doctor"],
             ["Vitals Entry", "/receptionist/appointment/vitals"],
@@ -275,7 +281,9 @@ export default function VitalsPage() {
               href={path}
               onClick={() =>
                 handleNavClick(
-                  path === "/receptionist/appointment"
+                  path === "/receptionist/appointment/requests"
+                    ? "requests"
+                    : path === "/receptionist/appointment"
                     ? "addAppointment"
                     : path === "/receptionist/appointment/doctor"
                     ? "doctor"
@@ -289,6 +297,8 @@ export default function VitalsPage() {
                   ? "bg-green-700/80 text-white shadow-lg"
                   : "hover:bg-green-600/40"
               } ${
+                (path === "/receptionist/appointment/requests" &&
+                  clickedRequests) ||
                 (path === "/receptionist/appointment" &&
                   clickedAddAppointment) ||
                 (path === "/receptionist/appointment/doctor" &&

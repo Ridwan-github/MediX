@@ -1,12 +1,9 @@
 "use client";
-import Header from "@/components/receptionist/header";
-import Footer from "@/components/footer";
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import Footer from "@/components/footer";
 
-type Doctor = {
+interface Doctor {
   doctorId: number;
   user: {
     id: number;
@@ -40,32 +37,14 @@ type Doctor = {
       name: string;
     };
   }>;
-};
+}
 
 export default function DoctorListPage() {
-  const pathname = usePathname();
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [clickedRequests, setClickedRequests] = useState(false);
-  const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
-  const [clickedDoctor, setClickedDoctor] = useState(false);
-  const [clickedVitals, setClickedVitals] = useState(false);
-  const [clickedList, setClickedList] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-
-  const lowerNavBgColor = "#1F4604";
-  const lowerNavTextColor = "#ffffff";
-
-  // Authentication check
-  useEffect(() => {
-    const receptionistId = localStorage.getItem("receptionistId");
-    if (!receptionistId || receptionistId.trim() === "") {
-      router.push("/");
-      return;
-    }
-  }, [router]);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/doctors")
@@ -75,153 +54,92 @@ export default function DoctorListPage() {
       })
       .then((data: Doctor[]) => {
         setDoctors(data);
+        setLoading(false);
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   const filteredDoctors = doctors.filter((doctor) => {
     const nameMatch = doctor.user.name
       .toLowerCase()
-      .includes(search.toLowerCase());
+      .includes(searchTerm.toLowerCase());
     const specializationMatch = doctor.specializations.some((spec) =>
-      spec.specialization.name.toLowerCase().includes(search.toLowerCase())
+      spec.specialization.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const qualificationMatch = doctor.qualifications.some((qual) =>
-      qual.qualification.name.toLowerCase().includes(search.toLowerCase())
+      qual.qualification.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const contactMatch = doctor.user.phoneNumber
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    return (
-      nameMatch || specializationMatch || qualificationMatch || contactMatch
-    );
+    return nameMatch || specializationMatch || qualificationMatch;
   });
 
-  const handleNavClick = (navType: string) => {
-    // Trigger button press animation based on nav type
-    switch (navType) {
-      case "requests":
-        setClickedRequests(true);
-        setTimeout(() => setClickedRequests(false), 150);
-        break;
-      case "addAppointment":
-        setClickedAddAppointment(true);
-        setTimeout(() => setClickedAddAppointment(false), 150);
-        break;
-      case "doctor":
-        setClickedDoctor(true);
-        setTimeout(() => setClickedDoctor(false), 150);
-        break;
-      case "vitals":
-        setClickedVitals(true);
-        setTimeout(() => setClickedVitals(false), 150);
-        break;
-      case "list":
-        setClickedList(true);
-        setTimeout(() => setClickedList(false), 150);
-        break;
-    }
+  const handleDoctorSelect = (doctor: Doctor) => {
+    // Navigate to booking page with selected doctor
+    router.push(
+      `/request-appointment/book?doctorId=${
+        doctor.doctorId
+      }&doctorName=${encodeURIComponent(doctor.user.name)}`
+    );
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-[#e6f2ec] via-[#f0f6f2] to-[#e6f2ec] flex flex-col relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-green-400 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-green-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-green-200 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
 
-      {/* Subheader / Navigation Tabs */}
-      <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
-        <div className="flex justify-center gap-6 text-green-800 font-semibold text-lg select-none transition-all duration-500">
-          <Link
-            href="/receptionist/appointment/requests"
-            onClick={() => handleNavClick("requests")}
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment/requests"
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${clickedRequests ? "scale-95" : "scale-100"}`}
-          >
-            Appointment Requests
-          </Link>
-          <Link
-            href="/receptionist/appointment"
-            onClick={() => handleNavClick("addAppointment")}
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment"
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${clickedAddAppointment ? "scale-95" : "scale-100"}`}
-          >
-            Add Appointment
-          </Link>
-          <Link
-            href="/receptionist/appointment/doctor"
-            onClick={() => handleNavClick("doctor")}
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment/doctor"
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${clickedDoctor ? "scale-95" : "scale-100"}`}
-          >
-            Doctor
-          </Link>
-          <Link
-            href="/receptionist/appointment/vitals"
-            onClick={() => handleNavClick("vitals")}
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment/vitals"
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${clickedVitals ? "scale-95" : "scale-100"}`}
-          >
-            Vitals Entry
-          </Link>
-          <Link
-            href="/receptionist/appointment/list"
-            onClick={() => handleNavClick("list")}
-            className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment/list"
-                ? "bg-green-700/80 text-white shadow-lg"
-                : "hover:bg-green-600/40"
-            } ${clickedList ? "scale-95" : "scale-100"}`}
-          >
-            Appointment List
-          </Link>
+      {/* Header */}
+      <div className="relative z-10 pt-8 pb-6">
+        <div className="text-center">
+          <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-gray-800 via-green-700 to-gray-800 bg-clip-text text-transparent">
+            Choose Your <span className="text-green-700">Doctor</span>
+          </h1>
+          <div className="h-1 w-32 bg-gradient-to-r from-green-400 to-green-600 mx-auto rounded-full mb-6 animate-pulse"></div>
+          <p className="text-gray-600 text-xl font-medium max-w-2xl mx-auto px-4">
+            Browse our experienced doctors and select the one that best fits
+            your needs
+          </p>
         </div>
-      </nav>
+      </div>
 
-      <main className="flex-grow px-6 sm:px-12 pb-12">
-        {/* Search Section */}
-        <div className="px-4 mb-8 mt-8">
-          <div className="max-w-lg mx-auto">
-            <div className="relative group">
-              <input
-                type="text"
-                placeholder="Search doctors by name or specialization..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-6 py-4 pl-14 rounded-2xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/20 to-green-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+      {/* Search Section */}
+      <div className="relative z-10 px-4 mb-8">
+        <div className="max-w-lg mx-auto">
+          <div className="relative group">
+            <input
+              type="text"
+              placeholder="Search doctors by name or specialization..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-6 py-4 pl-14 rounded-2xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] placeholder-gray-500 "
+            />
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
             </div>
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/20 to-green-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
+      {/* Main Content */}
+      <div className="flex-grow relative z-10 px-4 pb-8">
         <div className="max-w-6xl mx-auto">
           {loading && (
             <div className="flex flex-col items-center justify-center py-20">
@@ -281,13 +199,7 @@ export default function DoctorListPage() {
                   {filteredDoctors.map((doctor) => (
                     <div
                       key={doctor.doctorId}
-                      onClick={() => {
-                        router.push(
-                          `/receptionist/appointment?doctorId=${
-                            doctor.doctorId
-                          }&doctorName=${encodeURIComponent(doctor.user.name)}`
-                        );
-                      }}
+                      onClick={() => handleDoctorSelect(doctor)}
                       className="group bg-[#e6f2ec] rounded-3xl p-6 shadow-[12px_12px_24px_#c2d0c8,-12px_-12px_24px_#ffffff] hover:shadow-[20px_20px_40px_#a8b8af,-20px_-20px_40px_#ffffff] transition-all duration-500 cursor-pointer transform hover:scale-[1.02] border border-white/20 backdrop-blur-sm"
                     >
                       {/* Doctor Avatar */}
@@ -423,9 +335,9 @@ export default function DoctorListPage() {
                           </span>
                         </div>
 
-                        {/* Select Doctor Button */}
+                        {/* Book Appointment Button */}
                         <button className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 px-6 rounded-xl shadow-[4px_4px_8px_#c2d0c8,-4px_-4px_8px_#ffffff] hover:from-green-700 hover:to-green-800 hover:shadow-[6px_6px_12px_#a8b8af,-6px_-6px_12px_#ffffff] transition-all duration-300 transform group-hover:scale-105">
-                          Select Doctor
+                          Book Appointment
                           <svg
                             className="w-4 h-4 ml-2 inline"
                             fill="none"
@@ -448,7 +360,30 @@ export default function DoctorListPage() {
             </>
           )}
         </div>
-      </main>
+      </div>
+
+      {/* Back to Home */}
+      <div className="relative z-10 text-center pb-8">
+        <button
+          onClick={() => router.push("/")}
+          className="group inline-flex items-center gap-2 text-green-700 hover:text-green-800 font-medium text-lg transition-all duration-300 hover:scale-105"
+        >
+          <svg
+            className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Home
+        </button>
+      </div>
 
       <Footer />
     </div>
