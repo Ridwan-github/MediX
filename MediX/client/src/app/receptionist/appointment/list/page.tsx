@@ -19,6 +19,10 @@ export default function AppointmentPage() {
   );
   const [loading, setLoading] = useState(false);
   const [clickedShowMore, setClickedShowMore] = useState<number | null>(null);
+  const [clickedEnterVitals, setClickedEnterVitals] = useState<number | null>(
+    null
+  );
+  const [clickedApprove, setClickedApprove] = useState<number | null>(null);
   const [clickedRequests, setClickedRequests] = useState(false);
   const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
   const [clickedDoctor, setClickedDoctor] = useState(false);
@@ -61,11 +65,14 @@ export default function AppointmentPage() {
     fetchAppointments();
   }, []);
 
-  const pendingAppointments = appointments.filter(
-    (appt) => appt.status === "READY"
+  const displayedAppointments = appointments.filter(
+    (appt) =>
+      appt.status === "READY" ||
+      appt.status === "NOT_READY" ||
+      appt.status === "REQUESTED"
   );
 
-  const rows = pendingAppointments.map((appt) => ({
+  const rows = displayedAppointments.map((appt) => ({
     ...appt,
     patientName: appt.patientName || "",
     patientPhone: appt.patientPhone || "",
@@ -99,6 +106,26 @@ export default function AppointmentPage() {
 
     setSelectedAppointment(row);
     setShowModal(true);
+  };
+
+  const handleEnterVitals = (row: any) => {
+    // Trigger button press animation
+    setClickedEnterVitals(row.id);
+    setTimeout(() => setClickedEnterVitals(null), 150); // Reset animation
+
+    // Redirect to vitals page with appointment data
+    router.push(
+      `/receptionist/appointment/vitals?appointmentId=${row.id}&patientId=${row.patientId}`
+    );
+  };
+
+  const handleApprove = (row: any) => {
+    // Trigger button press animation
+    setClickedApprove(row.id);
+    setTimeout(() => setClickedApprove(null), 150); // Reset animation
+
+    // Redirect to requests page
+    router.push("/receptionist/appointment/requests");
   };
 
   const handleCloseModal = () => {
@@ -219,7 +246,8 @@ export default function AppointmentPage() {
                   "Doctor Name",
                   "Serial #",
                   "Date",
-                  "Show More",
+                  "Status",
+                  "Action",
                 ].map((header) => (
                   <th
                     key={header}
@@ -253,15 +281,56 @@ export default function AppointmentPage() {
                     {row.appointmentDate}
                   </td>
                   <td className="p-3 border border-gray-200">
-                    <button
-                      onClick={() => handleShowMore(row)}
-                      aria-pressed={clickedShowMore === row.id}
-                      className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                        clickedShowMore === row.id ? "scale-95" : "scale-100"
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        row.status === "READY"
+                          ? "bg-green-100 text-green-800"
+                          : row.status === "NOT_READY"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      Show More
-                    </button>
+                      {row.status === "READY"
+                        ? "Ready"
+                        : row.status === "NOT_READY"
+                        ? "Not Ready"
+                        : "Requested"}
+                    </span>
+                  </td>
+                  <td className="p-3 border border-gray-200">
+                    {row.status === "READY" ? (
+                      <button
+                        onClick={() => handleShowMore(row)}
+                        aria-pressed={clickedShowMore === row.id}
+                        className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                          clickedShowMore === row.id ? "scale-95" : "scale-100"
+                        }`}
+                      >
+                        Show More
+                      </button>
+                    ) : row.status === "NOT_READY" ? (
+                      <button
+                        onClick={() => handleEnterVitals(row)}
+                        aria-pressed={clickedEnterVitals === row.id}
+                        className={`bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                          clickedEnterVitals === row.id
+                            ? "scale-95"
+                            : "scale-100"
+                        }`}
+                      >
+                        Enter Vitals
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleApprove(row)}
+                        aria-pressed={clickedApprove === row.id}
+                        className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                          clickedApprove === row.id ? "scale-95" : "scale-100"
+                        }`}
+                      >
+                        Approve
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

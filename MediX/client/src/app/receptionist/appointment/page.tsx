@@ -124,7 +124,7 @@ export default function AppointmentPage() {
 
   const [patient, setPatient] = useState({
     name: "",
-    contact: "",
+    contact: "+88 ",
     appointmentDate: todayDate,
     doctor: "",
   });
@@ -134,6 +134,31 @@ export default function AppointmentPage() {
   ) => {
     const { name, value } = e.target;
     setPatient((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    // Remove +88 prefix to get just the number part
+    const numberPart = input.replace(/^\+88\s?/, "");
+
+    // Only allow digits and limit to 11 digits
+    const numbersOnly = numberPart.replace(/\D/g, "").slice(0, 11);
+
+    // Update the patient contact with full number including +88
+    if (numbersOnly.length <= 11) {
+      setPatient((prev) => ({ ...prev, contact: `+88 ${numbersOnly}` }));
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    // Only allow letters and spaces, remove any other characters
+    const lettersOnly = input.replace(/[^a-zA-Z\s]/g, "");
+
+    // Update the patient name
+    setPatient((prev) => ({ ...prev, name: lettersOnly }));
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,6 +182,20 @@ export default function AppointmentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate name length and content
+    const nameOnly = patient.name.replace(/\s+/g, ""); // Remove spaces to count only letters
+    if (nameOnly.length < 3) {
+      alert("Name must be at least 3 letters long");
+      return;
+    }
+
+    // Validate phone number length
+    const phoneNumbers = patient.contact.replace(/^\+88\s?/, "");
+    if (phoneNumbers.length !== 11) {
+      alert("Phone number must be exactly 11 digits long");
+      return;
+    }
 
     // Trigger button press animation
     setClickedAdd(true);
@@ -268,7 +307,7 @@ export default function AppointmentPage() {
 
     setPatient({
       name: "",
-      contact: "",
+      contact: "+88 ",
       appointmentDate: todayDate,
       doctor: "",
     });
@@ -380,25 +419,58 @@ export default function AppointmentPage() {
           onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-8 max-w-md mx-auto space-y-6 shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]"
         >
-          <input
-            type="text"
-            name="name"
-            placeholder="Patient Name"
-            required
-            value={patient.name}
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              name="name"
+              placeholder="Patient Name"
+              required
+              value={patient.name}
+              onChange={handleNameChange}
+              className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            {patient.name.length > 0 &&
+              patient.name.replace(/\s+/g, "").length < 3 && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500 text-sm">
+                  Min 3 letters
+                </div>
+              )}
+          </div>
 
-          <input
-            type="tel"
-            name="contact"
-            placeholder="Contact Number"
-            required
-            value={patient.contact}
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          <div className="relative">
+            <input
+              type="tel"
+              name="contact"
+              placeholder="+88 01XXXXXXXXX"
+              required
+              value={patient.contact}
+              onChange={handlePhoneChange}
+              onKeyDown={(e) => {
+                // Prevent deleting +88 prefix
+                if (
+                  (e.key === "Backspace" || e.key === "Delete") &&
+                  (e.currentTarget.selectionStart ?? 0) <= 4
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onFocus={(e) => {
+                // Set cursor position after +88
+                setTimeout(() => {
+                  if (e.target.value.length <= 4) {
+                    e.target.setSelectionRange(4, 4);
+                  }
+                }, 0);
+              }}
+              className="w-full p-3 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            {patient.contact.replace(/^\+88\s?/, "").length > 0 &&
+              patient.contact.replace(/^\+88\s?/, "").length !== 11 && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500 text-sm">
+                  Must be 11 digits
+                </div>
+              )}
+          </div>
 
           {/* Doctor Search */}
           <div className="relative" ref={searchRef}>
