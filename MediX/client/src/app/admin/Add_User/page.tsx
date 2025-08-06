@@ -10,6 +10,9 @@ export default function AddUserPage() {
   // State for basic user information
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [address, setAddress] = useState("");
   const [role, setRole] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
@@ -27,11 +30,12 @@ export default function AddUserPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Here you would typically send the data to your API or server.
-    // For now, let's log the data to the console
     const userData = {
       name,
       email,
+      phone,
+      password,
+      address,
       role,
       gender,
       age,
@@ -44,8 +48,6 @@ export default function AddUserPage() {
     };
 
     console.log("User data submitted:", userData);
-
-    // Redirect to another page (e.g., Admin Dashboard) after submission
     router.push("/admin");
   };
 
@@ -55,14 +57,10 @@ export default function AddUserPage() {
       <main className="flex-grow p-8">
         <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-10">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Information Fields */}
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="flex flex-col space-y-4 w-full items-center justify-center">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="name" className="block text-sm text-gray-700 font-semibold">
                     Full Name
                   </label>
                   <input
@@ -76,10 +74,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="email" className="block text-sm text-gray-700 font-semibold">
                     Email Address
                   </label>
                   <input
@@ -93,10 +88,50 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="role"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="phone" className="block text-sm text-gray-700 font-semibold">
+                    Phone Number
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm text-gray-700 font-semibold">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-sm text-gray-700 font-semibold">
+                    Address
+                  </label>
+                  <textarea
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                    rows={3}
+                    placeholder="Street, City, State, ZIP"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="role" className="block text-sm text-gray-700 font-semibold">
                     Role
                   </label>
                   <select
@@ -114,10 +149,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="gender" className="block text-sm text-gray-700 font-semibold">
                     Gender
                   </label>
                   <select
@@ -135,10 +167,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="age"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="age" className="block text-sm text-gray-700 font-semibold">
                     Age
                   </label>
                   <input
@@ -161,10 +190,7 @@ export default function AddUserPage() {
                 </h2>
 
                 <div>
-                  <label
-                    htmlFor="experience"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="experience" className="block text-sm text-gray-700 font-semibold">
                     Years of Experience
                   </label>
                   <input
@@ -177,10 +203,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="licenseNumber"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="licenseNumber" className="block text-sm text-gray-700 font-semibold">
                     License Number
                   </label>
                   <input
@@ -193,10 +216,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="availableDays"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="availableDays" className="block text-sm text-gray-700 font-semibold">
                     Available Days
                   </label>
                   <input
@@ -209,10 +229,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="availableTimes"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="availableTimes" className="block text-sm text-gray-700 font-semibold">
                     Available Times for Duty
                   </label>
                   <input
@@ -225,10 +242,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="specifications"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="specifications" className="block text-sm text-gray-700 font-semibold">
                     Specifications
                   </label>
                   <textarea
@@ -242,10 +256,7 @@ export default function AddUserPage() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="degrees"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
+                  <label htmlFor="degrees" className="block text-sm text-gray-700 font-semibold">
                     Degrees
                   </label>
                   <textarea
@@ -260,7 +271,6 @@ export default function AddUserPage() {
               </div>
             )}
 
-            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
@@ -272,7 +282,6 @@ export default function AddUserPage() {
           </form>
         </div>
       </main>
-
       <Footer />
     </div>
   );
