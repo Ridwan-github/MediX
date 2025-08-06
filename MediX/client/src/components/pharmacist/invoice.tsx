@@ -1,0 +1,186 @@
+"use client";
+
+import { useState } from "react";
+
+export default function Invoice() {
+  const [customerName, setCustomerName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [address, setAddress] = useState("");
+  const [date, setDate] = useState("");
+  const [items, setItems] = useState([
+    { qty: 1, itemNo: "", description: "", price: 0 },
+  ]);
+
+  const handleItemChange = (index: number, field: string, value: any) => {
+    const updated = [...items];
+    updated[index] = {
+      ...updated[index],
+      [field]: field === "price" || field === "qty" ? Number(value) : value,
+    };
+    setItems(updated);
+  };
+
+  const addItem = () => {
+    setItems([...items, { qty: 1, itemNo: "", description: "", price: 0 }]);
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+  const tax = 10;
+  const total = subtotal + tax;
+
+  return (
+    <div className="bg-white p-8 shadow-xl max-w-4xl mx-auto my-10 border border-gray-200">
+      <div className="flex justify-between items-center border-b pb-4">
+        <div>
+          <h1 className="text-3xl font-bold text-green-700">INVOICE</h1>
+        </div>
+        <div className="text-right">
+          <h2 className="text-lg font-bold text-gray-700">Hikmah Hospital</h2>
+          <p className="text-sm text-green-600">
+            We provide the very best pharmacy solutions.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-800">
+        <div>
+          <p className="font-bold text-lg">Billed to</p>
+          <label className="block mt-2 font-semibold">Customer Name</label>
+          <input
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label className="block mt-2 font-semibold">Company Name</label>
+          <input
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block font-semibold mt-6">Phone Number</label>
+          <input
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label className="block mt-2 font-semibold">Address</label>
+          <input
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label className="block mt-2 font-semibold">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+      </div>
+
+      <table className="w-full mt-8 text-sm border">
+        <thead className="bg-green-900 text-white">
+          <tr>
+            <th className="p-2 border">Qty.</th>
+            <th className="p-2 border">Item No.</th>
+            <th className="p-2 border">Description</th>
+            <th className="p-2 border">Price</th>
+            <th className="p-2 border">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, idx) => (
+            <tr key={idx} className="text-center">
+              <td className="p-2 border">
+                <input
+                  type="number"
+                  value={item.qty}
+                  onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
+                  className="w-16 border rounded px-1"
+                />
+              </td>
+              <td className="p-2 border">
+                <input
+                  type="text"
+                  value={item.itemNo}
+                  onChange={(e) =>
+                    handleItemChange(idx, "itemNo", e.target.value)
+                  }
+                  className="w-20 border rounded px-1"
+                />
+              </td>
+              <td className="p-2 border">
+                <input
+                  type="text"
+                  value={item.description}
+                  onChange={(e) =>
+                    handleItemChange(idx, "description", e.target.value)
+                  }
+                  className="w-full border rounded px-1"
+                />
+              </td>
+              <td className="p-2 border">
+                <input
+                  type="number"
+                  value={item.price}
+                  onChange={(e) =>
+                    handleItemChange(idx, "price", e.target.value)
+                  }
+                  className="w-20 border rounded px-1"
+                />
+              </td>
+              <td className="p-2 border font-semibold text-right pr-4">
+                ${(item.qty * item.price).toFixed(2)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <button
+        onClick={addItem}
+        className="mt-4 text-sm text-green-700 hover:underline"
+      >
+        + Add another item
+      </button>
+
+      <div className="grid grid-cols-2 gap-4 mt-8">
+        <div>
+          <h3 className="font-bold text-gray-700">Payment info</h3>
+          <p>Best Bank</p>
+          <p>Account no. 56–67892</p>
+          <p>Ref : 0145 76590</p>
+
+          <h3 className="font-bold text-gray-700 mt-4">Terms and Conditions</h3>
+          <p className="text-sm text-gray-600">
+            The origins of the first constellations date back to prehistoric
+            times. Their purpose was to tell stories of their beliefs,
+            experiences, creations.
+          </p>
+        </div>
+
+        <div className="text-right space-y-2 text-sm">
+          <p className="flex justify-between border-b py-1">
+            <span className="font-semibold">Subtotal</span>{" "}
+            <span>৳{subtotal.toFixed(2)}</span>
+          </p>
+          <p className="flex justify-between border-b py-1">
+            <span className="font-semibold">Tax</span>{" "}
+            <span>৳{tax.toFixed(2)}</span>
+          </p>
+          <p className="flex justify-between text-lg bg-lime-400 p-2 font-bold text-green-900 rounded">
+            <span>Total</span> <span>৳{total.toFixed(2)}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
