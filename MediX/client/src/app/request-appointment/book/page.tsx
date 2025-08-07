@@ -109,6 +109,9 @@ export default function BookAppointment() {
     appointmentDate: todayDate,
   });
 
+  // Added state to control visibility of available dates dropdown
+  const [showAvailableDates, setShowAvailableDates] = useState(true);
+
   useEffect(() => {
     const doctorId = searchParams?.get("doctorId");
     const doctorName = searchParams?.get("doctorName");
@@ -347,6 +350,7 @@ export default function BookAppointment() {
       doctor: selectedDoctor ? selectedDoctor.doctorId.toString() : "",
       appointmentDate: todayDate,
     });
+    setShowAvailableDates(true); // Reset to show the available dates again
   };
 
   return (
@@ -485,7 +489,7 @@ export default function BookAppointment() {
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-400/20 to-orange-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
               {/* Available dates helper */}
-              {selectedDoctor && selectedDoctor.availableDays && (
+              {selectedDoctor && selectedDoctor.availableDays && showAvailableDates && (
                 <div className="mt-2 p-3 bg-blue-50 rounded-xl border-l-4 border-blue-400">
                   <div className="text-sm text-blue-800">
                     <div className="font-semibold mb-1">📅 Available Days:</div>
@@ -525,12 +529,13 @@ export default function BookAppointment() {
                               <button
                                 key={date}
                                 type="button"
-                                onClick={() =>
+                                onClick={() => {
                                   setPatient((prev) => ({
                                     ...prev,
                                     appointmentDate: date,
-                                  }))
-                                }
+                                  }));
+                                  setShowAvailableDates(false); // Close after quick select
+                                }}
                                 className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer"
                               >
                                 {dayName} {dateStr}
