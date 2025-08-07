@@ -13,6 +13,8 @@ export default function AddUserPage() {
   const [role, setRole] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
+  const [phone, setPhone] = useState("");  // Phone number state
+  const [password, setPassword] = useState("");  // Password state
 
   // Doctor specific fields
   const [experience, setExperience] = useState("");
@@ -27,14 +29,15 @@ export default function AddUserPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Here you would typically send the data to your API or server.
-    // For now, let's log the data to the console
+    // Prepare user data
     const userData = {
       name,
       email,
       role,
       gender,
       age,
+      phone, // Added phone
+      password, // Added password
       experience,
       licenseNumber,
       availableDays,
@@ -45,8 +48,8 @@ export default function AddUserPage() {
 
     console.log("User data submitted:", userData);
 
-    // Redirect to another page (e.g., Admin Dashboard) after submission
-    router.push("/admin");
+      // Redirect to another page (e.g., Admin Dashboard) after submission
+      router.push("/admin");
   };
 
   return (
@@ -146,6 +149,42 @@ export default function AddUserPage() {
                     type="number"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
+                  />
+                </div>
+
+                {/* New Phone Number Field */}
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm text-gray-700 font-semibold"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    id="phone"
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
+                  />
+                </div>
+
+                {/* New Password Field */}
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm text-gray-700 font-semibold"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
                   />
