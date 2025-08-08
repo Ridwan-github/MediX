@@ -26,9 +26,15 @@ export default function AddUserPage() {
   // State for additional specifications and degrees
   const [specifications, setSpecifications] = useState("");
   const [degrees, setDegrees] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    setMessageType("");
 
     const userData = {
       name,
@@ -48,7 +54,65 @@ export default function AddUserPage() {
     };
 
     console.log("User data submitted:", userData);
-    router.push("/admin");
+
+    // Handle different user types
+    if (role === "Receptionist") {
+      try {
+        const receptionistData = {
+          name,
+          email,
+          phoneNumber: phone,
+          password,
+          address,
+        };
+
+        const response = await fetch("http://localhost:8080/api/receptionists", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(receptionistData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("Receptionist created successfully:", result);
+          setMessage("Receptionist created successfully!");
+          setMessageType("success");
+          
+          // Reset form
+          setName("");
+          setEmail("");
+          setPhone("");
+          setPassword("");
+          setAddress("");
+          setRole("");
+          setGender("");
+          setAge("");
+          
+          // Redirect after a short delay to show success message
+          setTimeout(() => {
+            router.push("/admin");
+          }, 2000);
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to create receptionist:", errorData);
+          setMessage("Failed to create receptionist: " + (errorData.error || "Unknown error"));
+          setMessageType("error");
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        setMessage("Network error occurred while creating receptionist");
+        setMessageType("error");
+      }
+    } else {
+      // Handle other roles (Doctor, Pharmacist) - placeholder for future implementation
+      console.log("Other roles not implemented yet");
+      setMessage("User role '" + role + "' creation not implemented yet");
+      setMessageType("error");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -56,6 +120,19 @@ export default function AddUserPage() {
       <Header />
       <main className="flex-grow p-8">
         <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-10">
+          {/* Message Display */}
+          {message && (
+            <div
+              className={`mb-6 p-4 rounded-lg text-center ${
+                messageType === "success"
+                  ? "bg-green-100 text-green-700 border border-green-200"
+                  : "bg-red-100 text-red-700 border border-red-200"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="flex flex-col space-y-4 w-full items-center justify-center">
@@ -274,9 +351,14 @@ export default function AddUserPage() {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="px-8 py-4 bg-green-800 text-white rounded-xl shadow-md hover:bg-green-700 transition duration-200"
+                disabled={loading}
+                className={`px-8 py-4 rounded-xl shadow-md transition duration-200 ${
+                  loading
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-green-800 text-white hover:bg-green-700"
+                }`}
               >
-                Add User
+                {loading ? "Creating User..." : "Add User"}
               </button>
             </div>
           </form>
