@@ -171,4 +171,31 @@ public class PrescriptionService {
         
         return result;
     }
+
+    // Get prescriptions by appointment ID
+    public List<Prescription> getPrescriptionsByAppointmentId(Long appointmentId) {
+        return prescriptionRepo.findByAppointmentIdOrderByPrescriptionDateDesc(appointmentId);
+    }
+
+    // Link prescription to appointment
+    @Transactional
+    public Prescription linkPrescriptionToAppointment(Long prescriptionId, Long appointmentId) {
+        return prescriptionRepo.findById(prescriptionId)
+                .map(prescription -> {
+                    prescription.setAppointmentId(appointmentId);
+                    return prescriptionRepo.save(prescription);
+                })
+                .orElseThrow(() -> new RuntimeException("Prescription not found with id: " + prescriptionId));
+    }
+
+    // Unlink prescription from appointment
+    @Transactional
+    public Prescription unlinkPrescriptionFromAppointment(Long prescriptionId) {
+        return prescriptionRepo.findById(prescriptionId)
+                .map(prescription -> {
+                    prescription.setAppointmentId(null);
+                    return prescriptionRepo.save(prescription);
+                })
+                .orElseThrow(() -> new RuntimeException("Prescription not found with id: " + prescriptionId));
+    }
 }

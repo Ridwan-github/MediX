@@ -8,6 +8,7 @@ public class PrescriptionWithPatientDetails {
     private Long id;
     private Long patientId;
     private Long doctorId;
+    private Long appointmentId;
     private LocalDate prescriptionDate;
     private String chiefComplaint;
     private String onExamination;
@@ -27,6 +28,7 @@ public class PrescriptionWithPatientDetails {
         this.id = prescription.getId();
         this.patientId = prescription.getPatientId();
         this.doctorId = prescription.getDoctorId();
+        this.appointmentId = prescription.getAppointmentId();
         this.prescriptionDate = prescription.getPrescriptionDate();
         this.chiefComplaint = prescription.getChiefComplaint();
         this.onExamination = prescription.getOnExamination();
@@ -62,6 +64,14 @@ public class PrescriptionWithPatientDetails {
 
     public void setDoctorId(Long doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public Long getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(Long appointmentId) {
+        this.appointmentId = appointmentId;
     }
 
     public LocalDate getPrescriptionDate() {

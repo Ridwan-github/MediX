@@ -18,6 +18,9 @@ public class Prescription {
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
+    @Column(name = "appointment_id")
+    private Long appointmentId;
+
     @Column(name = "prescription_date", nullable = false)
     private LocalDate prescriptionDate;
 
@@ -45,6 +48,20 @@ public class Prescription {
                        String chiefComplaint, String onExamination, String investigations, String advice) {
         this.patientId = patientId;
         this.doctorId = doctorId;
+        this.appointmentId = null; // Default to null, can be set later
+        this.prescriptionDate = prescriptionDate;
+        this.chiefComplaint = chiefComplaint;
+        this.onExamination = onExamination;
+        this.investigations = investigations;
+        this.advice = advice;
+    }
+
+    // Additional constructor with appointmentId
+    public Prescription(Long patientId, Long doctorId, Long appointmentId, LocalDate prescriptionDate, 
+                       String chiefComplaint, String onExamination, String investigations, String advice) {
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.appointmentId = appointmentId;
         this.prescriptionDate = prescriptionDate;
         this.chiefComplaint = chiefComplaint;
         this.onExamination = onExamination;
@@ -75,6 +92,14 @@ public class Prescription {
 
     public void setDoctorId(Long doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public Long getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(Long appointmentId) {
+        this.appointmentId = appointmentId;
     }
 
     public LocalDate getPrescriptionDate() {

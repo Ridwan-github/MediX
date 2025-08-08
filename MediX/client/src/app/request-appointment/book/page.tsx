@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Footer from "@/components/footer";
 
 interface Doctor {
@@ -45,6 +46,8 @@ export default function BookAppointment() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [isDateFocused, setIsDateFocused] = useState(false);
+  const [patientId, setPatientId] = useState<number | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -207,7 +210,7 @@ export default function BookAppointment() {
         return;
       }
 
-      let patientId;
+      let currentPatientId;
 
       // Step 1 & 2: Check if patient exists by phone number
       const patientResponse = await fetch(
@@ -219,7 +222,7 @@ export default function BookAppointment() {
       if (patientResponse.ok) {
         // Patient exists, get their ID
         const existingPatient = await patientResponse.json();
-        patientId = existingPatient.id;
+        currentPatientId = existingPatient.id;
       } else if (patientResponse.status === 404) {
         console.log("Patient not found, creating a new one");
         // Step 3: Patient does not exist, create a new one
@@ -236,8 +239,8 @@ export default function BookAppointment() {
         );
         console.log("New patient response status:", newPatientResponse.status);
         const newPatient = await newPatientResponse.json();
-        patientId = newPatient.id;
-        console.log("New patient created with ID:", patientId);
+        currentPatientId = newPatient.id;
+        console.log("New patient created with ID:", currentPatientId);
       } else {
         // Handle other errors
         console.error(
@@ -281,9 +284,9 @@ export default function BookAppointment() {
 
       // Step 6: Create the appointment
       const appointmentData = {
-        patientId: patientId,
+        patientId: currentPatientId,
         doctorId: parseInt(patient.doctor, 10),
-        appointmentDate: patient.appointmentDate,
+        appointmentDate: new Date().toISOString().split("T")[0], // Today's date
       };
 
       const appointmentResponse = await fetch(
@@ -305,9 +308,9 @@ export default function BookAppointment() {
         return;
       }
 
-      // Update appointment status
+      // Update appointment status to DONE
       const statusRes = await fetch(
-        `http://localhost:8080/api/appointments/${patientId}/status`,
+        `http://localhost:8080/api/appointments/${currentPatientId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -328,10 +331,21 @@ export default function BookAppointment() {
       }
 
       console.log("Appointment created successfully");
-      setSuccess(
-        `Appointment successfully requested with Dr. ${selectedDoctor?.user.name} on ${patient.appointmentDate}`
-      );
-      clearForm();
+      // Set the patient ID state first, then show success message with a small delay
+      setPatientId(currentPatientId);
+
+      // Small delay to ensure state update is processed
+      setTimeout(() => {
+        setSuccess(`Appopintment requested successfully.`);
+      }, 100);
+
+      // Clear form but preserve patient ID for the success popup
+      setPatient({
+        name: "",
+        contact: "+88 ",
+        doctor: selectedDoctor ? selectedDoctor.doctorId.toString() : "",
+        appointmentDate: todayDate,
+      });
     } catch (error) {
       console.error("Error in appointment creation process:", error);
       setError("An unexpected error occurred. Please try again.");
@@ -347,6 +361,7 @@ export default function BookAppointment() {
       doctor: selectedDoctor ? selectedDoctor.doctorId.toString() : "",
       appointmentDate: todayDate,
     });
+    setPatientId(null);
   };
 
   return (
@@ -478,70 +493,78 @@ export default function BookAppointment() {
                 name="appointmentDate"
                 value={patient.appointmentDate}
                 onChange={handleChange}
+                onFocus={() => setIsDateFocused(true)}
+                onBlur={() => setIsDateFocused(false)}
                 min={getMinDate()}
                 className="w-full px-6 py-4 rounded-2xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] cursor-pointer"
                 required
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-400/20 to-orange-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-              {/* Available dates helper */}
-              {selectedDoctor && selectedDoctor.availableDays && (
-                <div className="mt-2 p-3 bg-blue-50 rounded-xl border-l-4 border-blue-400">
-                  <div className="text-sm text-blue-800">
-                    <div className="font-semibold mb-1">📅 Available Days:</div>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {selectedDoctor.availableDays
-                        .split(",")
-                        .map((day, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-                          >
-                            {day.trim()}
-                          </span>
-                        ))}
-                    </div>
-
-                    {/* Quick date suggestions */}
-                    <div className="mb-2">
-                      <div className="font-semibold mb-1 text-xs">
-                        ⚡ Quick Select (Next Available):
+              {/* Available dates helper - only show when date input is focused */}
+              {isDateFocused &&
+                selectedDoctor &&
+                selectedDoctor.availableDays && (
+                  <div className="mt-2 p-3 bg-blue-50 rounded-xl border-l-4 border-blue-400">
+                    <div className="text-sm text-blue-800">
+                      <div className="font-semibold mb-1">
+                        📅 Available Days:
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        {getAvailableDates()
-                          .slice(0, 5)
-                          .map((date, index) => {
-                            const dateObj = new Date(date);
-                            const dayName = dateObj.toLocaleDateString(
-                              "en-US",
-                              { weekday: "short" }
-                            );
-                            const dateStr = dateObj.toLocaleDateString(
-                              "en-US",
-                              { month: "short", day: "numeric" }
-                            );
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {selectedDoctor.availableDays
+                          .split(",")
+                          .map((day, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
+                            >
+                              {day.trim()}
+                            </span>
+                          ))}
+                      </div>
 
-                            return (
-                              <button
-                                key={date}
-                                type="button"
-                                onClick={() =>
-                                  setPatient((prev) => ({
-                                    ...prev,
-                                    appointmentDate: date,
-                                  }))
-                                }
-                                className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer"
-                              >
-                                {dayName} {dateStr}
-                              </button>
-                            );
-                          })}
+                      {/* Quick date suggestions */}
+                      <div className="mb-2">
+                        <div className="font-semibold mb-1 text-xs">
+                          ⚡ Quick Select (Next Available):
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {getAvailableDates()
+                            .slice(0, 5)
+                            .map((date, index) => {
+                              const dateObj = new Date(date);
+                              const dayName = dateObj.toLocaleDateString(
+                                "en-US",
+                                { weekday: "short" }
+                              );
+                              const dateStr = dateObj.toLocaleDateString(
+                                "en-US",
+                                { month: "short", day: "numeric" }
+                              );
+
+                              return (
+                                <button
+                                  key={date}
+                                  type="button"
+                                  onMouseDown={(e) => e.preventDefault()} // Prevent blur when clicking button
+                                  onClick={() => {
+                                    setPatient((prev) => ({
+                                      ...prev,
+                                      appointmentDate: date,
+                                    }));
+                                    setIsDateFocused(false); // Hide the helper after selection
+                                  }}
+                                  className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer"
+                                >
+                                  {dayName} {dateStr}
+                                </button>
+                              );
+                            })}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Submit Button */}
@@ -638,16 +661,63 @@ export default function BookAppointment() {
                 <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
                   Success!
                 </h2>
-                <p className="text-gray-600 mb-8 leading-relaxed">{success}</p>
-                <button
-                  onClick={() => {
-                    setSuccess(null);
-                    router.push("/");
-                  }}
-                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  Go to Home
-                </button>
+                <p className="text-2xl text-gray-600 mb-4 leading-relaxed">
+                  {success}
+                </p>
+
+                {/* Token Number Display - Only show when patientId is available */}
+                {patientId && (
+                  <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="flex items-center justify-center mb-2">
+                      <svg
+                        className="w-5 h-5 text-blue-600 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                        />
+                      </svg>
+                      <span className="text-sm font-semibold text-blue-800">
+                        Your Token Number
+                      </span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-700 mb-2">
+                      #{patientId}
+                    </div>
+                    <p className="text-xs text-blue-600 font-medium">
+                      💡 Remember this token ID for future uses
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                      const currentPatientId = patientId; // Store the current value
+                      setSuccess(null);
+                      setPatientId(null);
+                      router.push(`/patient-status?token=${currentPatientId}`);
+                    }}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    Check Status & Prescriptions
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSuccess(null);
+                      setPatientId(null);
+                      router.push("/");
+                    }}
+                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    Go to Home
+                  </button>
+                </div>
               </div>
             </div>
           )}

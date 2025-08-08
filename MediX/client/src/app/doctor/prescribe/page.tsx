@@ -252,6 +252,79 @@ export default function Prescribe() {
     setMedicines((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   };
 
+  // Create appointment for patient function
+  const createAppointmentForPatient = async (patientId: number) => {
+    try {
+      // Get doctor ID from email
+      const doctorId = await getDoctorIdByEmail(email);
+      if (!doctorId) {
+        throw new Error("Failed to get doctor information for appointment");
+      }
+
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const appointmentDate = `${yyyy}-${mm}-${dd}`;
+
+      // Create appointment
+      const appointmentData = {
+        patientId: patientId,
+        doctorId: doctorId,
+        appointmentDate: appointmentDate,
+      };
+
+      console.log("Creating appointment with data:", appointmentData);
+
+      const appointmentResponse = await fetch(
+        "http://localhost:8080/api/appointments",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(appointmentData),
+        }
+      );
+
+      if (!appointmentResponse.ok) {
+        const errorData = await appointmentResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to create appointment");
+      }
+
+      const appointment = await appointmentResponse.json();
+      console.log("Appointment created successfully:", appointment);
+
+      // Update appointment status to DONE
+      const statusUpdateResponse = await fetch(
+        `http://localhost:8080/api/appointments/${patientId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "DONE",
+          }),
+        }
+      );
+
+      if (!statusUpdateResponse.ok) {
+        const errorData = await statusUpdateResponse.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || "Failed to update appointment status"
+        );
+      }
+
+      const statusUpdate = await statusUpdateResponse.json();
+      console.log("Appointment status updated to DONE:", statusUpdate);
+    } catch (error) {
+      console.error("Error in appointment creation/update:", error);
+      throw error; // Re-throw to be caught by the calling function
+    }
+  };
+
   // Create patient function
   const createPatient = async () => {
     if (!form.name.trim()) {
@@ -329,6 +402,16 @@ export default function Prescribe() {
 
       setPatientId(newPatientId);
       console.log(`Patient created successfully with ID: ${newPatientId}`);
+
+      // Create appointment for this patient with the current doctor
+      try {
+        await createAppointmentForPatient(newPatientId);
+      } catch (appointmentError) {
+        console.error("Error creating appointment:", appointmentError);
+        // Note: We don't return null here because patient creation was successful
+        // The appointment creation failure is logged but doesn't affect patient creation
+      }
+
       return newPatientId;
     } catch (error) {
       console.error("Error creating patient:", error);

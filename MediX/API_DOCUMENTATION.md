@@ -747,6 +747,43 @@ This document provides comprehensive API documentation for the MediX Healthcare 
 ]
 ```
 
+### 6. Get Appointments by Patient ID
+
+- **Method:** `GET`
+- **Endpoint:** `/api/appointments/patient/{patientId}`
+- **Description:** Retrieve all appointments for a specific patient
+- **Authentication:** Not specified
+
+**Sample Response:**
+
+```json
+[
+  {
+    "id": 301,
+    "patientId": 101,
+    "doctorId": 201,
+    "appointmentDate": "2025-08-15",
+    "status": "SCHEDULED"
+  },
+  {
+    "id": 305,
+    "patientId": 101,
+    "doctorId": 203,
+    "appointmentDate": "2025-08-20",
+    "status": "COMPLETED"
+  }
+]
+```
+
+**Error Response:**
+
+```json
+{
+  "error": "Patient not found",
+  "patientId": 999
+}
+```
+
 ---
 
 ## Prescription Management

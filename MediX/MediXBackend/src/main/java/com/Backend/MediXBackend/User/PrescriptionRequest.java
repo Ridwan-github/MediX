@@ -6,6 +6,7 @@ import java.util.List;
 public class PrescriptionRequest {
     private Long patientId;
     private Long doctorId;
+    private Long appointmentId;
     private LocalDate prescriptionDate;
     private String chiefComplaint;
     private String onExamination;
@@ -60,6 +61,14 @@ public class PrescriptionRequest {
 
     public void setDoctorId(Long doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public Long getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(Long appointmentId) {
+        this.appointmentId = appointmentId;
     }
 
     public LocalDate getPrescriptionDate() {

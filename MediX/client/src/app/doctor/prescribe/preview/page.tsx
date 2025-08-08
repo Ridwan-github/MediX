@@ -162,7 +162,7 @@ export default function PrescriptionPreview() {
                   {data.medicines.map((med, idx) => (
                     <div key={idx} className="mb-2">
                       <div className="font-bold text-lg text-green-900 mb-1">
-                        Medicine name: {med.name}
+                        {med.name}
                       </div>
                       <div className="text-sm text-green-800 mb-1">
                         Dosage: {med.nums && med.nums.join("-")}

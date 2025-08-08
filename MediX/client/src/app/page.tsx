@@ -110,6 +110,12 @@ export default function Home() {
             >
               Testimonials
             </a>
+            <Link
+              href="/patient-status"
+              className="text-gray-600 hover:text-green-600 transition-colors duration-200"
+            >
+              Check Status
+            </Link>
           </nav>
 
           <Link
@@ -148,6 +154,12 @@ export default function Home() {
                   className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-center"
                 >
                   Book Appointment
+                </Link>
+                <Link
+                  href="/patient-status"
+                  className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105 text-center"
+                >
+                  Check Status
                 </Link>
               </div>
             </div>
@@ -409,6 +421,12 @@ export default function Home() {
               Book Your Appointment
             </Link>
             <Link
+              href="/patient-status"
+              className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              Check Your Status
+            </Link>
+            <Link
               href="/signin"
               className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105"
             >
@@ -466,6 +484,14 @@ export default function Home() {
                     className="hover:text-white transition-colors"
                   >
                     Book Appointment
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/patient-status"
+                    className="hover:text-white transition-colors"
+                  >
+                    Check Status
                   </Link>
                 </li>
                 <li>

@@ -112,6 +112,7 @@ public class PrescriptionController {
         Prescription prescription = new Prescription();
         prescription.setPatientId(request.getPatientId());
         prescription.setDoctorId(request.getDoctorId());
+        prescription.setAppointmentId(request.getAppointmentId());
         prescription.setPrescriptionDate(request.getPrescriptionDate());
         prescription.setChiefComplaint(request.getChiefComplaint());
         prescription.setOnExamination(request.getOnExamination());
@@ -347,6 +348,60 @@ public class PrescriptionController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to retrieve prescription medicines", "details", e.getMessage()));
+        }
+    }
+
+    // Get prescriptions by appointment ID
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<?> getPrescriptionsByAppointmentId(@PathVariable Long appointmentId) {
+        try {
+            List<Prescription> prescriptions = prescriptionService.getPrescriptionsByAppointmentId(appointmentId);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Prescriptions retrieved successfully",
+                    "data", prescriptions
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve prescriptions", "details", e.getMessage()));
+        }
+    }
+
+    // Link an existing prescription to an appointment
+    @PutMapping("/{prescriptionId}/link-appointment/{appointmentId}")
+    public ResponseEntity<?> linkPrescriptionToAppointment(@PathVariable Long prescriptionId, @PathVariable Long appointmentId) {
+        try {
+            Prescription updatedPrescription = prescriptionService.linkPrescriptionToAppointment(prescriptionId, appointmentId);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Prescription linked to appointment successfully",
+                    "data", updatedPrescription
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Prescription or appointment not found", "details", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to link prescription to appointment", "details", e.getMessage()));
+        }
+    }
+
+    // Unlink prescription from appointment
+    @PutMapping("/{prescriptionId}/unlink-appointment")
+    public ResponseEntity<?> unlinkPrescriptionFromAppointment(@PathVariable Long prescriptionId) {
+        try {
+            Prescription updatedPrescription = prescriptionService.unlinkPrescriptionFromAppointment(prescriptionId);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Prescription unlinked from appointment successfully",
+                    "data", updatedPrescription
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Prescription not found", "details", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to unlink prescription from appointment", "details", e.getMessage()));
         }
     }
 }
