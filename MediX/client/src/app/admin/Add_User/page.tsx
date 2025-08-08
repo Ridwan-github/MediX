@@ -246,7 +246,7 @@ export default function AddUserPage() {
               </div>
             </div>
 
-            {/* Doctor Specific Fields */}
+            
             {role === "Doctor" && (
               <div className="bg-gray-50 p-6 rounded-xl shadow-md space-y-4">
                 <h2 className="text-lg text-gray-700 font-semibold">
@@ -350,7 +350,6 @@ export default function AddUserPage() {
             </div>
           </form>
 
-          {/* Enhanced Message Display - Below the Form */}
           {message && (
             <div className="mt-6">
               <div
