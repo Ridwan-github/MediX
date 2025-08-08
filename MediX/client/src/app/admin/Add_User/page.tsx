@@ -90,10 +90,10 @@ export default function AddUserPage() {
           setGender("");
           setAge("");
           
-          // Redirect after a short delay to show success message
+          // Redirect after a longer delay to show success message more prominently
           setTimeout(() => {
             router.push("/admin");
-          }, 2000);
+          }, 4000);
         } else {
           const errorData = await response.json();
           console.error("Failed to create receptionist:", errorData);
@@ -120,19 +120,6 @@ export default function AddUserPage() {
       <Header />
       <main className="flex-grow p-8">
         <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-10">
-          {/* Message Display */}
-          {message && (
-            <div
-              className={`mb-6 p-4 rounded-lg text-center ${
-                messageType === "success"
-                  ? "bg-green-100 text-green-700 border border-green-200"
-                  : "bg-red-100 text-red-700 border border-red-200"
-              }`}
-            >
-              {message}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="flex flex-col space-y-4 w-full items-center justify-center">
@@ -362,6 +349,32 @@ export default function AddUserPage() {
               </button>
             </div>
           </form>
+
+          {/* Enhanced Message Display - Below the Form */}
+          {message && (
+            <div className="mt-6">
+              <div
+                className={`p-6 rounded-xl text-center font-semibold text-lg shadow-lg border-2 ${
+                  messageType === "success"
+                    ? "bg-gradient-to-r from-green-50 to-green-100 text-green-800 border-green-300 shadow-green-200"
+                    : "bg-gradient-to-r from-red-50 to-red-100 text-red-800 border-red-300 shadow-red-200"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  {messageType === "success" ? (
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  ) : (
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  )}
+                  <span>{message}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <Footer />
