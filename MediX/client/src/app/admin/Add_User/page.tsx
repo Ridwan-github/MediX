@@ -16,8 +16,6 @@ export default function AddUserPage() {
   const [role, setRole] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
-  const [phone, setPhone] = useState(""); // Phone number state
-  const [password, setPassword] = useState(""); // Password state
 
   // Doctor specific fields
   const [experience, setExperience] = useState("");
@@ -48,8 +46,6 @@ export default function AddUserPage() {
       role,
       gender,
       age,
-      phone, // Added phone
-      password, // Added password
       experience,
       licenseNumber,
       availableDays,
