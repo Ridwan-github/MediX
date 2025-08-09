@@ -1061,7 +1061,7 @@ export default function AppointmentPage() {
                 {/* Weight Field */}
                 <div>
                   <label className="mb-2 text-sm font-medium text-gray-700 block">
-                    Weight
+                    Weight (kg)
                   </label>
                   <input
                     type="number"

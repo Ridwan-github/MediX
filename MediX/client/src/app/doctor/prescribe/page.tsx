@@ -2,8 +2,9 @@
 import Header from "@/components/doctor/header";
 import SubHeader from "@/components/doctor/subHeader";
 import Footer from "@/components/footer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import medicineCommentsData from "@/data/medicineComments.json";
 
 export default function Prescribe() {
   const [showHistory, setShowHistory] = useState(false);
@@ -48,6 +49,17 @@ export default function Prescribe() {
   const [editPrescriptionId, setEditPrescriptionId] = useState<number | null>(
     null
   );
+
+  // Add state for autocomplete
+  const [autocompleteStates, setAutocompleteStates] = useState<{
+    [key: number]: {
+      suggestions: string[];
+      showSuggestions: boolean;
+      selectedIndex: number;
+    };
+  }>({});
+  const commentRefs = useRef<{ [key: number]: HTMLTextAreaElement | null }>({});
+  const suggestionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     const urlEmail = searchParams?.get("email");
@@ -191,6 +203,22 @@ export default function Prescribe() {
     }
   }, [searchParams]);
 
+  // Initialize autocomplete state for initial medicines
+  useEffect(() => {
+    medicines.forEach((_, idx) => {
+      if (!autocompleteStates[idx]) {
+        setAutocompleteStates((prev) => ({
+          ...prev,
+          [idx]: {
+            suggestions: medicineCommentsData.commonComments.slice(0, 5),
+            showSuggestions: false,
+            selectedIndex: -1,
+          },
+        }));
+      }
+    });
+  }, [medicines.length]);
+
   const mockHistory = [
     {
       id: 1,
@@ -242,14 +270,228 @@ export default function Prescribe() {
   };
 
   const addMedicine = () => {
-    setMedicines((prev) => [
-      ...prev,
-      { name: "", nums: ["", "", ""], comment: "" },
-    ]);
+    setMedicines((prev) => {
+      const newMedicines = [
+        ...prev,
+        { name: "", nums: ["", "", ""], comment: "" },
+      ];
+      // Initialize autocomplete state for the new medicine
+      const newIdx = newMedicines.length - 1;
+      setAutocompleteStates((prevState) => ({
+        ...prevState,
+        [newIdx]: {
+          suggestions: medicineCommentsData.commonComments.slice(0, 5),
+          showSuggestions: false,
+          selectedIndex: -1,
+        },
+      }));
+      return newMedicines;
+    });
   };
 
   const removeMedicine = () => {
-    setMedicines((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
+    setMedicines((prev) => {
+      if (prev.length > 1) {
+        const newMedicines = prev.slice(0, -1);
+        // Clean up autocomplete state for removed medicine
+        const removedIdx = prev.length - 1;
+        setAutocompleteStates((prevState) => {
+          const newState = { ...prevState };
+          delete newState[removedIdx];
+          return newState;
+        });
+        return newMedicines;
+      }
+      return prev;
+    });
+  };
+
+  // Autocomplete functions
+  const getFilteredSuggestions = (input: string): string[] => {
+    if (!input.trim()) return medicineCommentsData.commonComments.slice(0, 5);
+
+    const inputLower = input.toLowerCase().trim();
+    const words = inputLower.split(" ");
+    const lastWord = words[words.length - 1];
+
+    // First, find suggestions that start with the last word (for word completion)
+    const startsWith = medicineCommentsData.commonComments.filter((comment) =>
+      comment.toLowerCase().startsWith(lastWord)
+    );
+
+    // Then, find suggestions that start with the full input
+    const fullStartsWith = medicineCommentsData.commonComments.filter(
+      (comment) =>
+        comment.toLowerCase().startsWith(inputLower) &&
+        !comment.toLowerCase().startsWith(lastWord)
+    );
+
+    // Then, find suggestions that contain the input but don't start with it
+    const contains = medicineCommentsData.commonComments.filter(
+      (comment) =>
+        comment.toLowerCase().includes(inputLower) &&
+        !comment.toLowerCase().startsWith(inputLower) &&
+        !comment.toLowerCase().startsWith(lastWord)
+    );
+
+    // Combine them with priority: lastWord startsWith, full startsWith, then contains
+    const filtered = [...startsWith, ...fullStartsWith, ...contains];
+
+    // Remove duplicates
+    const unique = filtered.filter(
+      (item, index) => filtered.indexOf(item) === index
+    );
+
+    return unique.slice(0, 8);
+  };
+
+  const handleCommentChange = (idx: number, value: string) => {
+    handleMedicineChange(idx, "comment", value);
+
+    const suggestions = getFilteredSuggestions(value);
+    setAutocompleteStates((prev) => ({
+      ...prev,
+      [idx]: {
+        suggestions,
+        showSuggestions: suggestions.length > 0,
+        selectedIndex: suggestions.length > 0 ? 0 : -1, // Auto-select first suggestion
+      },
+    }));
+  };
+
+  const handleCommentKeyDown = (idx: number, e: React.KeyboardEvent) => {
+    const state = autocompleteStates[idx];
+    if (!state?.showSuggestions) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setAutocompleteStates((prev) => ({
+          ...prev,
+          [idx]: {
+            ...state,
+            selectedIndex: Math.min(
+              state.selectedIndex + 1,
+              state.suggestions.length - 1
+            ),
+          },
+        }));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setAutocompleteStates((prev) => ({
+          ...prev,
+          [idx]: {
+            ...state,
+            selectedIndex: Math.max(state.selectedIndex - 1, -1),
+          },
+        }));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (state.selectedIndex >= 0) {
+          selectSuggestion(idx, state.suggestions[state.selectedIndex]);
+        } else if (state.suggestions.length > 0) {
+          // If no item is selected but there are suggestions, select the first one
+          selectSuggestion(idx, state.suggestions[0]);
+        }
+        break;
+      case "Tab":
+        e.preventDefault();
+        if (state.selectedIndex >= 0) {
+          selectSuggestion(idx, state.suggestions[state.selectedIndex]);
+        } else if (state.suggestions.length > 0) {
+          // If no item is selected but there are suggestions, select the first one
+          selectSuggestion(idx, state.suggestions[0]);
+        }
+        break;
+      case "Escape":
+        hideSuggestions(idx);
+        break;
+    }
+  };
+
+  const selectSuggestion = (idx: number, suggestion: string) => {
+    const currentValue = medicines[idx]?.comment || "";
+    const cursorPosition =
+      commentRefs.current[idx]?.selectionStart || currentValue.length;
+
+    // Split text at cursor position
+    const beforeCursor = currentValue.substring(0, cursorPosition);
+    const afterCursor = currentValue.substring(cursorPosition);
+
+    // Find the current word being typed
+    const words = beforeCursor.split(/\s+/);
+    const lastWord = words[words.length - 1];
+
+    let newValue;
+    let newCursorPosition;
+
+    if (
+      lastWord &&
+      suggestion.toLowerCase().startsWith(lastWord.toLowerCase()) &&
+      lastWord.length > 0
+    ) {
+      // Replace the last partial word with the complete suggestion
+      const beforeLastWord = words.slice(0, -1).join(" ");
+      const prefix = beforeLastWord ? beforeLastWord + " " : "";
+      newValue = prefix + suggestion + afterCursor;
+      newCursorPosition = prefix.length + suggestion.length;
+    } else {
+      // If it's a complete replacement or new addition
+      if (beforeCursor.trim() === "" || beforeCursor.endsWith(" ")) {
+        // Add suggestion at cursor position
+        newValue = beforeCursor + suggestion + afterCursor;
+        newCursorPosition = beforeCursor.length + suggestion.length;
+      } else {
+        // Replace entire text with suggestion
+        newValue = suggestion;
+        newCursorPosition = suggestion.length;
+      }
+    }
+
+    handleMedicineChange(idx, "comment", newValue);
+    hideSuggestions(idx);
+
+    // Focus back to textarea and set cursor position
+    setTimeout(() => {
+      const textarea = commentRefs.current[idx];
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    }, 0);
+  };
+
+  const hideSuggestions = (idx: number) => {
+    setAutocompleteStates((prev) => ({
+      ...prev,
+      [idx]: {
+        ...prev[idx],
+        showSuggestions: false,
+        selectedIndex: -1,
+      },
+    }));
+  };
+
+  const handleCommentFocus = (idx: number) => {
+    const currentValue = medicines[idx]?.comment || "";
+    const suggestions = getFilteredSuggestions(currentValue);
+    setAutocompleteStates((prev) => ({
+      ...prev,
+      [idx]: {
+        suggestions,
+        showSuggestions: suggestions.length > 0,
+        selectedIndex: suggestions.length > 0 ? 0 : -1, // Auto-select first suggestion
+      },
+    }));
+  };
+
+  const handleCommentBlur = (idx: number) => {
+    // Delay hiding to allow clicking on suggestions
+    setTimeout(() => {
+      hideSuggestions(idx);
+    }, 150);
   };
 
   // Create appointment for patient function
@@ -1025,7 +1267,7 @@ export default function Prescribe() {
                 {medicines.map((med, idx) => (
                   <div
                     key={idx}
-                    className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative"
+                    className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative overflow-visible"
                   >
                     <div className="flex flex-col mb-2">
                       <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1047,9 +1289,23 @@ export default function Prescribe() {
                       <input
                         type="number"
                         value={med.nums[0]}
-                        onChange={(e) =>
-                          handleMedicineChange(idx, "num", e.target.value, 0)
-                        }
+                        onChange={(e) => {
+                          handleMedicineChange(idx, "num", e.target.value, 0);
+                          // Auto-focus next input if single digit entered
+                          if (
+                            e.target.value.length === 1 &&
+                            /^\d$/.test(e.target.value)
+                          ) {
+                            const nextInput =
+                              e.target.parentElement?.querySelector(
+                                `input[data-dosage-idx="${idx}-1"]`
+                              ) as HTMLInputElement;
+                            if (nextInput) {
+                              setTimeout(() => nextInput.focus(), 0);
+                            }
+                          }
+                        }}
+                        data-dosage-idx={`${idx}-0`}
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
@@ -1057,9 +1313,23 @@ export default function Prescribe() {
                       <input
                         type="number"
                         value={med.nums[1]}
-                        onChange={(e) =>
-                          handleMedicineChange(idx, "num", e.target.value, 1)
-                        }
+                        onChange={(e) => {
+                          handleMedicineChange(idx, "num", e.target.value, 1);
+                          // Auto-focus next input if single digit entered
+                          if (
+                            e.target.value.length === 1 &&
+                            /^\d$/.test(e.target.value)
+                          ) {
+                            const nextInput =
+                              e.target.parentElement?.querySelector(
+                                `input[data-dosage-idx="${idx}-2"]`
+                              ) as HTMLInputElement;
+                            if (nextInput) {
+                              setTimeout(() => nextInput.focus(), 0);
+                            }
+                          }
+                        }}
+                        data-dosage-idx={`${idx}-1`}
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
@@ -1070,22 +1340,71 @@ export default function Prescribe() {
                         onChange={(e) =>
                           handleMedicineChange(idx, "num", e.target.value, 2)
                         }
+                        data-dosage-idx={`${idx}-2`}
                         className="w-12 border border-gray-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
                         min="0"
                       />
                     </div>
-                    <div className="flex flex-col mb-2">
-                      <label className="mb-1 text-sm font-medium text-gray-700">
-                        Comment
-                      </label>
+                    <div className="flex flex-col mb-2 relative">
                       <textarea
+                        ref={(el) => {
+                          commentRefs.current[idx] = el;
+                        }}
                         value={med.comment}
                         onChange={(e) =>
-                          handleMedicineChange(idx, "comment", e.target.value)
+                          handleCommentChange(idx, e.target.value)
                         }
+                        onKeyDown={(e) => handleCommentKeyDown(idx, e)}
+                        onFocus={() => handleCommentFocus(idx)}
+                        onBlur={() => handleCommentBlur(idx)}
                         className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
                         rows={2}
+                        placeholder="Type to see suggestions..."
                       />
+
+                      {/* Autocomplete suggestions */}
+                      {autocompleteStates[idx]?.showSuggestions && (
+                        <div
+                          ref={(el) => {
+                            suggestionRefs.current[idx] = el;
+                          }}
+                          className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto mt-1"
+                        >
+                          {autocompleteStates[idx].suggestions.map(
+                            (suggestion, suggestionIdx) => (
+                              <div
+                                key={suggestionIdx}
+                                className={`px-4 py-2 cursor-pointer text-sm hover:bg-green-50 border-b border-gray-100 last:border-b-0 ${
+                                  autocompleteStates[idx].selectedIndex ===
+                                  suggestionIdx
+                                    ? "bg-green-100 text-green-800 font-medium"
+                                    : "text-gray-700"
+                                }`}
+                                onClick={() =>
+                                  selectSuggestion(idx, suggestion)
+                                }
+                                onMouseEnter={() => {
+                                  setAutocompleteStates((prev) => ({
+                                    ...prev,
+                                    [idx]: {
+                                      ...prev[idx],
+                                      selectedIndex: suggestionIdx,
+                                    },
+                                  }));
+                                }}
+                              >
+                                {suggestion}
+                                {autocompleteStates[idx].selectedIndex ===
+                                  suggestionIdx && (
+                                  <span className="text-xs text-green-600 ml-2">
+                                    ⏎ Tab
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
                     </div>
                     {/* Remove button for all but the first set */}
                     {medicines.length > 1 && idx === medicines.length - 1 && (

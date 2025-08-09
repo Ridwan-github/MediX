@@ -18,6 +18,7 @@ interface PrescriptionData {
     nums: string[];
     comment?: string;
   }[];
+  patientId: string;
 }
 
 interface DoctorInfo {
@@ -132,14 +133,14 @@ export default function PrescriptionPreview() {
               <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[480px] w-[70px] h-[38px] flex items-center">
                 {data.age}
               </span>
-              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[620px] w-[40px] h-[40px] flex items-center justify-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[620px] w-[40px] h-[40px] flex items-center justify-center border-2 border-red-500">
                 {data.gender === "Male" ? "✔" : ""}
               </span>
-              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[728px] w-[40px] h-[40px] flex items-center justify-center">
+              <span className="absolute z-10 px-2 text-2xl font-medium top-[217px] left-[728px] w-[40px] h-[40px] flex items-center justify-center border-2 border-red-500">
                 {data.gender === "Female" ? "✔" : ""}
               </span>
               <span className="absolute z-10 px-2 text-2xl font-medium top-[263px] left-[365px] w-[165px] h-[39px] flex items-center">
-                {patientId}
+                {data.patientId}
               </span>
               <span className="absolute z-10 px-2 text-2xl font-medium top-[263px] left-[612.5px] w-[165px] h-[39px] flex items-center">
                 {data.date}

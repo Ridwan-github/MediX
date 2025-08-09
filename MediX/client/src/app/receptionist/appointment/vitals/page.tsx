@@ -29,6 +29,8 @@ export default function VitalsPage() {
     }
   }, [router]);
 
+  const today = new Date().toISOString().slice(0, 10);
+
   const fetchAppointments = async () => {
     setLoading(true);
     try {
@@ -53,7 +55,7 @@ export default function VitalsPage() {
   }, []);
 
   const pendingAppointments = appointments.filter(
-    (appt) => appt.status === "NOT_READY"
+    (appt) => appt.status === "NOT_READY" && appt.appointmentDate >= today
   );
 
   useEffect(() => {
@@ -390,7 +392,7 @@ export default function VitalsPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Input Fields */}
-              {["age", "gender", "weight", "pressure"].map((field) => {
+              {["age", "gender", "weight (kg)", "pressure"].map((field) => {
                 if (field === "gender") {
                   return (
                     <div>

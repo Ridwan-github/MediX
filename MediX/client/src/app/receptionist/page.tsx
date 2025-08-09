@@ -35,7 +35,8 @@ export default function ReceptionistPage() {
         let vitalsCount = 0;
         for (const appt of data) {
           if (appt.status === "REQUESTED") requestsCount++;
-          if (appt.status === "NOT_READY") vitalsCount++;
+          if (appt.status === "NOT_READY" && appt.appointmentDate >= today)
+            vitalsCount++;
         }
         setPendingRequests(requestsCount);
         setVitalsToEntry(vitalsCount);
