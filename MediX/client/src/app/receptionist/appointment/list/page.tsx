@@ -12,6 +12,10 @@ export default function AppointmentPage() {
 
   const [appointments, setAppointments] = useState<any[]>([]);
   const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState<"all" | "today" | "future">(
+    "all"
+  );
+  const [showOldAppointments, setShowOldAppointments] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -71,7 +75,8 @@ export default function AppointmentPage() {
     (appt) =>
       appt.status === "READY" ||
       appt.status === "NOT_READY" ||
-      appt.status === "REQUESTED"
+      appt.status === "REQUESTED" ||
+      appt.status === "DONE"
   );
 
   const rows = displayedAppointments.map((appt) => ({
@@ -86,12 +91,120 @@ export default function AppointmentPage() {
     pressure: appt.pressure,
   }));
 
-  const filteredRows = rows.filter(
-    (r) =>
-      r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
-      r.patientPhone?.includes(search) ||
-      r.doctorName?.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toString().includes(search)
+  // Helper functions for date comparison
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const isToday = (dateString: string) => {
+    const appointmentDate = new Date(dateString);
+    appointmentDate.setHours(0, 0, 0, 0);
+    return appointmentDate.getTime() === today.getTime();
+  };
+
+  const isFuture = (dateString: string) => {
+    const appointmentDate = new Date(dateString);
+    appointmentDate.setHours(0, 0, 0, 0);
+    return appointmentDate.getTime() >= today.getTime();
+  };
+
+  const isOld = (dateString: string) => {
+    const appointmentDate = new Date(dateString);
+    appointmentDate.setHours(0, 0, 0, 0);
+    return appointmentDate.getTime() < today.getTime();
+  };
+
+  // Helper function to calculate daily serial numbers for current/future appointments
+  const calculateDailySerials = (rows: any[]) => {
+    // Group appointments by date
+    const appointmentsByDate = rows.reduce((acc, row) => {
+      const date = row.appointmentDate;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(row);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    // Assign daily serial numbers for each date
+    const rowsWithDailySerial = [...rows];
+
+    Object.keys(appointmentsByDate).forEach((date) => {
+      // Sort appointments for this date by their original serial number (id)
+      const appointmentsForDate = appointmentsByDate[date].sort(
+        (a: any, b: any) => a.id - b.id
+      );
+
+      // Assign daily serial numbers starting from 1
+      appointmentsForDate.forEach((appointment: any, index: number) => {
+        const rowIndex = rowsWithDailySerial.findIndex(
+          (r) => r.id === appointment.id
+        );
+        if (rowIndex !== -1) {
+          rowsWithDailySerial[rowIndex] = {
+            ...rowsWithDailySerial[rowIndex],
+            dailySerial: index + 1,
+          };
+        }
+      });
+    });
+
+    return rowsWithDailySerial;
+  };
+
+  // Separate appointments into current/future and old
+  const currentAndFutureRows = rows.filter((r) => isFuture(r.appointmentDate));
+  const oldRows = rows.filter((r) => isOld(r.appointmentDate));
+
+  // Apply date filter to current/future appointments
+  const getFilteredCurrentRows = () => {
+    let filtered = currentAndFutureRows;
+
+    if (dateFilter === "today") {
+      filtered = currentAndFutureRows.filter((r) => isToday(r.appointmentDate));
+    } else if (dateFilter === "future") {
+      filtered = currentAndFutureRows.filter(
+        (r) => !isToday(r.appointmentDate) && isFuture(r.appointmentDate)
+      );
+    }
+
+    // Apply search filter
+    return filtered.filter(
+      (r) =>
+        r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.patientPhone?.includes(search) ||
+        r.doctorName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().includes(search)
+    );
+  };
+
+  // Apply search filter to old appointments
+  const getFilteredOldRows = () => {
+    return oldRows.filter(
+      (r) =>
+        r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.patientPhone?.includes(search) ||
+        r.doctorName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().includes(search)
+    );
+  };
+
+  const filteredCurrentRows = getFilteredCurrentRows();
+  const filteredOldRows = getFilteredOldRows();
+
+  // Sort appointments by date (most recent first for current, oldest first for old)
+  const sortedCurrentRows = [...filteredCurrentRows].sort(
+    (a, b) =>
+      new Date(a.appointmentDate).getTime() -
+      new Date(b.appointmentDate).getTime()
+  );
+
+  // Calculate daily serial numbers for current/future appointments
+  const currentRowsWithDailySerial = calculateDailySerials(sortedCurrentRows);
+
+  const sortedOldRows = [...filteredOldRows].sort(
+    (a, b) =>
+      new Date(b.appointmentDate).getTime() -
+      new Date(a.appointmentDate).getTime()
   );
 
   const handleShowMore = (row: any) => {
@@ -185,6 +298,144 @@ export default function AppointmentPage() {
     }
   };
 
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const appointmentDate = new Date(dateString);
+    appointmentDate.setHours(0, 0, 0, 0);
+
+    const diffTime = appointmentDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "Tomorrow";
+    } else if (diffDays === -1) {
+      return "Yesterday";
+    } else if (diffDays < 0) {
+      return `${Math.abs(diffDays)} days ago`;
+    } else {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        weekday: "short",
+      });
+    }
+  };
+
+  // Helper function to render table rows
+  const renderTableRows = (
+    rows: any[],
+    useDailySerial: boolean = false,
+    isOldAppointments: boolean = false
+  ) => {
+    return rows.map((row: any) => (
+      <tr
+        key={row.id}
+        className="hover:bg-green-50 cursor-pointer transition duration-200"
+      >
+        <td className="p-3 border border-gray-200">{row.patientId}</td>
+        <td className="p-3 border border-gray-200">{row.patientName}</td>
+        <td className="p-3 border border-gray-200">{row.patientPhone}</td>
+        <td className="p-3 border border-gray-200">{row.doctorName}</td>
+        <td className="p-3 border border-gray-200">
+          <div className="flex flex-col items-center">
+            <span className=" text-lg">
+              {useDailySerial ? row.dailySerial : row.id}
+            </span>
+          </div>
+        </td>
+        <td className="p-3 border border-gray-200">
+          <div className="flex flex-col">
+            <span className="font-medium">
+              {formatDate(row.appointmentDate)}
+            </span>
+            <span className="text-xs text-gray-500">{row.appointmentDate}</span>
+          </div>
+        </td>
+        <td className="p-3 border border-gray-200">
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              row.status === "READY"
+                ? "bg-green-100 text-green-800"
+                : row.status === "NOT_READY"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-blue-100 text-blue-800"
+            }`}
+          >
+            {row.status === "READY"
+              ? "Ready"
+              : row.status === "NOT_READY"
+              ? "Not Ready"
+              : row.status === "REQUESTED"
+              ? "Requested"
+              : "Done"}
+          </span>
+        </td>
+        <td className="p-3 border border-gray-200">
+          {row.status === "READY" || row.status === "DONE" ? (
+            <button
+              onClick={() => handleShowMore(row)}
+              aria-pressed={clickedShowMore === row.id}
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                clickedShowMore === row.id ? "scale-95" : "scale-100"
+              }`}
+            >
+              Show Vitals
+            </button>
+          ) : row.status === "NOT_READY" ? (
+            isOldAppointments ? (
+              <div className="flex items-center justify-center px-5 py-2">
+                <span className="text-gray-500 text-sm font-medium">
+                  Vitals Missing
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleEnterVitals(row)}
+                aria-pressed={clickedEnterVitals === row.id}
+                className={`bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                  clickedEnterVitals === row.id ? "scale-95" : "scale-100"
+                }`}
+              >
+                Enter Vitals
+              </button>
+            )
+          ) : isOldAppointments ? (
+            <div className="flex items-center justify-center px-5 py-2">
+              <span className="text-gray-400 text-sm">Past Appointment</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => handleApprove(row)}
+              disabled={approvingId === row.id}
+              aria-pressed={clickedApprove === row.id}
+              className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                clickedApprove === row.id ? "scale-95" : "scale-100"
+              } ${
+                approvingId === row.id ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              {approvingId === row.id ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Approving...</span>
+                </div>
+              ) : (
+                "Approve"
+              )}
+            </button>
+          )}
+        </td>
+      </tr>
+    ));
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <Header />
@@ -239,12 +490,64 @@ export default function AppointmentPage() {
       </nav>
 
       <main className="flex-grow px-6 sm:px-12 pb-12">
-        {/* Search */}
-        <div className="flex justify-center mb-10 items-end gap-6">
+        {/* Search and Filter */}
+        <div className="flex justify-between items-end mb-10 px-4">
+          {/* Date Filter - Left Side */}
           <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold mb-2">
+              Date Filter
+            </label>
+            <div className="flex gap-2">
+              {[
+                { value: "all", label: "All" },
+                { value: "today", label: "Today" },
+                { value: "future", label: "Future" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() =>
+                    setDateFilter(option.value as "all" | "today" | "future")
+                  }
+                  className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 min-w-[80px] ${
+                    dateFilter === option.value
+                      ? "bg-green-600 text-white shadow-lg transform scale-105"
+                      : "bg-white text-gray-700 shadow-[inset_2px_2px_4px_#c0c5cc,inset_-2px_-2px_4px_#ffffff] hover:bg-green-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        dateFilter === option.value
+                          ? "border-white"
+                          : "border-gray-400"
+                      }`}
+                    >
+                      {dateFilter === option.value && (
+                        <svg
+                          className="w-2.5 h-2.5 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span>{option.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Box - Center */}
+          <div className="flex flex-col flex-1 max-w-lg mx-auto">
             <label
               htmlFor="search"
-              className="text-gray-700 font-semibold mb-2"
+              className="text-gray-700 font-semibold mb-2 text-center"
             >
               Search
             </label>
@@ -254,9 +557,12 @@ export default function AppointmentPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search patients"
-              className="w-96 p-4 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c0c5cc,inset_-2px_-2px_4px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full p-4 rounded-xl bg-white shadow-[inset_2px_2px_4px_#c0c5cc,inset_-2px_-2px_4px_#ffffff] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+
+          {/* Empty div for balance - Right Side */}
+          <div className="w-[240px]"></div>
         </div>
 
         {/* Error Display */}
@@ -349,6 +655,72 @@ export default function AppointmentPage() {
           </div>
         )}
 
+        {/* Current/Future Appointments Table */}
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+            <span>Current & Upcoming Appointments</span>
+            <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+              {currentRowsWithDailySerial.length} appointments
+            </span>
+            {dateFilter === "today" && (
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                Today only
+              </span>
+            )}
+            {dateFilter === "future" && (
+              <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
+                Future only
+              </span>
+            )}
+          </h2>
+
+          {/* Quick Stats */}
+          {!loading && currentRowsWithDailySerial.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-blue-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {
+                    currentRowsWithDailySerial.filter(
+                      (r) => r.status === "REQUESTED"
+                    ).length
+                  }
+                </div>
+                <div className="text-sm text-blue-700">Requested</div>
+              </div>
+              <div className="bg-yellow-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {
+                    currentRowsWithDailySerial.filter(
+                      (r) => r.status === "NOT_READY"
+                    ).length
+                  }
+                </div>
+                <div className="text-sm text-yellow-700">Not Ready</div>
+              </div>
+              <div className="bg-green-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {
+                    currentRowsWithDailySerial.filter(
+                      (r) => r.status === "READY"
+                    ).length
+                  }
+                </div>
+                <div className="text-sm text-green-700">Ready</div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-gray-600">
+                  {
+                    currentRowsWithDailySerial.filter((r) =>
+                      isToday(r.appointmentDate)
+                    ).length
+                  }
+                </div>
+                <div className="text-sm text-gray-700">Today</div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-2xl shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
           {loading ? (
@@ -362,6 +734,38 @@ export default function AppointmentPage() {
                 </p>
               </div>
             </div>
+          ) : currentRowsWithDailySerial.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  No appointments found
+                </h3>
+                <p className="text-gray-500">
+                  {dateFilter === "today"
+                    ? "No appointments scheduled for today"
+                    : dateFilter === "future"
+                    ? "No future appointments scheduled"
+                    : search
+                    ? "No appointments match your search criteria"
+                    : "No current or upcoming appointments"}
+                </p>
+              </div>
+            </div>
           ) : (
             <table className="w-full text-center text-gray-800">
               <thead className="bg-green-700 text-white text-md select-none">
@@ -371,7 +775,7 @@ export default function AppointmentPage() {
                     "Patient Name",
                     "Phone",
                     "Doctor Name",
-                    "Serial #",
+                    "Serial",
                     "Date",
                     "Status",
                     "Action",
@@ -386,99 +790,74 @@ export default function AppointmentPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-green-50 cursor-pointer transition duration-200"
-                  >
-                    <td className="p-3 border border-gray-200">
-                      {row.patientId}
-                    </td>
-                    <td className="p-3 border border-gray-200">
-                      {row.patientName}
-                    </td>
-                    <td className="p-3 border border-gray-200">
-                      {row.patientPhone}
-                    </td>
-                    <td className="p-3 border border-gray-200">
-                      {row.doctorName}
-                    </td>
-                    <td className="p-3 border border-gray-200">{row.id}</td>
-                    <td className="p-3 border border-gray-200">
-                      {row.appointmentDate}
-                    </td>
-                    <td className="p-3 border border-gray-200">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          row.status === "READY"
-                            ? "bg-green-100 text-green-800"
-                            : row.status === "NOT_READY"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {row.status === "READY"
-                          ? "Ready"
-                          : row.status === "NOT_READY"
-                          ? "Not Ready"
-                          : "Requested"}
-                      </span>
-                    </td>
-                    <td className="p-3 border border-gray-200">
-                      {row.status === "READY" ? (
-                        <button
-                          onClick={() => handleShowMore(row)}
-                          aria-pressed={clickedShowMore === row.id}
-                          className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                            clickedShowMore === row.id
-                              ? "scale-95"
-                              : "scale-100"
-                          }`}
-                        >
-                          Show More
-                        </button>
-                      ) : row.status === "NOT_READY" ? (
-                        <button
-                          onClick={() => handleEnterVitals(row)}
-                          aria-pressed={clickedEnterVitals === row.id}
-                          className={`bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                            clickedEnterVitals === row.id
-                              ? "scale-95"
-                              : "scale-100"
-                          }`}
-                        >
-                          Enter Vitals
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleApprove(row)}
-                          disabled={approvingId === row.id}
-                          aria-pressed={clickedApprove === row.id}
-                          className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                            clickedApprove === row.id ? "scale-95" : "scale-100"
-                          } ${
-                            approvingId === row.id
-                              ? "opacity-70 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          {approvingId === row.id ? (
-                            <div className="flex items-center space-x-2">
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                              <span>Approving...</span>
-                            </div>
-                          ) : (
-                            "Approve"
-                          )}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {renderTableRows(currentRowsWithDailySerial, true, false)}
               </tbody>
             </table>
           )}
         </div>
+
+        {/* Old Appointments Section */}
+        {sortedOldRows.length > 0 && (
+          <div className="mt-8">
+            <button
+              onClick={() => setShowOldAppointments(!showOldAppointments)}
+              className="flex items-center justify-between w-full p-4 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <div className="flex items-center space-x-3">
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Old Appointments ({sortedOldRows.length})
+                </h3>
+                <span className="px-3 py-1 bg-gray-200 text-gray-600 text-sm rounded-full">
+                  Past dates
+                </span>
+              </div>
+              <svg
+                className={`w-6 h-6 text-gray-600 transform transition-transform duration-200 ${
+                  showOldAppointments ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showOldAppointments && (
+              <div className="mt-4 overflow-x-auto border border-gray-200 rounded-2xl shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
+                <table className="w-full text-center text-gray-800">
+                  <thead className="bg-gray-600 text-white text-md select-none">
+                    <tr>
+                      {[
+                        "Patient ID",
+                        "Patient Name",
+                        "Phone",
+                        "Doctor Name",
+                        "Serial #",
+                        "Date",
+                        "Status",
+                        "Action",
+                      ].map((header) => (
+                        <th
+                          key={header}
+                          className="p-3 border border-gray-500 whitespace-nowrap"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>{renderTableRows(sortedOldRows, false, true)}</tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Modal */}
         {showModal && selectedAppointment && (
