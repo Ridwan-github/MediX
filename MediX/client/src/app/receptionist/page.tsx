@@ -69,25 +69,37 @@ export default function ReceptionistPage() {
               <h2 className="text-xl font-semibold text-green-700 mb-3">
                 Pending Appointment Requests
               </h2>
-              <p
+              <div
                 className={`text-4xl font-bold ${
                   pendingRequests === 0 ? "text-blue-600" : "text-red-600"
                 }`}
               >
-                {loading ? "..." : pendingRequests}
-              </p>
+                {loading ? (
+                  <div className="inline-flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  </div>
+                ) : (
+                  pendingRequests
+                )}
+              </div>
             </div>
             <div className="bg-white rounded-3xl p-8 text-center shadow-[inset_2px_2px_4px_#c2d0c8,inset_-2px_-2px_4px_#ffffff] hover:shadow-[inset_4px_4px_6px_#cfd4db,inset_-4px_-4px_6px_#ffffff] transition-shadow duration-100 ease-in-out">
               <h2 className="text-xl font-semibold text-green-700 mb-3">
                 Vitals to entry
               </h2>
-              <p
+              <div
                 className={`text-4xl font-bold ${
                   vitalsToEntry === 0 ? "text-blue-600" : "text-red-600"
                 }`}
               >
-                {loading ? "..." : vitalsToEntry}
-              </p>
+                {loading ? (
+                  <div className="inline-flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  </div>
+                ) : (
+                  vitalsToEntry
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -132,10 +132,10 @@ export default function DoctorListPage() {
       <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
         <div className="flex justify-center gap-6 text-green-800 font-semibold text-lg select-none transition-all duration-500">
           <Link
-            href="/receptionist/appointment/requests"
+            href="/receptionist/appointment"
             onClick={() => handleNavClick("requests")}
             className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment/requests"
+              usePathname() === "/receptionist/appointment"
                 ? "bg-green-700/80 text-white shadow-lg"
                 : "hover:bg-green-600/40"
             } ${clickedRequests ? "scale-95" : "scale-100"}`}
@@ -143,10 +143,10 @@ export default function DoctorListPage() {
             Appointment Requests
           </Link>
           <Link
-            href="/receptionist/appointment"
+            href="/receptionist/appointment/add"
             onClick={() => handleNavClick("addAppointment")}
             className={`px-4 py-2 rounded-lg transition transform ${
-              usePathname() === "/receptionist/appointment"
+              usePathname() === "/receptionist/appointment/add"
                 ? "bg-green-700/80 text-white shadow-lg"
                 : "hover:bg-green-600/40"
             } ${clickedAddAppointment ? "scale-95" : "scale-100"}`}

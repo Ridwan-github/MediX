@@ -84,9 +84,6 @@ export default function AppointmentPage() {
     pressure: appt.pressure,
   }));
 
-  if (loading) {
-    return <div className="text-center text-2xl">Loading...</div>;
-  }
   if (error) {
     return <div className="text-center text-red-600 text-2xl">{error}</div>;
   }
@@ -125,7 +122,7 @@ export default function AppointmentPage() {
     setTimeout(() => setClickedApprove(null), 150); // Reset animation
 
     // Redirect to requests page
-    router.push("/receptionist/appointment/requests");
+    router.push("/receptionist/appointment");
   };
 
   const handleCloseModal = () => {
@@ -167,8 +164,8 @@ export default function AppointmentPage() {
       <nav className="bg-green-100/60 backdrop-blur-sm rounded-2xl shadow-sm py-5 px-6 sm:px-10 lg:px-16 text-center border border-green-300 max-w-7xl mx-auto mt-2 mb-6">
         <div className="flex justify-center gap-6 text-green-800 font-semibold text-lg select-none transition-all duration-500">
           {[
-            ["Appointment Requests", "/receptionist/appointment/requests"],
-            ["Add Appointment", "/receptionist/appointment"],
+            ["Appointment Requests", "/receptionist/appointment"],
+            ["Add Appointment", "/receptionist/appointment/add"],
             ["Doctor", "/receptionist/appointment/doctor"],
             ["Vitals Entry", "/receptionist/appointment/vitals"],
             ["Appointment List", "/receptionist/appointment/list"],
@@ -178,9 +175,9 @@ export default function AppointmentPage() {
               href={path}
               onClick={() =>
                 handleNavClick(
-                  path === "/receptionist/appointment/requests"
+                  path === "/receptionist/appointment"
                     ? "requests"
-                    : path === "/receptionist/appointment"
+                    : path === "/receptionist/appointment/add"
                     ? "addAppointment"
                     : path === "/receptionist/appointment/doctor"
                     ? "doctor"
@@ -194,9 +191,8 @@ export default function AppointmentPage() {
                   ? "bg-green-700/80 text-white shadow-lg"
                   : "hover:bg-green-600/40"
               } ${
-                (path === "/receptionist/appointment/requests" &&
-                  clickedRequests) ||
-                (path === "/receptionist/appointment" &&
+                (path === "/receptionist/appointment" && clickedRequests) ||
+                (path === "/receptionist/appointment/add" &&
                   clickedAddAppointment) ||
                 (path === "/receptionist/appointment/doctor" &&
                   clickedDoctor) ||
@@ -236,106 +232,121 @@ export default function AppointmentPage() {
 
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-2xl shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
-          <table className="w-full text-center text-gray-800">
-            <thead className="bg-green-700 text-white text-md select-none">
-              <tr>
-                {[
-                  "Patient ID",
-                  "Patient Name",
-                  "Phone",
-                  "Doctor Name",
-                  "Serial #",
-                  "Date",
-                  "Status",
-                  "Action",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="p-3 border border-green-600 whitespace-nowrap"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-green-50 cursor-pointer transition duration-200"
-                >
-                  <td className="p-3 border border-gray-200">
-                    {row.patientId}
-                  </td>
-                  <td className="p-3 border border-gray-200">
-                    {row.patientName}
-                  </td>
-                  <td className="p-3 border border-gray-200">
-                    {row.patientPhone}
-                  </td>
-                  <td className="p-3 border border-gray-200">
-                    {row.doctorName}
-                  </td>
-                  <td className="p-3 border border-gray-200">{row.id}</td>
-                  <td className="p-3 border border-gray-200">
-                    {row.appointmentDate}
-                  </td>
-                  <td className="p-3 border border-gray-200">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        row.status === "READY"
-                          ? "bg-green-100 text-green-800"
-                          : row.status === "NOT_READY"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+                </div>
+                <p className="text-gray-600 text-lg font-medium">
+                  Loading appointments...
+                </p>
+              </div>
+            </div>
+          ) : (
+            <table className="w-full text-center text-gray-800">
+              <thead className="bg-green-700 text-white text-md select-none">
+                <tr>
+                  {[
+                    "Patient ID",
+                    "Patient Name",
+                    "Phone",
+                    "Doctor Name",
+                    "Serial #",
+                    "Date",
+                    "Status",
+                    "Action",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="p-3 border border-green-600 whitespace-nowrap"
                     >
-                      {row.status === "READY"
-                        ? "Ready"
-                        : row.status === "NOT_READY"
-                        ? "Not Ready"
-                        : "Requested"}
-                    </span>
-                  </td>
-                  <td className="p-3 border border-gray-200">
-                    {row.status === "READY" ? (
-                      <button
-                        onClick={() => handleShowMore(row)}
-                        aria-pressed={clickedShowMore === row.id}
-                        className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                          clickedShowMore === row.id ? "scale-95" : "scale-100"
-                        }`}
-                      >
-                        Show More
-                      </button>
-                    ) : row.status === "NOT_READY" ? (
-                      <button
-                        onClick={() => handleEnterVitals(row)}
-                        aria-pressed={clickedEnterVitals === row.id}
-                        className={`bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                          clickedEnterVitals === row.id
-                            ? "scale-95"
-                            : "scale-100"
-                        }`}
-                      >
-                        Enter Vitals
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleApprove(row)}
-                        aria-pressed={clickedApprove === row.id}
-                        className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
-                          clickedApprove === row.id ? "scale-95" : "scale-100"
-                        }`}
-                      >
-                        Approve
-                      </button>
-                    )}
-                  </td>
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="hover:bg-green-50 cursor-pointer transition duration-200"
+                  >
+                    <td className="p-3 border border-gray-200">
+                      {row.patientId}
+                    </td>
+                    <td className="p-3 border border-gray-200">
+                      {row.patientName}
+                    </td>
+                    <td className="p-3 border border-gray-200">
+                      {row.patientPhone}
+                    </td>
+                    <td className="p-3 border border-gray-200">
+                      {row.doctorName}
+                    </td>
+                    <td className="p-3 border border-gray-200">{row.id}</td>
+                    <td className="p-3 border border-gray-200">
+                      {row.appointmentDate}
+                    </td>
+                    <td className="p-3 border border-gray-200">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          row.status === "READY"
+                            ? "bg-green-100 text-green-800"
+                            : row.status === "NOT_READY"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {row.status === "READY"
+                          ? "Ready"
+                          : row.status === "NOT_READY"
+                          ? "Not Ready"
+                          : "Requested"}
+                      </span>
+                    </td>
+                    <td className="p-3 border border-gray-200">
+                      {row.status === "READY" ? (
+                        <button
+                          onClick={() => handleShowMore(row)}
+                          aria-pressed={clickedShowMore === row.id}
+                          className={`bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                            clickedShowMore === row.id
+                              ? "scale-95"
+                              : "scale-100"
+                          }`}
+                        >
+                          Show More
+                        </button>
+                      ) : row.status === "NOT_READY" ? (
+                        <button
+                          onClick={() => handleEnterVitals(row)}
+                          aria-pressed={clickedEnterVitals === row.id}
+                          className={`bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                            clickedEnterVitals === row.id
+                              ? "scale-95"
+                              : "scale-100"
+                          }`}
+                        >
+                          Enter Vitals
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleApprove(row)}
+                          aria-pressed={clickedApprove === row.id}
+                          className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
+                            clickedApprove === row.id ? "scale-95" : "scale-100"
+                          }`}
+                        >
+                          Approve
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Modal */}
