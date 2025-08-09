@@ -104,10 +104,13 @@ export default function BookAppointment() {
 
   const [patient, setPatient] = useState({
     name: "",
-    contact: "",
+    contact: "+88 ",
     doctor: "",
     appointmentDate: todayDate,
   });
+
+  // Added state to control visibility of available dates dropdown
+  const [showAvailableDates, setShowAvailableDates] = useState(true);
 
   useEffect(() => {
     const doctorId = searchParams?.get("doctorId");
@@ -148,6 +151,31 @@ export default function BookAppointment() {
     setPatient((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    // Only allow letters and spaces, remove any other characters
+    const lettersOnly = input.replace(/[^a-zA-Z\s]/g, "");
+
+    // Update the patient name
+    setPatient((prev) => ({ ...prev, name: lettersOnly }));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+
+    // Remove +88 prefix to get just the number part
+    const numberPart = input.replace(/^\+88\s?/, "");
+
+    // Only allow digits and limit to 11 digits
+    const numbersOnly = numberPart.replace(/\D/g, "").slice(0, 11);
+
+    // Update the patient contact with full number including +88
+    if (numbersOnly.length <= 11) {
+      setPatient((prev) => ({ ...prev, contact: `+88 ${numbersOnly}` }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -155,6 +183,22 @@ export default function BookAppointment() {
     // Trigger button press animation
     setClicked(true);
     setTimeout(() => setClicked(false), 150);
+
+    // Validate name length and content
+    const nameOnly = patient.name.replace(/\s+/g, ""); // Remove spaces to count only letters
+    if (nameOnly.length < 3) {
+      setError("Name must be at least 3 letters long");
+      setLoading(false);
+      return;
+    }
+
+    // Validate phone number length
+    const phoneNumbers = patient.contact.replace(/^\+88\s?/, "");
+    if (phoneNumbers.length !== 11) {
+      setError("Phone number must be exactly 11 digits long");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Validate selected date is available
@@ -302,10 +346,11 @@ export default function BookAppointment() {
   const clearForm = () => {
     setPatient({
       name: "",
-      contact: "",
+      contact: "+88 ",
       doctor: selectedDoctor ? selectedDoctor.doctorId.toString() : "",
       appointmentDate: todayDate,
     });
+    setShowAvailableDates(true); // Reset to show the available dates again
   };
 
   return (
@@ -345,25 +390,8 @@ export default function BookAppointment() {
                 </div>
                 <div>
                   <div className="font-semibold text-green-800 text-lg">
-                    Dr. {selectedDoctor.user.name}
+                    {selectedDoctor.user.name}
                   </div>
-                  {selectedDoctor.specializations &&
-                    selectedDoctor.specializations.length > 0 && (
-                      <div className="text-sm text-green-600 flex flex-wrap gap-1 mt-1">
-                        {selectedDoctor.specializations.map((spec, index) => (
-                          <span key={spec.id.specializationId}>
-                            {spec.specialization.name}
-                            {index <
-                              selectedDoctor.specializations.length - 1 && ", "}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  {selectedDoctor.availableDays && (
-                    <div className="text-xs text-green-500 mt-1">
-                      Available: {selectedDoctor.availableDays}
-                    </div>
-                  )}
                 </div>
                 <button
                   onClick={() => router.push("/request-appointment/doctors")}
@@ -395,13 +423,19 @@ export default function BookAppointment() {
               <input
                 type="text"
                 name="name"
-                placeholder="Your Full Name"
+                placeholder="Full Name"
                 value={patient.name}
-                onChange={handleChange}
+                onChange={handleNameChange}
                 className="w-full px-6 py-4 rounded-2xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] placeholder-gray-500 "
                 required
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/20 to-green-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              {patient.name.length > 0 &&
+                patient.name.replace(/\s+/g, "").length < 3 && (
+                  <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-red-500 text-sm font-medium">
+                    Min 3 letters
+                  </div>
+                )}
             </div>
 
             {/* Phone Number */}
@@ -409,13 +443,36 @@ export default function BookAppointment() {
               <input
                 type="tel"
                 name="contact"
-                placeholder="Phone Number"
+                placeholder="+88 01XXXXXXXXX"
                 value={patient.contact}
-                onChange={handleChange}
+                onChange={handlePhoneChange}
+                onKeyDown={(e) => {
+                  // Prevent deleting +88 prefix
+                  if (
+                    (e.key === "Backspace" || e.key === "Delete") &&
+                    (e.currentTarget.selectionStart ?? 0) <= 4
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                onFocus={(e) => {
+                  // Set cursor position after +88
+                  setTimeout(() => {
+                    if (e.target.value.length <= 4) {
+                      e.target.setSelectionRange(4, 4);
+                    }
+                  }, 0);
+                }}
                 className="w-full px-6 py-4 rounded-2xl border-none bg-[#e6f2ec] text-gray-800 shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] placeholder-gray-500 "
                 required
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/20 to-blue-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              {patient.contact.replace(/^\+88\s?/, "").length > 0 &&
+                patient.contact.replace(/^\+88\s?/, "").length !== 11 && (
+                  <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-red-500 text-sm font-medium">
+                    Must be 11 digits
+                  </div>
+                )}
             </div>
 
             {/* Appointment Date */}
@@ -432,7 +489,7 @@ export default function BookAppointment() {
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-400/20 to-orange-600/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
               {/* Available dates helper */}
-              {selectedDoctor && selectedDoctor.availableDays && (
+              {selectedDoctor && selectedDoctor.availableDays && showAvailableDates && (
                 <div className="mt-2 p-3 bg-blue-50 rounded-xl border-l-4 border-blue-400">
                   <div className="text-sm text-blue-800">
                     <div className="font-semibold mb-1">📅 Available Days:</div>
@@ -472,12 +529,13 @@ export default function BookAppointment() {
                               <button
                                 key={date}
                                 type="button"
-                                onClick={() =>
+                                onClick={() => {
                                   setPatient((prev) => ({
                                     ...prev,
                                     appointmentDate: date,
-                                  }))
-                                }
+                                  }));
+                                  setShowAvailableDates(false); // Close after quick select
+                                }}
                                 className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer"
                               >
                                 {dayName} {dateStr}
@@ -485,10 +543,6 @@ export default function BookAppointment() {
                             );
                           })}
                       </div>
-                    </div>
-
-                    <div className="text-xs text-blue-600">
-                      💡 You can only book appointments on the days listed above
                     </div>
                   </div>
                 </div>
