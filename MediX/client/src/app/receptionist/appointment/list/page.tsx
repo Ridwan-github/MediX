@@ -14,6 +14,7 @@ export default function AppointmentPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
     null
   );
@@ -23,6 +24,7 @@ export default function AppointmentPage() {
     null
   );
   const [clickedApprove, setClickedApprove] = useState<number | null>(null);
+  const [approvingId, setApprovingId] = useState<number | null>(null);
   const [clickedRequests, setClickedRequests] = useState(false);
   const [clickedAddAppointment, setClickedAddAppointment] = useState(false);
   const [clickedDoctor, setClickedDoctor] = useState(false);
@@ -84,10 +86,6 @@ export default function AppointmentPage() {
     pressure: appt.pressure,
   }));
 
-  if (error) {
-    return <div className="text-center text-red-600 text-2xl">{error}</div>;
-  }
-
   const filteredRows = rows.filter(
     (r) =>
       r.patientName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -116,13 +114,44 @@ export default function AppointmentPage() {
     );
   };
 
-  const handleApprove = (row: any) => {
+  const handleApprove = async (row: any) => {
     // Trigger button press animation
     setClickedApprove(row.id);
     setTimeout(() => setClickedApprove(null), 150); // Reset animation
 
-    // Redirect to requests page
-    router.push("/receptionist/appointment");
+    setApprovingId(row.id);
+
+    try {
+      // Update appointment status from REQUESTED to NOT_READY
+      const response = await fetch(
+        `http://localhost:8080/api/appointments/${row.patientId}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "NOT_READY" }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to approve appointment: ${response.status}`);
+      }
+
+      console.log("Appointment approved successfully");
+
+      // Show success message
+      setSuccessMessage("Appointment approved successfully!");
+      setTimeout(() => setSuccessMessage(null), 3000); // Hide after 3 seconds
+
+      // Refresh the appointments list to reflect the status change
+      await fetchAppointments();
+    } catch (err) {
+      console.error("Error approving appointment:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to approve appointment"
+      );
+    } finally {
+      setApprovingId(null);
+    }
   };
 
   const handleCloseModal = () => {
@@ -230,6 +259,96 @@ export default function AppointmentPage() {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 max-w-4xl mx-auto">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <svg
+                  className="w-4 h-4 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-red-800 font-semibold">Error</h3>
+                <p className="text-red-600">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="ml-auto text-red-500 hover:text-red-700"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Success Display */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 max-w-4xl mx-auto">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                <svg
+                  className="w-4 h-4 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-green-800 font-semibold">Success</h3>
+                <p className="text-green-600">{successMessage}</p>
+              </div>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="ml-auto text-green-500 hover:text-green-700"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-2xl shadow-[6px_6px_16px_#d0d4da,-6px_-6px_16px_#ffffff]">
           {loading ? (
@@ -333,12 +452,24 @@ export default function AppointmentPage() {
                       ) : (
                         <button
                           onClick={() => handleApprove(row)}
+                          disabled={approvingId === row.id}
                           aria-pressed={clickedApprove === row.id}
                           className={`bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl shadow-[3px_3px_8px_#bfc5cc,-3px_-3px_8px_#ffffff] transition transform ${
                             clickedApprove === row.id ? "scale-95" : "scale-100"
+                          } ${
+                            approvingId === row.id
+                              ? "opacity-70 cursor-not-allowed"
+                              : ""
                           }`}
                         >
-                          Approve
+                          {approvingId === row.id ? (
+                            <div className="flex items-center space-x-2">
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                              <span>Approving...</span>
+                            </div>
+                          ) : (
+                            "Approve"
+                          )}
                         </button>
                       )}
                     </td>
