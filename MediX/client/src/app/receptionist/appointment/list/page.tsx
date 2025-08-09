@@ -34,6 +34,16 @@ export default function AppointmentPage() {
   const [clickedDoctor, setClickedDoctor] = useState(false);
   const [clickedVitals, setClickedVitals] = useState(false);
   const [clickedList, setClickedList] = useState(false);
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [selectedPatientForVitals, setSelectedPatientForVitals] =
+    useState<any>(null);
+  const [vitals, setVitals] = useState({
+    age: "",
+    gender: "",
+    weight: "",
+    pressure1: "",
+    pressure2: "",
+  });
   const router = useRouter();
 
   // Authentication check
@@ -221,10 +231,9 @@ export default function AppointmentPage() {
     setClickedEnterVitals(row.id);
     setTimeout(() => setClickedEnterVitals(null), 150); // Reset animation
 
-    // Redirect to vitals page with appointment data
-    router.push(
-      `/receptionist/appointment/vitals?appointmentId=${row.id}&patientId=${row.patientId}`
-    );
+    // Open vitals modal instead of redirecting
+    setSelectedPatientForVitals(row);
+    setShowVitalsModal(true);
   };
 
   const handleApprove = async (row: any) => {
@@ -265,6 +274,117 @@ export default function AppointmentPage() {
     } finally {
       setApprovingId(null);
     }
+  };
+
+  const handleVitalsChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setVitals((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleVitalsSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedPatientForVitals) return;
+
+    setApprovingId(selectedPatientForVitals.id); // Use existing loading state
+
+    try {
+      // Build request payload
+      const payload = {
+        age: parseInt(vitals.age, 10),
+        gender: vitals.gender,
+        weight: parseFloat(vitals.weight),
+        bloodPressure: `${vitals.pressure1}/${vitals.pressure2}`,
+      };
+
+      console.log(
+        "PUT vitals for patient",
+        selectedPatientForVitals.patientId,
+        payload
+      );
+
+      // First, update the patient with vitals data
+      const res = await fetch(
+        `http://localhost:8080/api/patients/${selectedPatientForVitals.patientId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Failed to save vitals:", res.status, errorText);
+        throw new Error(`Failed to save vitals: ${res.status}`);
+      }
+
+      console.log(
+        "Vitals saved for:",
+        selectedPatientForVitals.patientName,
+        payload
+      );
+
+      // Then, update the appointment status to READY
+      const statusRes = await fetch(
+        `http://localhost:8080/api/appointments/${selectedPatientForVitals.id}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "READY" }),
+        }
+      );
+
+      if (!statusRes.ok) {
+        const errorText = await statusRes.text();
+        console.error(
+          "Failed to update appointment status:",
+          statusRes.status,
+          errorText
+        );
+        throw new Error(
+          `Failed to update appointment status: ${statusRes.status}`
+        );
+      }
+
+      console.log("Appointment status set to READY");
+
+      // Show success message
+      setSuccessMessage(
+        "Vitals saved and appointment status updated successfully!"
+      );
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      // Refresh the appointments list
+      await fetchAppointments();
+
+      // Clear form and close modal
+      clearVitalsForm();
+      setShowVitalsModal(false);
+      setSelectedPatientForVitals(null);
+    } catch (err: any) {
+      console.error("Error in vitals submission:", err);
+      setError(`Failed to save vitals: ${err.message}`);
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  const clearVitalsForm = () => {
+    setVitals({
+      age: "",
+      gender: "",
+      weight: "",
+      pressure1: "",
+      pressure2: "",
+    });
+  };
+
+  const handleCloseVitalsModal = () => {
+    clearVitalsForm();
+    setShowVitalsModal(false);
+    setSelectedPatientForVitals(null);
   };
 
   const handleCloseModal = () => {
@@ -891,6 +1011,129 @@ export default function AppointmentPage() {
                   {selectedAppointment.pressure}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vitals Entry Modal */}
+        {showVitalsModal && selectedPatientForVitals && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+            <div className="bg-white p-8 rounded-3xl w-full max-w-md">
+              <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
+                Enter Vitals for {selectedPatientForVitals.patientName}
+              </h2>
+
+              <form onSubmit={handleVitalsSubmit} className="space-y-5">
+                {/* Age Field */}
+                <div>
+                  <label className="mb-2 text-sm font-medium text-gray-700 block">
+                    Age
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    required
+                    placeholder="Age"
+                    value={vitals.age}
+                    onChange={handleVitalsChange}
+                    className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                {/* Gender Field */}
+                <div>
+                  <label className="mb-2 text-sm font-medium text-gray-700 block">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={vitals.gender}
+                    onChange={handleVitalsChange}
+                    required
+                    className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                {/* Weight Field */}
+                <div>
+                  <label className="mb-2 text-sm font-medium text-gray-700 block">
+                    Weight
+                  </label>
+                  <input
+                    type="number"
+                    name="weight"
+                    required
+                    placeholder="Weight"
+                    value={vitals.weight}
+                    onChange={handleVitalsChange}
+                    className="w-full p-3 rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                {/* Blood Pressure Field */}
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-medium text-gray-700">
+                    Blood Pressure (mmHg)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      name="pressure1"
+                      value={vitals.pressure1}
+                      onChange={handleVitalsChange}
+                      required
+                      placeholder="120"
+                      min="0"
+                      className="flex-1 p-3 w-[50px] rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    />
+                    <span className="text-gray-600 font-semibold">/</span>
+                    <input
+                      type="number"
+                      name="pressure2"
+                      value={vitals.pressure2}
+                      onChange={handleVitalsChange}
+                      required
+                      placeholder="80"
+                      min="0"
+                      className="flex-1 p-3 w-[50px] rounded-xl bg-white shadow-[inset_4px_4px_6px_#c2c8d0,inset_-4px_-4px_6px_#ffffff] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    />
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-between pt-2 gap-4">
+                  <button
+                    type="submit"
+                    disabled={approvingId === selectedPatientForVitals.id}
+                    className={`flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-[4px_4px_8px_#bfc5cc,-4px_-4px_8px_#ffffff] transition ${
+                      approvingId === selectedPatientForVitals.id
+                        ? "opacity-70 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {approvingId === selectedPatientForVitals.id ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Saving...</span>
+                      </div>
+                    ) : (
+                      "Save"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCloseVitalsModal}
+                    disabled={approvingId === selectedPatientForVitals.id}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl shadow-[4px_4px_8px_#bfc5cc,-4px_-4px_8px_#ffffff] transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
