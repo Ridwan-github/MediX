@@ -112,6 +112,9 @@ export default function BookAppointment() {
     appointmentDate: todayDate,
   });
 
+  // Added state to control visibility of available dates dropdown
+  const [showAvailableDates, setShowAvailableDates] = useState(true);
+
   useEffect(() => {
     const doctorId = searchParams?.get("doctorId");
     const doctorName = searchParams?.get("doctorName");

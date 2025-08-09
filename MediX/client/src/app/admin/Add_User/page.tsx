@@ -10,11 +10,14 @@ export default function AddUserPage() {
   // State for basic user information
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [address, setAddress] = useState("");
   const [role, setRole] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
-  const [phone, setPhone] = useState("");  // Phone number state
-  const [password, setPassword] = useState("");  // Password state
+  const [phone, setPhone] = useState(""); // Phone number state
+  const [password, setPassword] = useState(""); // Password state
 
   // Doctor specific fields
   const [experience, setExperience] = useState("");
@@ -25,14 +28,23 @@ export default function AddUserPage() {
   // State for additional specifications and degrees
   const [specifications, setSpecifications] = useState("");
   const [degrees, setDegrees] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    setMessageType("");
 
     // Prepare user data
     const userData = {
       name,
       email,
+      phone,
+      password,
+      address,
       role,
       gender,
       age,
@@ -48,8 +60,70 @@ export default function AddUserPage() {
 
     console.log("User data submitted:", userData);
 
-      // Redirect to another page (e.g., Admin Dashboard) after submission
-      router.push("/admin");
+    // Handle different user types
+    if (role === "Receptionist") {
+      try {
+        const receptionistData = {
+          name,
+          email,
+          phoneNumber: phone,
+          password,
+          address,
+        };
+
+        const response = await fetch(
+          "http://localhost:8080/api/receptionists",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(receptionistData),
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("Receptionist created successfully:", result);
+          setMessage("Receptionist created successfully!");
+          setMessageType("success");
+
+          // Reset form
+          setName("");
+          setEmail("");
+          setPhone("");
+          setPassword("");
+          setAddress("");
+          setRole("");
+          setGender("");
+          setAge("");
+
+          // Redirect after a longer delay to show success message more prominently
+          setTimeout(() => {
+            router.push("/admin");
+          }, 4000);
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to create receptionist:", errorData);
+          setMessage(
+            "Failed to create receptionist: " +
+              (errorData.error || "Unknown error")
+          );
+          setMessageType("error");
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        setMessage("Network error occurred while creating receptionist");
+        setMessageType("error");
+      }
+    } else {
+      // Handle other roles (Doctor, Pharmacist) - placeholder for future implementation
+      console.log("Other roles not implemented yet");
+      setMessage("User role '" + role + "' creation not implemented yet");
+      setMessageType("error");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -58,7 +132,6 @@ export default function AddUserPage() {
       <main className="flex-grow p-8">
         <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-10">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Information Fields */}
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="flex flex-col space-y-4 w-full items-center justify-center">
                 <div>
@@ -92,6 +165,58 @@ export default function AddUserPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm text-gray-700 font-semibold"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm text-gray-700 font-semibold"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm text-gray-700 font-semibold"
+                  >
+                    Address
+                  </label>
+                  <textarea
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-black"
+                    rows={3}
+                    placeholder="Street, City, State, ZIP"
                   />
                 </div>
 
@@ -192,7 +317,6 @@ export default function AddUserPage() {
               </div>
             </div>
 
-            {/* Doctor Specific Fields */}
             {role === "Doctor" && (
               <div className="bg-gray-50 p-6 rounded-xl shadow-md space-y-4">
                 <h2 className="text-lg text-gray-700 font-semibold">
@@ -299,19 +423,67 @@ export default function AddUserPage() {
               </div>
             )}
 
-            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="px-8 py-4 bg-green-800 text-white rounded-xl shadow-md hover:bg-green-700 transition duration-200"
+                disabled={loading}
+                className={`px-8 py-4 rounded-xl shadow-md transition duration-200 ${
+                  loading
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-green-800 text-white hover:bg-green-700"
+                }`}
               >
-                Add User
+                {loading ? "Creating User..." : "Add User"}
               </button>
             </div>
           </form>
+
+          {message && (
+            <div className="mt-6">
+              <div
+                className={`p-6 rounded-xl text-center font-semibold text-lg shadow-lg border-2 ${
+                  messageType === "success"
+                    ? "bg-gradient-to-r from-green-50 to-green-100 text-green-800 border-green-300 shadow-green-200"
+                    : "bg-gradient-to-r from-red-50 to-red-100 text-red-800 border-red-300 shadow-red-200"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  {messageType === "success" ? (
+                    <svg
+                      className="w-8 h-8 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-8 h-8 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  )}
+                  <span>{message}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
-
       <Footer />
     </div>
   );
