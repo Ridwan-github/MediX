@@ -621,7 +621,7 @@ export default function AppointmentPage() {
               {[
                 { value: "all", label: "All" },
                 { value: "today", label: "Today" },
-                { value: "future", label: "Future" },
+                { value: "upcoming", label: "Upcoming" },
               ].map((option) => (
                 <button
                   key={option.value}
