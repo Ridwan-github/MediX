@@ -12,7 +12,7 @@ export default function AppointmentPage() {
 
   const [appointments, setAppointments] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [dateFilter, setDateFilter] = useState<"all" | "today" | "future">(
+  const [dateFilter, setDateFilter] = useState<"all" | "today" | "upcoming">(
     "all"
   );
   const [showOldAppointments, setShowOldAppointments] = useState(false);
@@ -171,7 +171,7 @@ export default function AppointmentPage() {
 
     if (dateFilter === "today") {
       filtered = currentAndFutureRows.filter((r) => isToday(r.appointmentDate));
-    } else if (dateFilter === "future") {
+    } else if (dateFilter === "upcoming") {
       filtered = currentAndFutureRows.filter(
         (r) => !isToday(r.appointmentDate) && isFuture(r.appointmentDate)
       );
@@ -626,7 +626,7 @@ export default function AppointmentPage() {
                 <button
                   key={option.value}
                   onClick={() =>
-                    setDateFilter(option.value as "all" | "today" | "future")
+                    setDateFilter(option.value as "all" | "today" | "upcoming")
                   }
                   className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 min-w-[80px] ${
                     dateFilter === option.value
@@ -787,9 +787,9 @@ export default function AppointmentPage() {
                 Today only
               </span>
             )}
-            {dateFilter === "future" && (
+            {dateFilter === "upcoming" && (
               <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
-                Future only
+                Upcoming only
               </span>
             )}
           </h2>
@@ -878,8 +878,8 @@ export default function AppointmentPage() {
                 <p className="text-gray-500">
                   {dateFilter === "today"
                     ? "No appointments scheduled for today"
-                    : dateFilter === "future"
-                    ? "No future appointments scheduled"
+                    : dateFilter === "upcoming"
+                    ? "No upcoming appointments scheduled"
                     : search
                     ? "No appointments match your search criteria"
                     : "No current or upcoming appointments"}
