@@ -274,42 +274,6 @@ export default function AddUserPage() {
                     className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
                   />
                 </div>
-
-                {/* New Phone Number Field */}
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone"
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
-                  />
-                </div>
-
-                {/* New Password Field */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm text-gray-700 font-semibold"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-[32rem] max-w-full mx-auto p-4 mt-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder-gray-500"
-                  />
-                </div>
               </div>
             </div>
 

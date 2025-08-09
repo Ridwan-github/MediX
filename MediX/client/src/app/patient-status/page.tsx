@@ -235,61 +235,53 @@ export default function PatientStatusPage() {
     const currentStep = getStatusProgress(status);
 
     return (
-      <div className="w-full py-6">
-        {/* Step Names */}
-        <div className="flex justify-between mb-4">
-          {progressSteps.map((step) => (
-            <div key={step.id} className="flex flex-col items-center flex-1">
-              <div className="text-sm font-medium text-gray-600 mb-2">
-                {step.name}
-              </div>
-              <div className="text-lg">{step.icon}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Progress Bar */}
-        <div className="relative">
-          <div className="flex items-center">
-            {progressSteps.map((step, index) => (
-              <div key={step.id} className="flex items-center flex-1">
-                {/* Circle */}
-                <div className="relative flex items-center justify-center">
-                  <div
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                      step.id <= currentStep
-                        ? "bg-green-500 border-green-500 text-white"
-                        : "bg-white border-gray-300 text-gray-400"
-                    }`}
-                  >
-                    {step.id <= currentStep ? "✓" : step.id}
-                  </div>
+      <div className="w-full py-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl">
+        <div className="max-w-4xl mx-auto px-6">
+          {/* Progress Steps */}
+          <div className="grid grid-cols-4 gap-4">
+            {progressSteps.map((step) => (
+              <div key={step.id} className="flex flex-col items-center">
+                {/* Step Circle */}
+                <div className="relative mb-3">
+                  {step.id <= currentStep ? (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-105">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full border-3 border-gray-300 bg-gray-100 flex items-center justify-center transition-all duration-300">
+                      <span className="text-xl font-bold text-gray-400">{step.id}</span>
+                    </div>
+                  )}
                 </div>
-
-                {/* Connecting Line */}
-                {index < progressSteps.length - 1 && (
-                  <div className="flex-1 h-1 mx-2">
-                    <div
-                      className={`h-full rounded transition-all duration-300 ${
-                        step.id < currentStep ? "bg-green-500" : "bg-gray-200"
-                      }`}
-                    />
-                  </div>
-                )}
+                
+                {/* Step Info */}
+                <div className="text-center">
+                  <div className="text-2xl mb-2">{step.icon}</div>
+                  <h3 className={`text-sm font-semibold ${step.id <= currentStep ? 'text-green-700' : 'text-gray-500'}`}>
+                    {step.name}
+                  </h3>
+                  {step.id === currentStep && (
+                    <div className="mt-2">
+                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      <span className="ml-1 text-xs text-green-600 font-medium">Current</span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Current Status Badge */}
-        <div className="flex justify-center mt-4">
-          <span
-            className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(
-              status
-            )}`}
-          >
-            Current Status: {status === "NOT_READY" ? "ACCEPTED" : status}
-          </span>
+          {/* Status Badge */}
+          <div className="flex justify-center mt-6">
+            <div className={`px-6 py-3 rounded-full font-semibold text-sm shadow-md ${getStatusColor(status)}`}>
+              <div className="flex items-center">
+                <div className="w-2 h-2 rounded-full bg-current mr-2 animate-pulse"></div>
+                Status: {status === "NOT_READY" ? "ACCEPTED" : status}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
