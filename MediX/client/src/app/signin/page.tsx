@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +11,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [clicked, setClicked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,11 +100,48 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#e6f2ec] px-4">
+    <div
+      className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-300 ${
+        darkMode
+          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+          : "bg-[#e6f2ec]"
+      }`}
+    >
+      {/* Dark Mode Toggle */}
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={toggleDarkMode}
+          className={`p-3 rounded-full transition-all duration-200 transform hover:scale-105 ${
+            darkMode
+              ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
+              : "bg-white hover:bg-gray-100 text-gray-600 shadow-lg"
+          }`}
+          aria-label="Toggle dark mode"
+        >
+          {darkMode ? (
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+            </svg>
+          )}
+        </button>
+      </div>
+
       <div className="absolute top-4 left-4">
         <Link
           href="/"
-          className="flex items-center text-green-700 hover:text-green-900 transition-colors duration-200"
+          className={`flex items-center transition-colors duration-200 ${
+            darkMode
+              ? "text-green-400 hover:text-green-300"
+              : "text-green-700 hover:text-green-900"
+          }`}
         >
           <svg
             className="w-6 h-6 mr-2"
@@ -121,7 +160,13 @@ export default function SignIn() {
         </Link>
       </div>
 
-      <div className="w-full max-w-md rounded-3xl bg-[#e6f2ec] p-10 shadow-[10px_10px_30px_#c2d0c8,-10px_-10px_30px_#ffffff]">
+      <div
+        className={`w-full max-w-md rounded-3xl p-10 transition-all duration-300 ${
+          darkMode
+            ? "bg-gray-800 shadow-2xl border border-gray-700"
+            : "bg-[#e6f2ec] shadow-[10px_10px_30px_#c2d0c8,-10px_-10px_30px_#ffffff]"
+        }`}
+      >
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image
@@ -135,19 +180,34 @@ export default function SignIn() {
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl font-extrabold text-center mb-2 text-gray-800">
+        <h1
+          className={`text-3xl font-extrabold text-center mb-2 transition-colors duration-300 ${
+            darkMode ? "text-gray-100" : "text-gray-800"
+          }`}
+        >
           Welcome to{" "}
-          <span className="text-green-700">
-            Medi<span className="text-black">X</span>
+          <span className={darkMode ? "text-green-400" : "text-green-700"}>
+            Medi
+            <span className={darkMode ? "text-gray-200" : "text-black"}>X</span>
           </span>
         </h1>
-        <p className="text-center text-gray-600 mb-8 text-sm">
+        <p
+          className={`text-center mb-8 text-sm transition-colors duration-300 ${
+            darkMode ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
           Please sign in to continue
         </p>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          <div
+            className={`mb-4 p-3 border rounded-lg text-sm transition-colors duration-300 ${
+              darkMode
+                ? "bg-red-900/50 border-red-700 text-red-300"
+                : "bg-red-100 border-red-400 text-red-700"
+            }`}
+          >
             {error}
           </div>
         )}
@@ -161,7 +221,11 @@ export default function SignIn() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[#e6f2ec] rounded-2xl shadow-[inset_8px_8px_16px_#c2d0c8,inset_-8px_-8px_16px_#ffffff] focus:outline-none focus:shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] transition-shadow duration-200 text-gray-700 placeholder-gray-500"
+              className={`w-full px-4 py-3 rounded-2xl transition-all duration-200 ${
+                darkMode
+                  ? "bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/20"
+                  : "bg-[#e6f2ec] text-gray-700 placeholder-gray-500 shadow-[inset_8px_8px_16px_#c2d0c8,inset_-8px_-8px_16px_#ffffff] focus:outline-none focus:shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff]"
+              }`}
               required
             />
           </div>
@@ -173,13 +237,21 @@ export default function SignIn() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[#e6f2ec] rounded-2xl shadow-[inset_8px_8px_16px_#c2d0c8,inset_-8px_-8px_16px_#ffffff] focus:outline-none focus:shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff] transition-shadow duration-200 text-gray-700 placeholder-gray-500 pr-12"
+              className={`w-full px-4 py-3 pr-12 rounded-2xl transition-all duration-200 ${
+                darkMode
+                  ? "bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/20"
+                  : "bg-[#e6f2ec] text-gray-700 placeholder-gray-500 shadow-[inset_8px_8px_16px_#c2d0c8,inset_-8px_-8px_16px_#ffffff] focus:outline-none focus:shadow-[inset_6px_6px_12px_#c2d0c8,inset_-6px_-6px_12px_#ffffff]"
+              }`}
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+              className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors duration-200 ${
+                darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               {showPassword ? "👁️" : "👁️‍🗨️"}
             </button>
@@ -198,11 +270,19 @@ export default function SignIn() {
 
         {/* Additional Links */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p
+            className={`text-sm transition-colors duration-300 ${
+              darkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             Need an appointment?{" "}
             <Link
               href="/request-appointment"
-              className="text-green-600 hover:text-green-800 font-semibold transition-colors duration-200"
+              className={`font-semibold transition-colors duration-200 ${
+                darkMode
+                  ? "text-green-400 hover:text-green-300"
+                  : "text-green-600 hover:text-green-800"
+              }`}
             >
               Request here
             </Link>

@@ -2,10 +2,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   useEffect(() => {
     setIsVisible(true);
@@ -73,9 +75,19 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+    <div
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode
+          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+          : "bg-gradient-to-br from-green-50 via-white to-blue-50"
+      }`}
+    >
       {/* Navigation Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+      <header
+        className={`backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300 ${
+          darkMode ? "bg-gray-900/80" : "bg-white/80"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Image
@@ -86,44 +98,102 @@ export default function Home() {
               className="rounded-lg"
               priority
             />
-            <span className="text-2xl font-bold text-green-700">
-              Medi<span className="text-gray-800">X</span>
+            <span
+              className={`text-2xl font-bold transition-colors duration-300 ${
+                darkMode ? "text-green-400" : "text-green-700"
+              }`}
+            >
+              Medi
+              <span className={darkMode ? "text-gray-200" : "text-gray-800"}>
+                X
+              </span>
             </span>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
             <a
               href="#features"
-              className="text-gray-600 hover:text-green-600 transition-colors duration-200"
+              className={`transition-colors duration-200 ${
+                darkMode
+                  ? "text-gray-300 hover:text-green-400"
+                  : "text-gray-600 hover:text-green-600"
+              }`}
             >
               Features
             </a>
             <a
               href="#about"
-              className="text-gray-600 hover:text-green-600 transition-colors duration-200"
+              className={`transition-colors duration-200 ${
+                darkMode
+                  ? "text-gray-300 hover:text-green-400"
+                  : "text-gray-600 hover:text-green-600"
+              }`}
             >
               About
             </a>
             <a
               href="#testimonials"
-              className="text-gray-600 hover:text-green-600 transition-colors duration-200"
+              className={`transition-colors duration-200 ${
+                darkMode
+                  ? "text-gray-300 hover:text-green-400"
+                  : "text-gray-600 hover:text-green-600"
+              }`}
             >
               Testimonials
             </a>
             <Link
               href="/patient-status"
-              className="text-gray-600 hover:text-green-600 transition-colors duration-200"
+              className={`transition-colors duration-200 ${
+                darkMode
+                  ? "text-gray-300 hover:text-green-400"
+                  : "text-gray-600 hover:text-green-600"
+              }`}
             >
               Check Status
             </Link>
           </nav>
 
-          <Link
-            href="/signin"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-          >
-            Sign In
-          </Link>
+          <div className="flex items-center space-x-4">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className={`p-2 rounded-full transition-all duration-200 transform hover:scale-105 ${
+                darkMode
+                  ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+              }`}
+              aria-label="Toggle dark mode"
+            >
+              {darkMode ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              )}
+            </button>
+
+            <Link
+              href="/signin"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -138,11 +208,25 @@ export default function Home() {
                   : "opacity-0 translate-y-10"
               }`}
             >
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+              <h1
+                className={`text-5xl lg:text-6xl font-bold leading-tight mb-6 transition-colors duration-300 ${
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                }`}
+              >
                 Your Health,
-                <span className="text-green-600 block">Our Priority</span>
+                <span
+                  className={`block transition-colors duration-300 ${
+                    darkMode ? "text-green-400" : "text-green-600"
+                  }`}
+                >
+                  Our Priority
+                </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p
+                className={`text-xl mb-8 leading-relaxed transition-colors duration-300 ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Experience the future of healthcare with MediX. Connect with top
                 doctors, manage prescriptions digitally, and take control of
                 your health journey with our comprehensive medical platform.
@@ -157,7 +241,11 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/patient-status"
-                  className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105 text-center"
+                  className={`px-8 py-4 rounded-full font-semibold text-lg transition-all duration-200 transform hover:scale-105 text-center border-2 ${
+                    darkMode
+                      ? "border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900"
+                      : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                  }`}
                 >
                   Check Status
                 </Link>
@@ -225,10 +313,18 @@ export default function Home() {
                 </div>
 
                 {/* Floating Elements */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-full p-4 shadow-lg animate-bounce">
-                  <span className="text-3xl">�</span>
+                <div
+                  className={`absolute -top-4 -right-4 rounded-full p-4 shadow-lg animate-bounce ${
+                    darkMode ? "bg-gray-800" : "bg-white"
+                  }`}
+                >
+                  <span className="text-3xl">🩺</span>
                 </div>
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-full p-4 shadow-lg animate-pulse">
+                <div
+                  className={`absolute -bottom-4 -left-4 rounded-full p-4 shadow-lg animate-pulse ${
+                    darkMode ? "bg-gray-800" : "bg-white"
+                  }`}
+                >
                   <span className="text-3xl">💚</span>
                 </div>
               </div>
@@ -238,25 +334,46 @@ export default function Home() {
 
         {/* Floating Elements */}
         <div className="absolute top-20 left-10 animate-float">
-          <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+          <div
+            className={`backdrop-blur-sm rounded-full p-4 ${
+              darkMode ? "bg-gray-800/20" : "bg-white/20"
+            }`}
+          >
             <span className="text-2xl">⚕️</span>
           </div>
         </div>
         <div className="absolute top-40 right-20 animate-float-delayed">
-          <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+          <div
+            className={`backdrop-blur-sm rounded-full p-4 ${
+              darkMode ? "bg-gray-800/20" : "bg-white/20"
+            }`}
+          >
             <span className="text-2xl">🏥</span>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-gray-50">
+      <section
+        id="features"
+        className={`py-20 transition-colors duration-300 ${
+          darkMode ? "bg-gray-800" : "bg-gray-50"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2
+              className={`text-4xl font-bold mb-4 transition-colors duration-300 ${
+                darkMode ? "text-gray-100" : "text-gray-900"
+              }`}
+            >
               Why Choose MediX?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p
+              className={`text-xl max-w-3xl mx-auto transition-colors duration-300 ${
+                darkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               We're revolutionizing healthcare with cutting-edge technology and
               compassionate care, making quality healthcare accessible to
               everyone.
@@ -267,15 +384,25 @@ export default function Home() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group"
+                className={`rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group ${
+                  darkMode ? "bg-gray-700" : "bg-white"
+                }`}
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3
+                  className={`text-xl font-semibold mb-3 transition-colors duration-300 ${
+                    darkMode ? "text-gray-100" : "text-gray-900"
+                  }`}
+                >
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p
+                  className={`leading-relaxed transition-colors duration-300 ${
+                    darkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   {feature.description}
                 </p>
               </div>
@@ -289,19 +416,35 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              <h2
+                className={`text-4xl font-bold mb-6 transition-colors duration-300 ${
+                  darkMode ? "text-gray-100" : "text-gray-900"
+                }`}
+              >
                 Transforming Healthcare
-                <span className="text-green-600 block">
+                <span
+                  className={`block transition-colors duration-300 ${
+                    darkMode ? "text-green-400" : "text-green-600"
+                  }`}
+                >
                   One Patient at a Time
                 </span>
               </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              <p
+                className={`text-lg mb-6 leading-relaxed transition-colors duration-300 ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 MediX is more than just a healthcare platform—it's your partner
                 in wellness. We bridge the gap between patients and healthcare
                 providers with innovative technology that makes quality care
                 accessible, affordable, and efficient.
               </p>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p
+                className={`text-lg mb-8 leading-relaxed transition-colors duration-300 ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 From instant appointment booking to digital prescription
                 management, we're simplifying every aspect of your healthcare
                 journey.
@@ -329,19 +472,37 @@ export default function Home() {
 
             <div className="relative">
               <div className="bg-gradient-to-r from-blue-400 to-green-500 rounded-3xl p-8 shadow-2xl">
-                <div className="bg-white rounded-2xl p-6">
+                <div
+                  className={`rounded-2xl p-6 ${
+                    darkMode ? "bg-gray-800" : "bg-white"
+                  }`}
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
                       <span className="text-xl">👨‍⚕️</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">
+                      <h4
+                        className={`font-semibold transition-colors duration-300 ${
+                          darkMode ? "text-gray-100" : "text-gray-900"
+                        }`}
+                      >
                         Dr. Sarah Wilson
                       </h4>
-                      <p className="text-gray-600 text-sm">Cardiologist</p>
+                      <p
+                        className={`text-sm transition-colors duration-300 ${
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Cardiologist
+                      </p>
                     </div>
                   </div>
-                  <p className="text-gray-700 text-sm mb-4">
+                  <p
+                    className={`text-sm mb-4 transition-colors duration-300 ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
                     "MediX has revolutionized how I connect with my patients.
                     The platform is intuitive and helps me provide better care."
                   </p>
@@ -354,31 +515,60 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gray-50">
+      <section
+        id="testimonials"
+        className={`py-20 transition-colors duration-300 ${
+          darkMode ? "bg-gray-800" : "bg-gray-50"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2
+              className={`text-4xl font-bold mb-4 transition-colors duration-300 ${
+                darkMode ? "text-gray-100" : "text-gray-900"
+              }`}
+            >
               What Our Users Say
             </h2>
-            <p className="text-xl text-gray-600">
+            <p
+              className={`text-xl transition-colors duration-300 ${
+                darkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Join thousands of satisfied patients and healthcare providers
             </p>
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <div
+              className={`rounded-2xl shadow-xl p-8 md:p-12 transition-colors duration-300 ${
+                darkMode ? "bg-gray-700" : "bg-white"
+              }`}
+            >
               <div className="text-center">
                 <div className="text-6xl mb-6">
                   {testimonials[currentTestimonial].avatar}
                 </div>
-                <blockquote className="text-2xl text-gray-700 mb-8 italic leading-relaxed">
+                <blockquote
+                  className={`text-2xl mb-8 italic leading-relaxed transition-colors duration-300 ${
+                    darkMode ? "text-gray-200" : "text-gray-700"
+                  }`}
+                >
                   "{testimonials[currentTestimonial].text}"
                 </blockquote>
                 <div>
-                  <div className="font-semibold text-gray-900 text-lg">
+                  <div
+                    className={`font-semibold text-lg transition-colors duration-300 ${
+                      darkMode ? "text-gray-100" : "text-gray-900"
+                    }`}
+                  >
                     {testimonials[currentTestimonial].name}
                   </div>
-                  <div className="text-green-600">
+                  <div
+                    className={`transition-colors duration-300 ${
+                      darkMode ? "text-green-400" : "text-green-600"
+                    }`}
+                  >
                     {testimonials[currentTestimonial].role}
                   </div>
                 </div>
@@ -393,7 +583,11 @@ export default function Home() {
                   onClick={() => setCurrentTestimonial(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-200 ${
                     index === currentTestimonial
-                      ? "bg-green-600"
+                      ? darkMode
+                        ? "bg-green-400"
+                        : "bg-green-600"
+                      : darkMode
+                      ? "bg-gray-600"
                       : "bg-gray-300"
                   }`}
                 />
@@ -437,7 +631,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer
+        className={`py-12 text-white transition-colors duration-300 ${
+          darkMode ? "bg-gray-900" : "bg-gray-900"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
