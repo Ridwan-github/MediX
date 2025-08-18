@@ -4,8 +4,8 @@ import Footer from "@/components/footer";
 import { useState } from "react";
 
 export default function AdminProfilePage() {
-  const [adminName, setAdminName] = useState("John Doe");
-  const [adminEmail, setAdminEmail] = useState("john.doe@example.com");
+  const [adminName, setAdminName] = useState("ADMIN");
+  const [adminEmail, setAdminEmail] = useState("admin@admin.com");
   const [adminRole, setAdminRole] = useState("Admin");
   const [adminJoinDate, setAdminJoinDate] = useState("January 15, 2020");
 
