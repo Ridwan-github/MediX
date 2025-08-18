@@ -12,6 +12,7 @@ export default function Header() {
   const [clickedHome, setClickedHome] = useState(false);
   const [clickedAddUser, setAddUser] = useState(false);
   const [clickedRecord, setRecords] = useState(false);
+  const [clickedSpecs, setSpecs] = useState(false);
 
   const handleLogout = () => {
     // Trigger button press animation
@@ -36,7 +37,10 @@ export default function Header() {
         setRecords(true);
         setTimeout(() => setRecords(false), 150);
         break;
-      
+      case 'Specs':
+        setSpecs(true);
+        setTimeout(() => setSpecs(false), 150);
+        break;
     }
   };
 
@@ -83,6 +87,13 @@ export default function Header() {
           >
             <MdOutlineListAlt className="text-base sm:text-lg font-bold" />
             Records
+          </Link>
+
+          <Link
+            href="/admin/specifications-qualifications"
+          >
+          <span className="text-base sm:text-lg font-bold">🎓</span>
+            Specs & Degrees
           </Link>
         </div>
 
