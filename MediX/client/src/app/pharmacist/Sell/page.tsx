@@ -27,7 +27,7 @@ export default function SellPage() {
       <main className="flex flex-col items-center justify-start flex-grow mt-10 px-4">
         <div className="w-full max-w-5xl">
           <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Patient Info (Optional)</h2>
+            <h2 className="text-2xl font-bold mb-4">Patient Info</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex justify-between items-center">
                 <label className="font-medium">Prescription ID:</label>
@@ -65,14 +65,6 @@ export default function SellPage() {
                   className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
                 />
               </div>
-            </div>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Medicine Management</h2>
-            <div className="flex items-center justify-center border-b pb-2">
-              <span className="text-lg font-bold underline">Add Medicine</span>
-              <span className="ml-4 text-black text-xl">＋</span>
             </div>
           </section>
 

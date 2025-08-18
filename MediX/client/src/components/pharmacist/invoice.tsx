@@ -25,6 +25,11 @@ export default function Invoice() {
     setItems([...items, { qty: 1, itemNo: "", description: "", price: 0 }]);
   };
 
+
+  const handleRemoveItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const tax = 10;
   const total = subtotal + tax;
@@ -43,48 +48,47 @@ export default function Invoice() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-800">
-        <div>
-          <p className="font-bold text-lg">Billed to</p>
-          <label className="block mt-2 font-semibold">Customer Name</label>
-          <input
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
-          />
+<div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-800">
+  <div>
+    <p className="font-bold text-lg">Billed to</p>
+    <label className="block mt-2 font-semibold">Customer Name</label>
+    <input
+      value={customerName}
+      onChange={(e) => setCustomerName(e.target.value)}
+      className="w-full border px-2 py-1 rounded"
+    />
+  </div>
 
-          <label className="block mt-2 font-semibold">Company Name</label>
-          <input
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
+  <div>
+    <label className="block mt-9 font-semibold">Phone Number</label>
+    <input
+      value={phoneNumber}
+      onChange={(e) => setPhoneNumber(e.target.value)}
+      className="w-full border px-2 py-1 rounded"
+    />
+  </div>
 
-        <div>
-          <label className="block font-semibold mt-6">Phone Number</label>
-          <input
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
-          />
+  <div>
+    <label className="block mt-2 font-semibold">Address</label>
+    <input
+      value={address}
+      onChange={(e) => setAddress(e.target.value)}
+      className="w-full border px-2 py-1 rounded"
+    />
+  </div>
 
-          <label className="block mt-2 font-semibold">Address</label>
-          <input
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
-          />
+  <div>
+    <label className="block mt-2 font-semibold">Date</label>
+    <input
+      type="date"
+      value={date}
+      onChange={(e) => setDate(e.target.value)}
+      className="w-full border px-2 py-1 rounded"
+    />
+  </div>
+</div>
 
-          <label className="block mt-2 font-semibold">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
-      </div>
+
 
       <table className="w-full mt-8 text-sm border">
         <thead className="bg-green-900 text-white">
@@ -137,8 +141,11 @@ export default function Invoice() {
                   className="w-20 border rounded px-1"
                 />
               </td>
-              <td className="p-2 border font-semibold text-right pr-4">
-                ${(item.qty * item.price).toFixed(2)}
+              <td className="p-2 border font-semibold text-right pr-4 flex items-center justify-between">
+                <span>${(item.qty * item.price).toFixed(2)}</span>
+                <button onClick={() => handleRemoveItem(idx)} title="Remove item" className="ml-2 text-red-600 hover:text-red-800 text-lg font-bold" style={{ lineHeight: 1 }}>
+                  &times;
+                </button>
               </td>
             </tr>
           ))}
@@ -151,6 +158,7 @@ export default function Invoice() {
       >
         + Add another item
       </button>
+
 
       <div className="grid grid-cols-2 gap-4 mt-8">
         <div>
