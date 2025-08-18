@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "company": "Square Pharmaceuticals",
+    "name": "Napa",
+    "genericName": "Paracetamol",
+    "quantity": 120
+  },
+  {
+    "id": 2,
+    "company": "Beximco Pharma",
+    "name": "Seclo",
+    "genericName": "Omeprazole",
+    "quantity": 15
+  },
+  {
+    "id": 3,
+    "company": "ACI Limited",
+    "name": "Ace",
+    "genericName": "Paracetamol",
+    "quantity": 8
+  }
+]
