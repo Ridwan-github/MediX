@@ -262,89 +262,139 @@ export default function AddUserPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setMessageType("");
-    const userData = {
+  const createDoctor = async () => {
+  const userData = {
+    user: {
       name,
       email,
-      phone,
+      phoneNumber: phone,
       password,
       address,
-      role,
-      gender,
-      age,
-      experience,
-      licenseNumber,
-      availableDays,
-      startTime,
-      endTime,
-      selectedSpecializationIds,
-      selectedQualificationIds,
+    },
+    doctor: {
+      doctorId: 201, // You can dynamically generate this or use an auto-increment field.
+      yearsOfExperience: experience,
+      availableDays: availableDays.join(","),
+      availableTimes: `${startTime}-${endTime}`,
+      licenseNumber: licenseNumber,
+    },
+    qualificationIds: selectedQualificationIds,
+    specializationIds: selectedSpecializationIds,
+  };
+
+  console.log("User data submitted:", userData);
+
+  try {
+    const response = await fetch("http://localhost:8080/api/doctors", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Status ${response.status}`);
+    }
+
+    const result = await response.json();
+    setMessage("Doctor created successfully!");
+    setMessageType("success");
+
+    // Reset form fields after successful submission
+    resetForm();
+    setTimeout(() => {
+      router.push("/admin");
+    }, 4000);
+  } catch (error) {
+    const errorMsg =
+      error && typeof error === "object" && "message" in error
+        ? (error as { message: string }).message
+        : String(error);
+    setMessage("Failed to create doctor: " + errorMsg);
+    setMessageType("error");
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Helper function to reset the form fields
+const resetForm = () => {
+  setName("");
+  setEmail("");
+  setPhone("");
+  setPassword("");
+  setAddress("");
+  setRole("");
+  setGender("");
+  setAge("");
+  setExperience("");
+  setLicenseNumber("");
+  setLicenseDigits("");
+  setAvailableDays([]);
+  setStartTime("");
+  setEndTime("");
+  setSelectedSpecializationIds([]);
+  setSelectedQualificationIds([]);
+};
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
+  setMessageType("");
+
+  // Create doctor if role is "Doctor"
+  if (role === "Doctor") {
+    await createDoctor();
+  }
+
+  // If role is "Receptionist", create receptionist
+  else if (role === "Receptionist") {
+    const receptionistData = {
+      name,
+      email,
+      phoneNumber: phone,
+      password,
+      address,
     };
-    console.log("User data submitted:", userData);
-    if (role === "Receptionist") {
-      try {
-        const receptionistData = {
-          name,
-          email,
-          phoneNumber: phone,
-          password,
-          address,
-        };
-        const response = await fetch(
-          "http://localhost:8080/api/receptionists",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(receptionistData),
-          }
+    try {
+      const response = await fetch("http://localhost:8080/api/receptionists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(receptionistData),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setMessage("Receptionist created successfully!");
+        setMessageType("success");
+        resetForm();
+        setTimeout(() => {
+          router.push("/admin");
+        }, 4000);
+      } else {
+        const errorData = await response.json();
+        setMessage(
+          "Failed to create receptionist: " + (errorData.error || "Unknown error")
         );
-        if (response.ok) {
-          const result = await response.json();
-          setMessage("Receptionist created successfully!");
-          setMessageType("success");
-          setName("");
-          setEmail("");
-          setPhone("");
-          setPassword("");
-          setAddress("");
-          setRole("");
-          setGender("");
-          setAge("");
-          setExperience("");
-          setLicenseNumber("");
-          setLicenseDigits("");
-          setAvailableDays([]);
-          setStartTime("");
-          setEndTime("");
-          setSelectedSpecializationIds([]);
-          setSelectedQualificationIds([]);
-          setTimeout(() => {
-            router.push("/admin");
-          }, 4000);
-        } else {
-          const errorData = await response.json();
-          setMessage(
-            "Failed to create receptionist: " +
-              (errorData.error || "Unknown error")
-          );
-          setMessageType("error");
-        }
-      } catch (error) {
-        setMessage("Network error occurred while creating receptionist");
         setMessageType("error");
       }
-    } else {
-      setMessage("User role '" + role + "' creation not implemented yet");
+    } catch (error) {
+      setMessage("Network error occurred while creating receptionist");
       setMessageType("error");
     }
-    setLoading(false);
-  };
+  } else {
+    setMessage("User role '" + role + "' creation not implemented yet");
+    setMessageType("error");
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
