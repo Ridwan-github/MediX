@@ -12,12 +12,14 @@ type TableRow = {
   patientId: string;
   name: string;
   phone: string;
+  sellType: 'normal' | 'quick'; // 'normal' for hospital patients, 'quick' for general public
 };
 
 
 export default function HistoryPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
+  const [sellTypeFilter, setSellTypeFilter] = useState('');
   const [tableData, setTableData] = useState<TableRow[]>([
     {
       date: '2025-08-15',
@@ -25,6 +27,7 @@ export default function HistoryPage() {
       patientId: 'P-001',
       name: 'John Doe',
       phone: '555-1234',
+      sellType: 'normal',
     },
     {
       date: '2025-08-16',
@@ -32,6 +35,7 @@ export default function HistoryPage() {
       patientId: 'P-002',
       name: 'Jane Smith',
       phone: '555-5678',
+      sellType: 'quick',
     },
     {
       date: '2025-08-17',
@@ -39,21 +43,11 @@ export default function HistoryPage() {
       patientId: 'P-003',
       name: 'Alice Johnson',
       phone: '555-8765',
+      sellType: 'normal',
     },
   ]);
 
-  const handleInputChange = (index: number, field: keyof TableRow, value: string) => {
-    const updated = [...tableData];
-    updated[index][field] = value;
-    setTableData(updated);
-  };
 
-  const addRow = () => {
-    setTableData([
-      ...tableData,
-      { date: '', prescriptionId: '', patientId: '', name: '', phone: '' },
-    ]);
-  };
 
   // Filtered and searched data
   const filteredData = tableData.filter(row => {
@@ -77,7 +71,13 @@ export default function HistoryPage() {
       monthAgo.setMonth(now.getMonth() - 1);
       matchesFilter = row.date >= monthAgo.toISOString().slice(0, 10) && row.date <= now.toISOString().slice(0, 10);
     }
-    return matchesSearch && matchesFilter;
+    let matchesSellType = true;
+    if (sellTypeFilter === 'normal') {
+      matchesSellType = row.sellType === 'normal';
+    } else if (sellTypeFilter === 'quick') {
+      matchesSellType = row.sellType === 'quick';
+    }
+    return matchesSearch && matchesFilter && matchesSellType;
   });
 
   return (
@@ -107,6 +107,15 @@ export default function HistoryPage() {
                   <option value="week">This Week</option>
                   <option value="month">This Month</option>
                 </select>
+                <select
+                  value={sellTypeFilter}
+                  onChange={(e) => setSellTypeFilter(e.target.value)}
+                  className="border-2 border-green-700 rounded px-4 py-2 focus:outline-none w-48"
+                >
+                  <option value="">All Sell Types</option>
+                  <option value="normal">Normal Sell (Patient)</option>
+                  <option value="quick">Quick Sell (General)</option>
+                </select>
               </div>
               <span className="text-xs text-gray-500">Showing {filteredData.length} of {tableData.length} records</span>
             </div>
@@ -121,6 +130,7 @@ export default function HistoryPage() {
                   <th className="p-3 border border-white">Patient ID</th>
                   <th className="p-3 border border-white">Patient Name</th>
                   <th className="p-3 border border-white">Patient Phone</th>
+                  <th className="p-3 border border-white">Sell Type</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,47 +141,12 @@ export default function HistoryPage() {
                 ) : (
                   filteredData.map((row, idx) => (
                     <tr key={idx} className="text-center hover:bg-green-50 transition">
-                      <td className="p-2 border">
-                        <input
-                          type="date"
-                          value={row.date}
-                          onChange={(e) => handleInputChange(idx, 'date', e.target.value)}
-                          className="w-full border rounded px-1 bg-transparent"
-                        />
-                      </td>
-                      <td className="p-2 border">
-                        <input
-                          type="text"
-                          value={row.prescriptionId}
-                          onChange={(e) => handleInputChange(idx, 'prescriptionId', e.target.value)}
-                          className="w-full border rounded px-1 bg-transparent"
-                        />
-                      </td>
-                      <td className="p-2 border">
-                        <input
-                          type="text"
-                          value={row.patientId}
-                          onChange={(e) => handleInputChange(idx, 'patientId', e.target.value)}
-                          className="w-full border rounded px-1 bg-transparent"
-                        />
-                      </td>
-                      <td className="p-2 border">
-                        <input
-                          type="text"
-                          value={row.name}
-                          onChange={(e) => handleInputChange(idx, 'name', e.target.value)}
-                          className="w-full border rounded px-1 bg-transparent"
-                        />
-                      </td>
-                      <td className="p-2 border">
-                        <input
-                          type="text"
-                          value={row.phone}
-                          onChange={(e) => handleInputChange(idx, 'phone', e.target.value)}
-                          className="w-full border rounded px-1 bg-transparent"
-                        />
-                      </td>
-                      {/* status column removed */}
+                      <td className="p-2 border">{row.date}</td>
+                      <td className="p-2 border">{row.prescriptionId}</td>
+                      <td className="p-2 border">{row.patientId}</td>
+                      <td className="p-2 border">{row.name}</td>
+                      <td className="p-2 border">{row.phone}</td>
+                      <td className="p-2 border">{row.sellType === 'normal' ? 'Normal Sell' : 'Quick Sell'}</td>
                     </tr>
                   ))
                 )}
