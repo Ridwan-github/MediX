@@ -12,6 +12,7 @@ export default function SellPage() {
   const [patientId, setPatientId] = useState('');
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
+  const [showQuickSell, setShowQuickSell] = useState(false);
   const router = useRouter();
 
   const handleFinalize = () => {
@@ -26,61 +27,89 @@ export default function SellPage() {
 
       <main className="flex flex-col items-center justify-start flex-grow mt-10 px-4">
         <div className="w-full max-w-5xl">
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Patient Info</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex justify-between items-center">
-                <label className="font-medium">Prescription ID:</label>
-                <input
-                  type="text"
-                  value={prescriptionId}
-                  onChange={(e) => setPrescriptionId(e.target.value)}
-                  className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
-                />
-              </div>
-              <div className="flex justify-between items-center">
-                <label className="font-medium">Patient ID:</label>
-                <input
-                  type="text"
-                  value={patientId}
-                  onChange={(e) => setPatientId(e.target.value)}
-                  className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
-                />
-              </div>
-              <div className="flex justify-between items-center">
-                <label className="font-medium">Name:</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
-                />
-              </div>
-              <div className="flex justify-between items-center">
-                <label className="font-medium">Contact Number:</label>
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Receipt Preview</h2>
-            <Invoice />
-          </section>
-
-          <div className="flex justify-center">
+          <div className="flex justify-end mb-6">
             <button
-              onClick={handleFinalize}
-              className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition"
+              className={`px-4 py-2 rounded-lg font-semibold shadow transition bg-gradient-to-r from-green-700 via-green-500 to-green-600 text-white hover:from-green-800 hover:to-green-700 ${showQuickSell ? 'ring-2 ring-green-400' : ''}`}
+              onClick={() => setShowQuickSell((v) => !v)}
             >
-              Finalize and Lock
+              {showQuickSell ? 'Back to Normal Sell' : 'Quick Sell'}
             </button>
           </div>
+
+          {!showQuickSell ? (
+            <>
+              <section className="mb-10">
+                <h2 className="text-2xl font-bold mb-4">Patient Info</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex justify-between items-center">
+                    <label className="font-medium">Prescription ID:</label>
+                    <input
+                      type="text"
+                      value={prescriptionId}
+                      onChange={(e) => setPrescriptionId(e.target.value)}
+                      className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <label className="font-medium">Patient ID:</label>
+                    <input
+                      type="text"
+                      value={patientId}
+                      onChange={(e) => setPatientId(e.target.value)}
+                      className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <label className="font-medium">Name:</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <label className="font-medium">Contact Number:</label>
+                    <input
+                      type="text"
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value)}
+                      className="border-b border-black w-2/3 px-2 focus:outline-none bg-transparent text-black"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="mb-10">
+                <h2 className="text-2xl font-bold mb-4">Receipt Preview</h2>
+                <Invoice />
+              </section>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={handleFinalize}
+                  className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition"
+                >
+                  Finalize and Lock
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <section className="mb-10">
+                <h2 className="text-2xl font-bold mb-4 text-green-800">Quick Sell Invoice</h2>
+                <Invoice />
+              </section>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleFinalize}
+                  className="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 transition"
+                >
+                  Finalize and Lock
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </main>
 

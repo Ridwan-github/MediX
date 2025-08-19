@@ -1,28 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+
+type Item = {
+  qty: string;
+  itemNo: string;
+  description: string;
+  price: string;
+};
 
 export default function Invoice() {
+  // refs for table inputs: [row][col]
+  const inputRefs = useRef<Array<Array<HTMLInputElement | null>>>([]);
+
   const [customerName, setCustomerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [address, setAddress] = useState("");
   const [date, setDate] = useState("");
-  const [items, setItems] = useState([
-    { qty: 1, itemNo: "", description: "", price: 0 },
+  const [items, setItems] = useState<Item[]>([
+    { qty: "1", itemNo: "", description: "", price: "0" },
   ]);
+
+  // Ensure refs array matches items
+  useEffect(() => {
+    inputRefs.current = items.map((item: Item, rowIdx: number) =>
+      [0, 1, 2, 3].map((colIdx: number) => inputRefs.current[rowIdx]?.[colIdx] || null)
+    );
+  }, [items]);
 
   const handleItemChange = (index: number, field: string, value: any) => {
     const updated = [...items];
+    // Allow empty string for qty and price, otherwise keep as string
     updated[index] = {
       ...updated[index],
-      [field]: field === "price" || field === "qty" ? Number(value) : value,
+      [field]: (field === "price" || field === "qty") ? value.replace(/^0+(?!$)/, "") : value,
     };
     setItems(updated);
   };
 
   const addItem = () => {
-    setItems([...items, { qty: 1, itemNo: "", description: "", price: 0 }]);
+    setItems([...items, { qty: "1", itemNo: "", description: "", price: "0" }]);
   };
 
 
@@ -30,9 +48,30 @@ export default function Invoice() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+  const subtotal = items.reduce((sum, item) => {
+    const qty = item.qty === "" ? 0 : Number(item.qty);
+    const price = item.price === "" ? 0 : Number(item.price);
+    return sum + qty * price;
+  }, 0);
   const tax = 10;
   const total = subtotal + tax;
+
+  // Handle Enter key navigation
+  const handleKeyDown = (rowIdx: number, colIdx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Move to next cell in row, or next row's first cell
+      let nextRow = rowIdx;
+      let nextCol = colIdx + 1;
+      if (nextCol > 3) {
+        nextRow = rowIdx + 1;
+        nextCol = 0;
+      }
+      if (inputRefs.current[nextRow]?.[nextCol]) {
+        inputRefs.current[nextRow][nextCol]?.focus();
+      }
+    }
+  };
 
   return (
     <div className="bg-white p-8 shadow-xl max-w-4xl mx-auto my-10 border border-gray-200">
@@ -68,14 +107,6 @@ export default function Invoice() {
     />
   </div>
 
-  <div>
-    <label className="block mt-2 font-semibold">Address</label>
-    <input
-      value={address}
-      onChange={(e) => setAddress(e.target.value)}
-      className="w-full border px-2 py-1 rounded"
-    />
-  </div>
 
   <div>
     <label className="block mt-2 font-semibold">Date</label>
@@ -109,40 +140,56 @@ export default function Invoice() {
                   value={item.qty}
                   onChange={(e) => handleItemChange(idx, "qty", e.target.value)}
                   className="w-16 border rounded px-1"
+                  min=""
+                  ref={el => {
+                    inputRefs.current[idx] = inputRefs.current[idx] || [];
+                    inputRefs.current[idx][0] = el;
+                  }}
+                  onKeyDown={e => handleKeyDown(idx, 0, e)}
                 />
               </td>
               <td className="p-2 border">
                 <input
                   type="text"
                   value={item.itemNo}
-                  onChange={(e) =>
-                    handleItemChange(idx, "itemNo", e.target.value)
-                  }
+                  onChange={(e) => handleItemChange(idx, "itemNo", e.target.value)}
                   className="w-20 border rounded px-1"
+                  ref={el => {
+                    inputRefs.current[idx] = inputRefs.current[idx] || [];
+                    inputRefs.current[idx][1] = el;
+                  }}
+                  onKeyDown={e => handleKeyDown(idx, 1, e)}
                 />
               </td>
               <td className="p-2 border">
                 <input
                   type="text"
                   value={item.description}
-                  onChange={(e) =>
-                    handleItemChange(idx, "description", e.target.value)
-                  }
+                  onChange={(e) => handleItemChange(idx, "description", e.target.value)}
                   className="w-full border rounded px-1"
+                  ref={el => {
+                    inputRefs.current[idx] = inputRefs.current[idx] || [];
+                    inputRefs.current[idx][2] = el;
+                  }}
+                  onKeyDown={e => handleKeyDown(idx, 2, e)}
                 />
               </td>
               <td className="p-2 border">
                 <input
                   type="number"
                   value={item.price}
-                  onChange={(e) =>
-                    handleItemChange(idx, "price", e.target.value)
-                  }
+                  onChange={(e) => handleItemChange(idx, "price", e.target.value)}
                   className="w-20 border rounded px-1"
+                  min=""
+                  ref={el => {
+                    inputRefs.current[idx] = inputRefs.current[idx] || [];
+                    inputRefs.current[idx][3] = el;
+                  }}
+                  onKeyDown={e => handleKeyDown(idx, 3, e)}
                 />
               </td>
               <td className="p-2 border font-semibold text-right pr-4 flex items-center justify-between">
-                <span>${(item.qty * item.price).toFixed(2)}</span>
+                <span>${((item.qty === "" ? 0 : Number(item.qty)) * (item.price === "" ? 0 : Number(item.price))).toFixed(2)}</span>
                 <button onClick={() => handleRemoveItem(idx)} title="Remove item" className="ml-2 text-red-600 hover:text-red-800 text-lg font-bold" style={{ lineHeight: 1 }}>
                   &times;
                 </button>
