@@ -5,7 +5,6 @@ import Footer from "@/components/footer";
 import { useState, useEffect } from "react";
 import medicinesData from "@/data/medicines.json";
 
-
 // Dummy data for demonstration
 const dummySales = [
   { name: "Napa", sold: 40 },
@@ -41,9 +40,10 @@ export default function PharmacistHome() {
       <SubHeader />
       <main className="flex-grow p-6 md:p-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-            {/* Revenue Card with Tabs */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg border-t-4 border-green-600 flex flex-col items-center justify-between">
+          {/* 2x2 Grid Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-10">
+            {/* Revenue Card */}
+            <div className="bg-gradient-to-br from-green-100 via-green-50 to-green-100 rounded-3xl p-8 shadow-2xl border-t-4 border-green-600 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col items-center justify-between h-full transform hover:scale-105">
               <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                 <span className="inline-block w-3 h-3 bg-green-600 rounded-full"></span>
                 Revenue Overview
@@ -71,23 +71,27 @@ export default function PharmacistHome() {
                 {selectedRevenue === 'month' && 'Total revenue generated this month'}
               </div>
             </div>
-            {/* Top Selling Medicines (moved up for balance on desktop) */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg border-l-4 border-green-600 flex flex-col justify-between">
+
+            {/* Top Selling Medicines */}
+            <div className="bg-gradient-to-br from-green-100 via-green-50 to-green-100 rounded-3xl p-8 shadow-2xl border-l-4 border-green-600 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col justify-between h-full transform hover:scale-105">
               <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                 <span className="inline-block w-3 h-3 bg-green-600 rounded-full"></span>
                 Top Selling Medicines
               </h2>
               <ol className="space-y-3">
                 {topSelling.map((med, idx) => (
-                  <li key={idx} className="flex items-center justify-between bg-green-50 rounded-xl px-4 py-2 shadow-sm">
+                  <li key={idx} className="flex items-center justify-between bg-green-50 rounded-xl px-4 py-2 shadow-sm hover:bg-green-100 transition-colors duration-200">
                     <span className="font-semibold text-lg text-green-900">{idx + 1}. {med.name}</span>
                     <span className="text-green-700 font-bold">{med.sold} sold</span>
                   </li>
                 ))}
               </ol>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Stock Alert */}
-            <div className="bg-white rounded-3xl p-8 text-center shadow-lg border-t-4 border-yellow-500 flex flex-col justify-between">
+            <div className="bg-gradient-to-br from-yellow-100 via-yellow-50 to-yellow-100 rounded-3xl p-8 shadow-2xl border-t-4 border-yellow-500 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col justify-between h-full transform hover:scale-105">
               <h2 className="text-lg font-semibold text-yellow-700 mb-2">Stock Alert</h2>
               <ul className="text-lg text-red-600 font-semibold space-y-1">
                 {stockAlert.length === 0 ? <li>All stocks healthy</li> : stockAlert.map((med, i) => (
@@ -95,18 +99,16 @@ export default function PharmacistHome() {
                 ))}
               </ul>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Medicine Expiry Alert */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg border-l-4 border-red-500">
+            <div className="bg-gradient-to-br from-red-100 via-red-50 to-red-100 rounded-3xl p-8 shadow-2xl border-l-4 border-red-500 hover:shadow-xl transition-all duration-300 ease-in-out h-full transform hover:scale-105">
               <h2 className="text-2xl font-bold text-red-600 mb-4 flex items-center gap-2">
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
                 Expiry Alert
               </h2>
               <ul className="space-y-3">
                 {expiryAlert.length === 0 ? <li className="text-green-700">No expiry soon</li> : expiryAlert.map((med, idx) => (
-                  <li key={idx} className="flex items-center justify-between bg-red-50 rounded-xl px-4 py-2 shadow-sm">
+                  <li key={idx} className="flex items-center justify-between bg-red-50 rounded-xl px-4 py-2 shadow-sm hover:bg-red-100 transition-colors duration-200">
                     <span className="font-semibold text-lg text-red-900">{med.name}</span>
                     <span className="text-red-700 font-bold">{med.daysLeft} days left</span>
                   </li>

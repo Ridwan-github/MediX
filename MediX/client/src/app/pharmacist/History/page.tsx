@@ -12,7 +12,8 @@ type TableRow = {
   patientId: string;
   name: string;
   phone: string;
-  sellType: 'normal' | 'quick'; // 'normal' for hospital patients, 'quick' for general public
+  totalValue: number; // Total value of medicines bought
+  // sellType is now computed dynamically
 };
 
 
@@ -27,15 +28,15 @@ export default function HistoryPage() {
       patientId: 'P-001',
       name: 'John Doe',
       phone: '555-1234',
-      sellType: 'normal',
+      totalValue: 1200,
     },
     {
       date: '2025-08-16',
-      prescriptionId: 'RX-1002',
-      patientId: 'P-002',
+      prescriptionId: '', // Quick sell: both prescriptionId and patientId are null/empty
+      patientId: '',
       name: 'Jane Smith',
       phone: '555-5678',
-      sellType: 'quick',
+      totalValue: 350,
     },
     {
       date: '2025-08-17',
@@ -43,7 +44,7 @@ export default function HistoryPage() {
       patientId: 'P-003',
       name: 'Alice Johnson',
       phone: '555-8765',
-      sellType: 'normal',
+      totalValue: 800,
     },
   ]);
 
@@ -51,6 +52,7 @@ export default function HistoryPage() {
 
   // Filtered and searched data
   const filteredData = tableData.filter(row => {
+    const sellType = (!row.patientId || !row.prescriptionId) ? 'quick' : 'normal';
     const matchesSearch =
       search === '' ||
       row.prescriptionId.toLowerCase().includes(search.toLowerCase()) ||
@@ -73,9 +75,9 @@ export default function HistoryPage() {
     }
     let matchesSellType = true;
     if (sellTypeFilter === 'normal') {
-      matchesSellType = row.sellType === 'normal';
+      matchesSellType = sellType === 'normal';
     } else if (sellTypeFilter === 'quick') {
-      matchesSellType = row.sellType === 'quick';
+      matchesSellType = sellType === 'quick';
     }
     return matchesSearch && matchesFilter && matchesSellType;
   });
@@ -131,6 +133,7 @@ export default function HistoryPage() {
                   <th className="p-3 border border-white">Patient Name</th>
                   <th className="p-3 border border-white">Patient Phone</th>
                   <th className="p-3 border border-white">Sell Type</th>
+                  <th className="p-3 border border-white">Total Bill (Tk)</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,16 +142,20 @@ export default function HistoryPage() {
                     <td colSpan={6} className="text-center p-6 text-gray-500">No records found.</td>
                   </tr>
                 ) : (
-                  filteredData.map((row, idx) => (
-                    <tr key={idx} className="text-center hover:bg-green-50 transition">
-                      <td className="p-2 border">{row.date}</td>
-                      <td className="p-2 border">{row.prescriptionId}</td>
-                      <td className="p-2 border">{row.patientId}</td>
-                      <td className="p-2 border">{row.name}</td>
-                      <td className="p-2 border">{row.phone}</td>
-                      <td className="p-2 border">{row.sellType === 'normal' ? 'Normal Sell' : 'Quick Sell'}</td>
-                    </tr>
-                  ))
+                  filteredData.map((row, idx) => {
+                    const sellType = (!row.patientId || !row.prescriptionId) ? 'quick' : 'normal';
+                    return (
+                      <tr key={idx} className="text-center hover:bg-green-50 transition">
+                        <td className="p-2 border">{row.date}</td>
+                        <td className="p-2 border">{row.prescriptionId}</td>
+                        <td className="p-2 border">{row.patientId}</td>
+                        <td className="p-2 border">{row.name}</td>
+                        <td className="p-2 border">{row.phone}</td>
+                        <td className="p-2 border">{sellType === 'normal' ? 'Normal Sell' : 'Quick Sell'}</td>
+                        <td className="p-2 border">{row.totalValue.toLocaleString()} Tk</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

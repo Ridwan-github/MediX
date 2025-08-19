@@ -2,11 +2,23 @@
 import Header from "@/components/pharmacist/header";
 import SubHeader from "@/components/pharmacist/subHeader";
 import Footer from "@/components/footer";
+
 import React, { useState, useEffect } from 'react';
 import medicinesData from '@/data/medicines.json';
 
+type Medicine = {
+  id: number;
+  company: string;
+  name: string;
+  genericName: string;
+  quantity: number;
+  totalCostPrice?: number;
+  sellingPricePerUnit?: number;
+  expiryDate?: string;
+};
+
 export default function MedicinesPage() {
-  const [medicines, setMedicines] = useState(medicinesData);
+  const [medicines, setMedicines] = useState<Medicine[]>(medicinesData as Medicine[]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [filterLowStock, setFilterLowStock] = useState(false);
@@ -14,7 +26,10 @@ export default function MedicinesPage() {
     company: '',
     name: '',
     genericName: '',
-    quantity: ''
+    quantity: '',
+    totalCostPrice: '',
+    sellingPricePerUnit: '',
+    expiryDate: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -34,7 +49,7 @@ export default function MedicinesPage() {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.company || !form.name || !form.genericName || !form.quantity) return;
+    if (!form.company || !form.name || !form.genericName || !form.quantity || !form.totalCostPrice || !form.sellingPricePerUnit || !form.expiryDate) return;
     setMedicines([
       ...medicines,
       {
@@ -42,10 +57,13 @@ export default function MedicinesPage() {
         company: form.company,
         name: form.name,
         genericName: form.genericName,
-        quantity: Number(form.quantity)
+        quantity: Number(form.quantity),
+        totalCostPrice: Number(form.totalCostPrice),
+        sellingPricePerUnit: Number(form.sellingPricePerUnit),
+        expiryDate: form.expiryDate
       }
     ]);
-    setForm({ company: '', name: '', genericName: '', quantity: '' });
+    setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' });
     setShowAddForm(false);
     showToast('Medicine added successfully!', 'success');
   };
@@ -57,7 +75,10 @@ export default function MedicinesPage() {
         company: med.company,
         name: med.name,
         genericName: med.genericName,
-        quantity: med.quantity.toString()
+        quantity: med.quantity?.toString() || '',
+        totalCostPrice: med.totalCostPrice?.toString() || '',
+        sellingPricePerUnit: med.sellingPricePerUnit?.toString() || '',
+        expiryDate: med.expiryDate || ''
       });
       setEditId(id);
       setShowAddForm(true);
@@ -69,11 +90,18 @@ export default function MedicinesPage() {
     setMedicines(
       medicines.map((m) =>
         m.id === editId
-          ? { ...m, ...form, quantity: Number(form.quantity) }
+          ? {
+              ...m,
+              ...form,
+              quantity: Number(form.quantity),
+              totalCostPrice: Number(form.totalCostPrice),
+              sellingPricePerUnit: Number(form.sellingPricePerUnit),
+              expiryDate: form.expiryDate
+            }
           : m
       )
     );
-    setForm({ company: '', name: '', genericName: '', quantity: '' });
+    setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' });
     setEditId(null);
     setShowAddForm(false);
     showToast('Medicine updated successfully!', 'success');
@@ -118,7 +146,7 @@ export default function MedicinesPage() {
         <div className="flex gap-4 mb-6">
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded font-bold hover:bg-purple-800"
-            onClick={() => { setShowAddForm(true); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '' }); }}
+            onClick={() => { setShowAddForm(true); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' }); }}
           >
             ➕ Add Medicine
           </button>
@@ -142,32 +170,38 @@ export default function MedicinesPage() {
         </div>
 
         {/* Medicine List Table */}
-        <div className="w-full max-w-4xl mb-10">
-          <table className="min-w-full bg-white shadow rounded-lg overflow-hidden">
-            <thead className="bg-green-700 text-white">
+        <div className="w-full max-w-7xl mb-10">
+          <table className="min-w-full bg-white shadow rounded-lg overflow-x-auto">
+            <thead className="bg-green-700 text-white text-sm">
               <tr>
                 <th className="py-3 px-4">Company</th>
                 <th className="py-3 px-4">Medicine Name</th>
                 <th className="py-3 px-4">Generic Name</th>
                 <th className="py-3 px-4">Quantity</th>
+                <th className="py-3 px-4">Total Cost Price</th>
+                <th className="py-3 px-4">Selling Price/Unit</th>
+                <th className="py-3 px-4">Expiry Date</th>
                 <th className="py-3 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
               {medsToDisplay.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-6 text-gray-500">No medicines found.</td>
+                  <td colSpan={8} className="text-center py-6 text-gray-500">No medicines found.</td>
                 </tr>
               ) : (
                 medsToDisplay.map((med) => (
                   <tr key={med.id} className={med.quantity < 30 ? 'bg-red-100' : ''}>
-                    <td className="py-2 px-4">{med.company}</td>
-                    <td className="py-2 px-4">{med.name}</td>
-                    <td className="py-2 px-4">{med.genericName}</td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-6 whitespace-nowrap">{med.company}</td>
+                    <td className="py-2 px-6 whitespace-nowrap">{med.name}</td>
+                    <td className="py-2 px-6 whitespace-nowrap">{med.genericName}</td>
+                    <td className="py-2 px-6 whitespace-nowrap">
                       {med.quantity} <span className={`px-2 py-1 rounded-full ${getStockTag(med.quantity) === 'High' ? 'bg-green-500' : getStockTag(med.quantity) === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'} text-white`}>{getStockTag(med.quantity)}</span>
                     </td>
-                    <td className="py-2 px-4 flex gap-2">
+                    <td className="py-2 px-6 whitespace-nowrap">{med.totalCostPrice !== undefined ? med.totalCostPrice : '-'}</td>
+                    <td className="py-2 px-6 whitespace-nowrap">{med.sellingPricePerUnit !== undefined ? med.sellingPricePerUnit : '-'}</td>
+                    <td className="py-2 px-6 whitespace-nowrap">{med.expiryDate || '-'}</td>
+                    <td className="py-2 px-6 flex gap-2 whitespace-nowrap">
                       <button
                         className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded"
                         onClick={() => handleEdit(med.id)}
@@ -197,7 +231,7 @@ export default function MedicinesPage() {
         {showAddForm && (
           <form
             onSubmit={editId ? handleUpdate : handleAdd}
-            className="flex flex-col gap-6 w-full max-w-xl bg-white shadow-lg p-8 rounded-xl mb-10"
+            className="flex flex-col gap-6 w-full max-w-2xl bg-white shadow-lg p-8 rounded-xl mb-10"
           >
             <h3 className="text-2xl font-bold mb-2">{editId ? 'Edit Medicine' : 'Add Medicine'}</h3>
             <div className="flex flex-col">
@@ -209,7 +243,7 @@ export default function MedicinesPage() {
                 placeholder="e.g. Square Pharmaceuticals"
                 value={form.company}
                 onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 required
               />
             </div>
@@ -222,7 +256,7 @@ export default function MedicinesPage() {
                 placeholder="e.g. Napa"
                 value={form.name}
                 onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 required
               />
             </div>
@@ -235,7 +269,7 @@ export default function MedicinesPage() {
                 placeholder="e.g. Paracetamol"
                 value={form.genericName}
                 onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 required
               />
             </div>
@@ -249,7 +283,47 @@ export default function MedicinesPage() {
                 placeholder="e.g. 100"
                 value={form.quantity}
                 onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="totalCostPrice" className="text-gray-700 font-semibold mb-1">Total Cost Price</label>
+              <input
+                id="totalCostPrice"
+                name="totalCostPrice"
+                type="number"
+                min="0"
+                placeholder="e.g. 500"
+                value={form.totalCostPrice}
+                onChange={handleInputChange}
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="sellingPricePerUnit" className="text-gray-700 font-semibold mb-1">Selling Price Per Unit</label>
+              <input
+                id="sellingPricePerUnit"
+                name="sellingPricePerUnit"
+                type="number"
+                min="0"
+                placeholder="e.g. 10"
+                value={form.sellingPricePerUnit}
+                onChange={handleInputChange}
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="expiryDate" className="text-gray-700 font-semibold mb-1">Expiry Date</label>
+              <input
+                id="expiryDate"
+                name="expiryDate"
+                type="date"
+                value={form.expiryDate}
+                onChange={handleInputChange}
+                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 required
               />
             </div>
@@ -257,7 +331,7 @@ export default function MedicinesPage() {
               <button
                 type="button"
                 className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                onClick={() => { setShowAddForm(false); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '' }); }}
+                onClick={() => { setShowAddForm(false); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' }); }}
               >Cancel</button>
               <button
                 type="submit"

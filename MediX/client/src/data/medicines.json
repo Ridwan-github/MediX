@@ -4,20 +4,29 @@
     "company": "Square Pharmaceuticals",
     "name": "Napa",
     "genericName": "Paracetamol",
-    "quantity": 120
+    "quantity": 120,
+    "totalCostPrice": 1000,
+    "sellingPricePerUnit": 12,
+    "expiryDate": "2026-12-31"
   },
   {
     "id": 2,
     "company": "Beximco Pharma",
     "name": "Seclo",
     "genericName": "Omeprazole",
-    "quantity": 15
+    "quantity": 15,
+    "totalCostPrice": 300,
+    "sellingPricePerUnit": 25,
+    "expiryDate": "2025-10-15"
   },
   {
     "id": 3,
     "company": "ACI Limited",
     "name": "Ace",
     "genericName": "Paracetamol",
-    "quantity": 8
+    "quantity": 8,
+    "totalCostPrice": 80,
+    "sellingPricePerUnit": 15,
+    "expiryDate": "2025-09-01"
   }
 ]

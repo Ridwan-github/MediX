@@ -4,9 +4,9 @@ import { useState, useRef, useEffect } from "react";
 
 type Item = {
   qty: string;
-  itemNo: string;
-  description: string;
+  name: string;
   price: string;
+  discount: string;
 };
 
 export default function Invoice() {
@@ -17,32 +17,33 @@ export default function Invoice() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [address, setAddress] = useState("");
-  const [date, setDate] = useState("");
+  
+  // Set the default date to the current date
+  const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  
   const [items, setItems] = useState<Item[]>([
-    { qty: "1", itemNo: "", description: "", price: "0" },
+    { qty: "1", name: "", price: "0", discount: "0" },
   ]);
 
   // Ensure refs array matches items
   useEffect(() => {
     inputRefs.current = items.map((item: Item, rowIdx: number) =>
-      [0, 1, 2, 3].map((colIdx: number) => inputRefs.current[rowIdx]?.[colIdx] || null)
+      [0, 1, 2, 3, 4].map((colIdx: number) => inputRefs.current[rowIdx]?.[colIdx] || null)
     );
   }, [items]);
 
   const handleItemChange = (index: number, field: string, value: any) => {
     const updated = [...items];
-    // Allow empty string for qty and price, otherwise keep as string
     updated[index] = {
       ...updated[index],
-      [field]: (field === "price" || field === "qty") ? value.replace(/^0+(?!$)/, "") : value,
+      [field]: (field === "price" || field === "qty" || field === "discount") ? value.replace(/^0+(?!$)/, "") : value,
     };
     setItems(updated);
   };
 
   const addItem = () => {
-    setItems([...items, { qty: "1", itemNo: "", description: "", price: "0" }]);
+    setItems([...items, { qty: "1", name: "", price: "0", discount: "0" }]);
   };
-
 
   const handleRemoveItem = (index: number) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
@@ -51,19 +52,19 @@ export default function Invoice() {
   const subtotal = items.reduce((sum, item) => {
     const qty = item.qty === "" ? 0 : Number(item.qty);
     const price = item.price === "" ? 0 : Number(item.price);
-    return sum + qty * price;
+    const discount = item.discount === "" ? 0 : Number(item.discount);
+    const itemTotal = qty * price - discount * qty;
+    return sum + itemTotal;
   }, 0);
   const tax = 10;
   const total = subtotal + tax;
 
-  // Handle Enter key navigation
   const handleKeyDown = (rowIdx: number, colIdx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // Move to next cell in row, or next row's first cell
       let nextRow = rowIdx;
       let nextCol = colIdx + 1;
-      if (nextCol > 3) {
+      if (nextCol > 4) {
         nextRow = rowIdx + 1;
         nextCol = 0;
       }
@@ -87,47 +88,44 @@ export default function Invoice() {
         </div>
       </div>
 
-<div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-800">
-  <div>
-    <p className="font-bold text-lg">Billed to</p>
-    <label className="block mt-2 font-semibold">Customer Name</label>
-    <input
-      value={customerName}
-      onChange={(e) => setCustomerName(e.target.value)}
-      className="w-full border px-2 py-1 rounded"
-    />
-  </div>
+      <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-800">
+        <div>
+          <p className="font-bold text-lg">Billed to</p>
+          <label className="block mt-2 font-semibold">Customer Name</label>
+          <input
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
 
-  <div>
-    <label className="block mt-9 font-semibold">Phone Number</label>
-    <input
-      value={phoneNumber}
-      onChange={(e) => setPhoneNumber(e.target.value)}
-      className="w-full border px-2 py-1 rounded"
-    />
-  </div>
+        <div>
+          <label className="block mt-9 font-semibold">Phone Number</label>
+          <input
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
 
-
-  <div>
-    <label className="block mt-2 font-semibold">Date</label>
-    <input
-      type="date"
-      value={date}
-      onChange={(e) => setDate(e.target.value)}
-      className="w-full border px-2 py-1 rounded"
-    />
-  </div>
-</div>
-
-
+        <div>
+          <label className="block mt-2 font-semibold">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+      </div>
 
       <table className="w-full mt-8 text-sm border">
         <thead className="bg-green-900 text-white">
           <tr>
             <th className="p-2 border">Qty.</th>
-            <th className="p-2 border">Item No.</th>
-            <th className="p-2 border">Description</th>
+            <th className="p-2 border">Name</th>
             <th className="p-2 border">Price</th>
+            <th className="p-2 border">Discount</th>
             <th className="p-2 border">Total</th>
           </tr>
         </thead>
@@ -151,27 +149,14 @@ export default function Invoice() {
               <td className="p-2 border">
                 <input
                   type="text"
-                  value={item.itemNo}
-                  onChange={(e) => handleItemChange(idx, "itemNo", e.target.value)}
-                  className="w-20 border rounded px-1"
+                  value={item.name}
+                  onChange={(e) => handleItemChange(idx, "name", e.target.value)}
+                  className="w-full border rounded px-1"
                   ref={el => {
                     inputRefs.current[idx] = inputRefs.current[idx] || [];
                     inputRefs.current[idx][1] = el;
                   }}
                   onKeyDown={e => handleKeyDown(idx, 1, e)}
-                />
-              </td>
-              <td className="p-2 border">
-                <input
-                  type="text"
-                  value={item.description}
-                  onChange={(e) => handleItemChange(idx, "description", e.target.value)}
-                  className="w-full border rounded px-1"
-                  ref={el => {
-                    inputRefs.current[idx] = inputRefs.current[idx] || [];
-                    inputRefs.current[idx][2] = el;
-                  }}
-                  onKeyDown={e => handleKeyDown(idx, 2, e)}
                 />
               </td>
               <td className="p-2 border">
@@ -183,13 +168,27 @@ export default function Invoice() {
                   min=""
                   ref={el => {
                     inputRefs.current[idx] = inputRefs.current[idx] || [];
+                    inputRefs.current[idx][2] = el;
+                  }}
+                  onKeyDown={e => handleKeyDown(idx, 2, e)}
+                />
+              </td>
+              <td className="p-2 border">
+                <input
+                  type="number"
+                  value={item.discount}
+                  onChange={(e) => handleItemChange(idx, "discount", e.target.value)}
+                  className="w-20 border rounded px-1"
+                  min="0"
+                  ref={el => {
+                    inputRefs.current[idx] = inputRefs.current[idx] || [];
                     inputRefs.current[idx][3] = el;
                   }}
                   onKeyDown={e => handleKeyDown(idx, 3, e)}
                 />
               </td>
               <td className="p-2 border font-semibold text-right pr-4 flex items-center justify-between">
-                <span>${((item.qty === "" ? 0 : Number(item.qty)) * (item.price === "" ? 0 : Number(item.price))).toFixed(2)}</span>
+                <span>${((item.qty === "" ? 0 : Number(item.qty)) * (item.price === "" ? 0 : Number(item.price)) - (item.discount === "" ? 0 : Number(item.discount)) * Number(item.qty)).toFixed(2)}</span>
                 <button onClick={() => handleRemoveItem(idx)} title="Remove item" className="ml-2 text-red-600 hover:text-red-800 text-lg font-bold" style={{ lineHeight: 1 }}>
                   &times;
                 </button>
@@ -205,7 +204,6 @@ export default function Invoice() {
       >
         + Add another item
       </button>
-
 
       <div className="grid grid-cols-2 gap-4 mt-8">
         <div>
