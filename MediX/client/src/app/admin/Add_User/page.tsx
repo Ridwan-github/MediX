@@ -272,7 +272,8 @@ export default function AddUserPage() {
       address,
     },
     doctor: {
-      doctorId: 201, // You can dynamically generate this or use an auto-increment field.
+      // Dynamically generate doctorId as the next available integer
+      doctorId: Date.now(),
       yearsOfExperience: experience,
       availableDays: availableDays.join(","),
       availableTimes: `${startTime}-${endTime}`,
