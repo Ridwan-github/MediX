@@ -40,10 +40,10 @@ export default function PharmacistHome() {
       <SubHeader />
       <main className="flex-grow p-6 md:p-10">
         <div className="max-w-7xl mx-auto">
-          {/* 2x2 Grid Layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-10">
+          {/* 3-Box Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
             {/* Revenue Card */}
-            <div className="bg-gradient-to-br from-green-100 via-green-50 to-green-100 rounded-3xl p-8 shadow-2xl border-t-4 border-green-600 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col items-center justify-between h-full transform hover:scale-105">
+            <div className="bg-gradient-to-br from-green-100 via-green-50 to-green-100 rounded-3xl p-8 shadow-2xl border-t-4 border-green-600 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col items-center justify-between h-full min-h-[320px] transform hover:scale-105">
               <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                 <span className="inline-block w-3 h-3 bg-green-600 rounded-full"></span>
                 Revenue Overview
@@ -72,36 +72,41 @@ export default function PharmacistHome() {
               </div>
             </div>
 
-            {/* Top Selling Medicines */}
-            <div className="bg-gradient-to-br from-green-100 via-green-50 to-green-100 rounded-3xl p-8 shadow-2xl border-l-4 border-green-600 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col justify-between h-full transform hover:scale-105">
-              <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
-                <span className="inline-block w-3 h-3 bg-green-600 rounded-full"></span>
-                Top Selling Medicines
-              </h2>
-              <ol className="space-y-3">
-                {topSelling.map((med, idx) => (
-                  <li key={idx} className="flex items-center justify-between bg-green-50 rounded-xl px-4 py-2 shadow-sm hover:bg-green-100 transition-colors duration-200">
-                    <span className="font-semibold text-lg text-green-900">{idx + 1}. {med.name}</span>
-                    <span className="text-green-700 font-bold">{med.sold} sold</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
-            {/* Stock Alert */}
-            <div className="bg-gradient-to-br from-yellow-100 via-yellow-50 to-yellow-100 rounded-3xl p-8 shadow-2xl border-t-4 border-yellow-500 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col justify-between h-full transform hover:scale-105">
-              <h2 className="text-lg font-semibold text-yellow-700 mb-2">Stock Alert</h2>
-              <ul className="text-lg text-red-600 font-semibold space-y-1">
-                {stockAlert.length === 0 ? <li>All stocks healthy</li> : stockAlert.map((med, i) => (
-                  <li key={i}>{med.name} <span className="text-xs text-gray-500">({med.quantity} left)</span></li>
-                ))}
-              </ul>
+            {/* Redesigned Stock Alert */}
+            <div className="bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 rounded-3xl p-8 shadow-2xl border-t-4 border-yellow-500 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full min-h-[320px] transform hover:scale-105">
+              <div className="flex items-center mb-4">
+                <span className="inline-flex items-center justify-center w-10 h-10 bg-yellow-400 text-white rounded-full shadow-lg mr-3">
+                  <svg xmlns='http://www.w3.org/2000/svg' className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </span>
+                <h2 className="text-2xl font-bold text-yellow-700">Stock Alert</h2>
+              </div>
+              <div className="flex-1 flex flex-col justify-center">
+                {stockAlert.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-green-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    <span className="text-green-700 text-lg font-semibold">All stocks healthy</span>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {stockAlert.map((med, i) => (
+                      <li key={i} className="flex items-center justify-between bg-yellow-100 rounded-xl px-4 py-3 shadow hover:bg-yellow-200 transition-colors duration-200">
+                        <div className="flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="font-semibold text-yellow-900 text-lg">{med.name}</span>
+                        </div>
+                        <span className="text-red-600 font-bold text-lg">{med.quantity} left</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="mt-6 text-sm text-yellow-700 text-center">
+                {stockAlert.length > 0 ? 'Please restock these medicines soon to avoid shortages.' : 'No action needed.'}
+              </div>
             </div>
 
             {/* Medicine Expiry Alert */}
-            <div className="bg-gradient-to-br from-red-100 via-red-50 to-red-100 rounded-3xl p-8 shadow-2xl border-l-4 border-red-500 hover:shadow-xl transition-all duration-300 ease-in-out h-full transform hover:scale-105">
+            <div className="bg-gradient-to-br from-red-100 via-red-50 to-red-100 rounded-3xl p-8 shadow-2xl border-t-4 border-red-500 hover:shadow-xl transition-all duration-300 ease-in-out h-full min-h-[320px] transform hover:scale-105">
               <h2 className="text-2xl font-bold text-red-600 mb-4 flex items-center gap-2">
                 <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
                 Expiry Alert

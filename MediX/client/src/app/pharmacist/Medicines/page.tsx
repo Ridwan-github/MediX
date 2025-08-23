@@ -227,120 +227,133 @@ export default function MedicinesPage() {
           </div>
         )}
 
-        {/* Add/Edit Form */}
+        {/* Add/Edit Form as Modal */}
         {showAddForm && (
-          <form
-            onSubmit={editId ? handleUpdate : handleAdd}
-            className="flex flex-col gap-6 w-full max-w-2xl bg-white shadow-lg p-8 rounded-xl mb-10"
-          >
-            <h3 className="text-2xl font-bold mb-2">{editId ? 'Edit Medicine' : 'Add Medicine'}</h3>
-            <div className="flex flex-col">
-              <label htmlFor="company" className="text-gray-700 font-semibold mb-1">Company</label>
-              <input
-                id="company"
-                name="company"
-                type="text"
-                placeholder="e.g. Square Pharmaceuticals"
-                value={form.company}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="name" className="text-gray-700 font-semibold mb-1">Medicine Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="e.g. Napa"
-                value={form.name}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="genericName" className="text-gray-700 font-semibold mb-1">Generic Name</label>
-              <input
-                id="genericName"
-                name="genericName"
-                type="text"
-                placeholder="e.g. Paracetamol"
-                value={form.genericName}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="quantity" className="text-gray-700 font-semibold mb-1">Quantity</label>
-              <input
-                id="quantity"
-                name="quantity"
-                type="number"
-                min="0"
-                placeholder="e.g. 100"
-                value={form.quantity}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="totalCostPrice" className="text-gray-700 font-semibold mb-1">Total Cost Price</label>
-              <input
-                id="totalCostPrice"
-                name="totalCostPrice"
-                type="number"
-                min="0"
-                placeholder="e.g. 500"
-                value={form.totalCostPrice}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="sellingPricePerUnit" className="text-gray-700 font-semibold mb-1">Selling Price Per Unit</label>
-              <input
-                id="sellingPricePerUnit"
-                name="sellingPricePerUnit"
-                type="number"
-                min="0"
-                placeholder="e.g. 10"
-                value={form.sellingPricePerUnit}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="expiryDate" className="text-gray-700 font-semibold mb-1">Expiry Date</label>
-              <input
-                id="expiryDate"
-                name="expiryDate"
-                type="date"
-                value={form.expiryDate}
-                onChange={handleInputChange}
-                className="border-2 border-purple-300 rounded px-6 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                required
-              />
-            </div>
-            <div className="flex gap-4 justify-end">
-              <button
-                type="button"
-                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                onClick={() => { setShowAddForm(false); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' }); }}
-              >Cancel</button>
-              <button
-                type="submit"
-                className="bg-purple-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-800 active:scale-95 transition transform"
-              >
-                {editId ? 'Update' : 'Add'}
-              </button>
-            </div>
-          </form>
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)'}}>
+            <form
+              onSubmit={editId ? handleUpdate : handleAdd}
+              className="flex flex-col gap-5 w-full max-w-md bg-white border border-gray-200 shadow-xl p-8 rounded-2xl overflow-hidden relative animate-fadeIn overflow-y-auto"
+              style={{ minWidth: '320px', maxHeight: '90vh' }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-2xl font-semibold text-gray-800">{editId ? 'Edit Medicine' : 'Add Medicine'}</h3>
+                <button
+                  type="button"
+                  className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+                  onClick={() => { setShowAddForm(false); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' }); }}
+                  aria-label="Close"
+                >×</button>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label htmlFor="company" className="block text-gray-700 font-medium mb-1">Company</label>
+                  <input
+                    id="company"
+                    name="company"
+                    type="text"
+                    placeholder="e.g. Square Pharmaceuticals"
+                    value={form.company}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Medicine Name</label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="e.g. Napa"
+                    value={form.name}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="genericName" className="block text-gray-700 font-medium mb-1">Generic Name</label>
+                  <input
+                    id="genericName"
+                    name="genericName"
+                    type="text"
+                    placeholder="e.g. Paracetamol"
+                    value={form.genericName}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="quantity" className="block text-gray-700 font-medium mb-1">Quantity</label>
+                  <input
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 100"
+                    value={form.quantity}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="totalCostPrice" className="block text-gray-700 font-medium mb-1">Total Cost Price</label>
+                  <input
+                    id="totalCostPrice"
+                    name="totalCostPrice"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 500"
+                    value={form.totalCostPrice}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="sellingPricePerUnit" className="block text-gray-700 font-medium mb-1">Selling Price Per Unit</label>
+                  <input
+                    id="sellingPricePerUnit"
+                    name="sellingPricePerUnit"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 10"
+                    value={form.sellingPricePerUnit}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="expiryDate" className="block text-gray-700 font-medium mb-1">Expiry Date</label>
+                  <input
+                    id="expiryDate"
+                    name="expiryDate"
+                    type="date"
+                    value={form.expiryDate}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all bg-gray-50"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-4">
+                <button
+                  type="button"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-300 transition"
+                  onClick={() => { setShowAddForm(false); setEditId(null); setForm({ company: '', name: '', genericName: '', quantity: '', totalCostPrice: '', sellingPricePerUnit: '', expiryDate: '' }); }}
+                >Cancel</button>
+                <button
+                  type="submit"
+                  className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-purple-700 active:scale-95 transition"
+                >
+                  {editId ? 'Update' : 'Add'}
+                </button>
+              </div>
+            </form>
+          </div>
         )}
       </main>
       <Footer />
