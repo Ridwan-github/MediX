@@ -1,53 +1,70 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/admin/header";
 import Footer from "@/components/footer";
+import { FaUserCircle, FaUserMd, FaUserNurse, FaUserTie } from "react-icons/fa";
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  gender: string;
-  age: string;
-  joinDate: string;
+  joiningYear: string;
 }
 
 export default function RecordsPage() {
   const router = useRouter();
 
-  // Sample list of users
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Doctor",
-      gender: "Male",
-      age: "35",
-      joinDate: "2020-01-15",
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Pharmacist",
-      gender: "Female",
-      age: "30",
-      joinDate: "2019-03-10",
-    },
-    {
-      id: "3",
-      name: "David Johnson",
-      email: "david@example.com",
-      role: "Receptionist",
-      gender: "Male",
-      age: "25",
-      joinDate: "2021-07-20",
-    },
-    // More sample users...
-  ]);
+  // Real users fetched from backend
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/users");
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        // Map backend data to User interface if needed
+        const mapped = (data || []).map((u: any) => {
+          const idStr = u.id?.toString() ?? "";
+          let joiningYear = "";
+          if (idStr.length >= 2) {
+            const prefix = idStr.substring(0, 2);
+            if (/^\d{2}$/.test(prefix)) {
+              joiningYear = `20${prefix}`;
+            }
+          }
+          // Determine role from 3rd and 4th digits
+          let role = "";
+          if (idStr.length >= 4) {
+            const roleCode = idStr.substring(2, 4);
+            if (roleCode === "01") role = "Doctor";
+            else if (roleCode === "02") role = "Receptionist";
+            else if (roleCode === "03") role = "Pharmacist";
+          }
+          return {
+            id: idStr,
+            name: u.name ?? "",
+            email: u.email ?? "",
+            role,
+            joiningYear,
+          };
+        });
+        setUsers(mapped);
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const [filterRole, setFilterRole] = useState("All");
 
@@ -70,77 +87,111 @@ export default function RecordsPage() {
       : users.filter((user) => user.role === filterRole);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 flex flex-col">
       <Header />
-      <main className="flex-grow p-8">
-        <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-10">
-          {/* Filter Dropdown */}
-          <div className="mb-6 flex justify-end">
-            <label
-              htmlFor="role"
-              className="mr-4 text-sm text-gray-700 font-semibold"
-            >
-              Filter by Role
-            </label>
-            <select
-              id="role"
-              value={filterRole}
-              onChange={handleFilterChange}
-              className="p-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="All">All</option>
-              <option value="Doctor">Doctor</option>
-              <option value="Pharmacist">Pharmacist</option>
-              <option value="Receptionist">Receptionist</option>
-            </select>
+      <main className="flex-grow px-2 sm:px-8 py-8">
+        <div className="max-w-5xl mx-auto bg-white/90 shadow-2xl rounded-3xl p-6 sm:p-10 border border-gray-200">
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-green-800 tracking-tight flex items-center gap-2">
+              <FaUserCircle className="text-green-500 text-3xl" /> User Records
+            </h1>
+            <div className="flex items-center gap-2">
+              <label htmlFor="role" className="text-sm text-gray-700 font-semibold">
+                Filter by Role
+              </label>
+              <select
+                id="role"
+                value={filterRole}
+                onChange={handleFilterChange}
+                className="p-2 rounded-xl border border-gray-300 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+              >
+                <option value="All">All</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Receptionist">Receptionist</option>
+              </select>
+            </div>
           </div>
 
-          {/* User Records Table */}
-          <table className="w-full table-auto bg-white border-collapse shadow-md rounded-xl">
-            <thead>
-              <tr className="bg-green-100 text-green-900">
-                <th className="p-4 text-sm font-semibold">Name</th>
-                <th className="p-4 text-sm font-semibold">Email</th>
-                <th className="p-4 text-sm font-semibold">Role</th>
-                <th className="p-4 text-sm font-semibold">Gender</th>
-                <th className="p-4 text-sm font-semibold">Age</th>
-                <th className="p-4 text-sm font-semibold">Join Date</th>
-                <th className="p-4 text-sm font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-gray-300 text-black"
-                >
-                  <td className="p-4 text-sm">{user.name}</td>
-                  <td className="p-4 text-sm">{user.email}</td>
-                  <td className="p-4 text-sm">{user.role}</td>
-                  <td className="p-4 text-sm">{user.gender}</td>
-                  <td className="p-4 text-sm">{user.age}</td>
-                  <td className="p-4 text-sm">{user.joinDate}</td>
-                  <td className="p-4 flex gap-4">
-                    <button
-                      onClick={() => handleEdit(user.id)}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id)}
-                      className="text-sm text-red-600 hover:text-red-800"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Loading/Error State */}
+          {loading ? (
+            <div className="text-center py-16 text-lg text-gray-500 animate-pulse">Loading users...</div>
+          ) : error ? (
+            <div className="text-center py-16 text-lg text-red-500">{error}</div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-lg">
+              <table className="min-w-full bg-white rounded-2xl">
+                <thead>
+                  <tr className="bg-gradient-to-r from-green-100 to-blue-100 text-green-900">
+                    <th className="p-4 text-sm font-semibold text-left">#</th>
+                    <th className="p-4 text-sm font-semibold text-left">Name</th>
+                    <th className="p-4 text-sm font-semibold text-left">Email</th>
+                    <th className="p-4 text-sm font-semibold text-left">Role</th>
+                    <th className="p-4 text-sm font-semibold text-left">Joining Year</th>
+                    <th className="p-4 text-sm font-semibold text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center py-10 text-gray-400 text-lg">No users found.</td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((user, idx) => (
+                      <tr
+                        key={user.id}
+                        className="border-b border-gray-100 hover:bg-blue-50 transition-colors group"
+                      >
+                        <td className="p-4 text-sm text-gray-500 font-mono">{idx + 1}</td>
+                        <td className="p-4 text-sm flex items-center gap-3">
+                          <span className="inline-block">
+                            {user.role === "Doctor" ? (
+                              <FaUserMd className="text-green-600 text-xl" />
+                            ) : user.role === "Receptionist" ? (
+                              <FaUserTie className="text-blue-600 text-xl" />
+                            ) : user.role === "Pharmacist" ? (
+                              <FaUserNurse className="text-purple-600 text-xl" />
+                            ) : (
+                              <FaUserCircle className="text-gray-400 text-xl" />
+                            )}
+                          </span>
+                          <span>{user.name}</span>
+                        </td>
+                        <td className="p-4 text-sm text-blue-900">{user.email}</td>
+                        <td className="p-4 text-sm">
+                          <span className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold
+                            ${user.role === "Doctor" ? "bg-green-100 text-green-800" :
+                              user.role === "Receptionist" ? "bg-blue-100 text-blue-800" :
+                              user.role === "Pharmacist" ? "bg-purple-100 text-purple-800" :
+                              "bg-gray-100 text-gray-600"}`}
+                          >
+                            {user.role || "-"}
+                          </span>
+                        </td>
+                        <td className="p-4 text-sm text-gray-700">{user.joiningYear || "-"}</td>
+                        <td className="p-4 flex gap-2">
+                          <button
+                            onClick={() => handleEdit(user.id)}
+                            className="text-xs px-3 py-1 rounded-lg bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            className="text-xs px-3 py-1 rounded-lg bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
-
       <Footer />
     </div>
   );
